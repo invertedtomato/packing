@@ -69,6 +69,7 @@ namespace InvertedTomato.Feather {
             if (null == target) {
                 return ((UInt16)0).GetBytes();
             }
+
             var byteArray = Encoding.UTF8.GetBytes(target);
             return ((UInt16)byteArray.Length).GetBytes().Concat(byteArray).ToArray();
         }

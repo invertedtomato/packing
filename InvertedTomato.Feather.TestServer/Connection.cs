@@ -6,10 +6,8 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Feather.TestServer {
     class Connection : ConnectionBase {
-        protected override void OnMessageReceived(byte[] payload) {
+        protected override void OnMessageReceived(byte opcode,byte[] payload) {
             using (var stream = new MemoryStream(payload)) {
-                var opcode = stream.ReadUInt8();
-
                 switch (opcode) {
                     case 0x00:
                         PrintMessage("GenerateAuthenticationKey", opcode, new Dictionary<string, string>() {

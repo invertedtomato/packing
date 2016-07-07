@@ -10,15 +10,16 @@ namespace InvertedTomato.Feather.Tests {
 		[Test]
 		public void Send() {
 			using (var connection = new FakeConnection()) {
-				Assert.AreEqual(/*0 length */"00-00", BitConverter.ToString(connection.TestSend(new byte[] { })));
-				Assert.AreEqual("08-00-01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestSend(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 })));
+				Assert.AreEqual("01-00-01", BitConverter.ToString(connection.TestSend(0x01, new byte[] { })));
+				Assert.AreEqual("09-00-02-01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestSend(0x02, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 })));
 			}
 		}
 
 		[Test]
 		public void Receive() {
 			using (var connection = new FakeConnection()) {
-				Assert.AreEqual("01", BitConverter.ToString(connection.TestReceive(new byte[] { 1, 0, 1 })));
+                Assert.AreEqual("01", BitConverter.ToString(connection.TestReceive(new byte[] { 1, 0, 1 }))); // Opcode, no params
+                Assert.AreEqual("01-02", BitConverter.ToString(connection.TestReceive(new byte[] { 2, 0, 1,2 }))); // Opcode with params
 				Assert.AreEqual("01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestReceive(new byte[] { 8, 0, 1, 2, 3, 4, 5, 6, 7, 8 })));
 			}
 		}

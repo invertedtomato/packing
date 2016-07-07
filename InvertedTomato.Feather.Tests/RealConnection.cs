@@ -6,15 +6,15 @@ namespace InvertedTomato.Feather.Tests {
         public Action OnPingReceived;
 
         public void SendPing() {
-            Send(new byte[] { 1 });
+            Send(0x01, new byte[] { 0x02 });
         }
 
-        protected override void OnMessageReceived(byte[] payload) {
+        protected override void OnMessageReceived(byte opcode, byte[] payload) {
+            if (opcode != 1) {
+                throw new ProtocolViolationException("Unexpected opcode.");
+            }
             if (payload.Length != 1) {
                 throw new ProtocolViolationException("Unexpected length");
-            }
-            if(payload[0] != 1) {
-                throw new ProtocolViolationException("Unexpected content.");
             }
 
             OnPingReceived.TryInvoke();

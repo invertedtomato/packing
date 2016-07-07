@@ -1,6 +1,7 @@
 ﻿using InvertedTomato.Testable.Sockets;
 using InvertedTomato.Testable.Streams;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -15,10 +16,8 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// The remote endpoint.
         /// </summary>
-        public EndPoint RemoteEndPoint
-        {
-            get
-            {
+        public EndPoint RemoteEndPoint {
+            get {
                 var clientSocket = ClientSocket;
                 if (null == clientSocket) {
                     return null;
@@ -135,48 +134,80 @@ namespace InvertedTomato.Feather {
             // Seed receiving
             ReceiveLengthInit();
         }
-
+        
         /// <summary>
-        /// Send a binary payload to the remote endpoint.
-        /// </summary>
-        /// <param name="components"></param>      
-        protected void Send(params byte[][] components) {
-            if (null == components) {
-                throw new ArgumentNullException("components");
+        /// Send single message to remote endpoint.
+        /// </summary>    
+        protected void Send(byte opcode, params byte[][] parameters) { // TODO: figure if this code really must be duplicated with the following method
+            // Calculate payload length
+            var payloadLength = 1; // Because it's prefixed by the opcode
+            foreach (var parameter in parameters) {
+                payloadLength += parameter.Length;
             }
 
-            using (var stream = new MemoryStream()) {
-                // Merge all components into one payload  // TODO: Make more efficient by using Buffer.BlockCopy instead?
-                foreach (var component in components) {
-                    stream.Write(component);
-                }
-
-                // Send payload
-                Send(stream.ToArray(), (Action)null);
+            // Check length isn't too long
+            if (payloadLength > ushort.MaxValue) {
+                throw new ArgumentException("Payload too long for message. Total size of parameters must be less than" + (ushort.MaxValue - 1) + " bytes. " + (payloadLength - 1) + " bytes given.", "parameters");
             }
+
+            // Convert length to bytes
+            var payloadLengthBytes = BitConverter.GetBytes(payloadLength);
+
+            // Merge everthing to be sent into a buffer
+            var buffer = new byte[2 + payloadLength]; // Leave room for the length prefix
+            Buffer.BlockCopy(BitConverter.GetBytes(payloadLength), 0, buffer, 0, 2); // Length
+            buffer[2] = opcode; // Opcode
+            var pos = 3;
+            foreach (var parameter in parameters) {
+                Buffer.BlockCopy(parameter, 0, buffer, pos, parameter.Length); // Parameters
+                pos += parameter.Length;
+            }
+
+            // Send
+            RawSend(buffer, null);
         }
 
         /// <summary>
-        /// Send a binary payload to the remote endpoint.
-        /// </summary>
-        /// <param name="payload"></param>
-        protected void Send(byte[] payload, Action done) {
-            if (payload.Length > ushort.MaxValue) {
-                throw new ArgumentException("Payload too long to write. Payload is " + payload.Length + " bytes. Must be between " + ushort.MinValue + " and " + ushort.MaxValue + " bytes.", "count");
+        /// Send single message to remote endpoint and execute a callback when done.
+        /// </summary>   
+        protected void Send(Action done, byte opcode, params byte[][] parameters) {
+            // Calculate payload length
+            var payloadLength = 1; // Because it's prefixed by the opcode
+            foreach (var parameter in parameters) {
+                payloadLength += parameter.Length;
             }
 
-            byte[] buffer;
-            using (var stream = new MemoryStream()) {
-
-                stream.Write((ushort)payload.Length);
-                stream.Write(payload);
-                buffer = stream.ToArray();
+            // Check length isn't too long
+            if (payloadLength > ushort.MaxValue) { 
+                throw new ArgumentException("Payload too long for message. Total size of parameters must be less than" + (ushort.MaxValue - 1) + " bytes. " + (payloadLength-1) + " bytes given.", "parameters");
             }
+
+            // Convert length to bytes
+            var payloadLengthBytes = BitConverter.GetBytes(payloadLength);
+
+            // Merge everthing to be sent into a buffer
+            var buffer = new byte[2 + payloadLength]; // Leave room for the length prefix
+            Buffer.BlockCopy(BitConverter.GetBytes(payloadLength), 0, buffer, 0, 2); // Length
+            buffer[2] = opcode; // Opcode
+            var pos = 3;
+            foreach (var parameter in parameters) {
+                Buffer.BlockCopy(parameter, 0, buffer, pos, parameter.Length); // Parameters
+                pos += parameter.Length;
+            }
+
+            // Send
+            RawSend(buffer, done);
+        }
+
+        private void RawSend(byte[] buffer, Action done) {
             // Increment outstanding counter
             Interlocked.Increment(ref OutstandingSends);
+
 #if DEBUG
-            Console.WriteLine("Sending: " + BitConverter.ToString(buffer));
+            // Show debug info
+            Debug.WriteLine("TX: " + BitConverter.ToString(buffer));
 #endif
+
             // Send
             try {
                 ClientStream.BeginWrite(buffer, 0, buffer.Length, (ar) => {
@@ -211,6 +242,7 @@ namespace InvertedTomato.Feather {
             KeepAliveTimer.Restart();
         }
 
+        /* TODO: Fix SendMany
         protected void SendMany(params byte[][] payloads) {
             SendMany(payloads, null);
         }
@@ -233,12 +265,13 @@ namespace InvertedTomato.Feather {
                 Send(buffer, done);
             }
         }
+        */
 
         /// <summary>
         /// When a message arrives.
         /// </summary>
         /// <param name="payload"></param>
-        protected abstract void OnMessageReceived(byte[] payload);
+        protected abstract void OnMessageReceived(byte opcode, byte[] payload);
 
         /// <summary>
         /// Disconnect from the remote endpoint and dispose.
@@ -322,9 +355,16 @@ namespace InvertedTomato.Feather {
                 // Yield payload
                 if (PayloadTotalBytes > 0) { // Filter out keep-alive messages
 #if DEBUG
-                    Console.Write("Received:" + BitConverter.ToString(PayloadBuffer));
+                    Debug.WriteLine("RX:" + BitConverter.ToString(PayloadBuffer));
 #endif
-                    OnMessageReceived(PayloadBuffer);
+
+                    // TODO: optimise this to remove unnesscessary copy
+                    var opcode = PayloadBuffer[0];
+                    var payload = new byte[PayloadBuffer.Length - 1];
+                    Buffer.BlockCopy(PayloadBuffer, 1, payload, 0, PayloadBuffer.Length - 1);
+
+                    // Callback received message
+                    OnMessageReceived(opcode,payload);
                 }
 
                 // Receive next message
@@ -380,7 +420,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         private void KeepAliveTimer_OnElapsed(object sender, System.Timers.ElapsedEventArgs e) {
             // Send blank message - it will reset the timeout on the remote end, however not be delivered as an actual message
-            Send(new byte[] { });
+            RawSend(new byte[] { 0, 0 }, null);
         }
 
         /// <summary>

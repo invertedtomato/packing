@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using InvertedTomato;
+using InvertedTomato.Feather;
 
 namespace InvertedTomato.Feather.TestClient {
     class Connection : ConnectionBase {
@@ -13,16 +14,10 @@ namespace InvertedTomato.Feather.TestClient {
                 throw new ArgumentNullException("password");
             }
 
-            using(var stream = new MemoryStream()) {
-                stream.Write((byte)0x00);
-                stream.Write(emailAddress);
-                stream.Write(password);
-
-                Send(stream.ToArray());
-            }
+            Send(0x00, emailAddress.GetBytes(), password.GetBytes());
         }
         
-        protected override void OnMessageReceived(byte[] payload) {
+        protected override void OnMessageReceived(byte opcode, byte[] payload) {
 
         }
     }
