@@ -199,8 +199,6 @@ namespace InvertedTomato.Feather {
         }
 		#endregion
 		
-		
-
 		#region TimeSpan
 		/// <summary>
 		/// Reads a TimeSpan from the memory stream
