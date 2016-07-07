@@ -9,8 +9,8 @@ namespace InvertedTomato.Feather.Tests {
         public byte LastOpcode;
         public byte[] LastParameters;
 
-        public FakeConnection() : this(new Options()) { }
-        public FakeConnection(Options configuration) {
+        public FakeConnection() : this(new ConnectionOptions()) { }
+        public FakeConnection(ConnectionOptions configuration) {
             if (null == configuration) {
                 throw new ArgumentNullException("configuration");
             }

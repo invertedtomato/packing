@@ -27,7 +27,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[Test]
 		public void KeepAliveSend() {
-			using (var connection = new FakeConnection(new Options() { KeepAliveInterval = 50 })) {
+			using (var connection = new FakeConnection(new ConnectionOptions() { KeepAliveInterval = 50 })) {
 				// Allow time for keep-alive - timers are finicky with such small intervals
 				Thread.Sleep(400);
 
@@ -41,7 +41,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[Test]
 		public void KeepAliveDisconnect() {
-			using (var connection = new FakeConnection(new Options() { ReceiveTimeout = 50 })) {
+			using (var connection = new FakeConnection(new ConnectionOptions() { ReceiveTimeout = 50 })) {
 				// Check not disposed
 				Assert.IsFalse(connection.IsDisposed);
 
@@ -65,7 +65,7 @@ namespace InvertedTomato.Feather.Tests {
 			var clientDisconnected = 0;
 			var clientPings = 0;
 			var serverPings = 0;
-			var options = new Options() {
+			var options = new ConnectionOptions() {
 				NoDelay = true
 			};
 

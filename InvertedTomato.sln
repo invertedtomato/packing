@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.Feather.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.Feather.TestServer", "InvertedTomato.Feather.TestServer\InvertedTomato.Feather.TestServer.csproj", "{D9C64A73-FE88-4A43-BA92-2E67CCA4D109}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.Feather.TestWriter", "InvertedTomato.Feather.TestWriter\InvertedTomato.Feather.TestWriter.csproj", "{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{D9C64A73-FE88-4A43-BA92-2E67CCA4D109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9C64A73-FE88-4A43-BA92-2E67CCA4D109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9C64A73-FE88-4A43-BA92-2E67CCA4D109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

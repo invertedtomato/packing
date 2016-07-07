@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{332B7BDA-DE97-4F10-AF97-238EC50B0196}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{4D3F7942-2A6D-455E-8BB7-69B6F0E1A836}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InvertedTomato.Feather</RootNamespace>
-    <AssemblyName>InvertedTomato.Feather</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <RootNamespace>InvertedTomato.Feather.TestWriter</RootNamespace>
+    <AssemblyName>InvertedTomato.Feather.TestWriter</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,22 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectionBase.cs" />
-    <Compile Include="DisconnectionType.cs" />
-    <Compile Include="FileBase.cs" />
-    <Compile Include="FileOptions.cs" />
-    <Compile Include="Payload.cs" />
-    <Compile Include="Wing\GetByteExtensions.cs" />
-    <Compile Include="Wing\StreamExtensions.cs" />
-    <Compile Include="Feather.cs" />
-    <Compile Include="ConnectionOptions.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">
-      <Project>{9306b15f-f6f9-44af-9b6e-f67b2a255cf5}</Project>
-      <Name>InvertedTomato.Common</Name>
-    </ProjectReference>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

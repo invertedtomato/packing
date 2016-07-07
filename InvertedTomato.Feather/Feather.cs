@@ -1,5 +1,6 @@
 ﻿using InvertedTomato.Testable.Sockets;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
@@ -18,14 +19,14 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// User provided options.
         /// </summary>
-        private readonly Options Options;
+        private readonly ConnectionOptions Options;
 
         /// <summary>
         /// Socket the server is listening on.
         /// </summary>
         private readonly Socket ListenerSocket;
 
-        private Feather(EndPoint endPoint, Options options) {
+        private Feather(EndPoint endPoint, ConnectionOptions options) {
             // Store configuration
             Options = options;
 
@@ -96,19 +97,19 @@ namespace InvertedTomato.Feather {
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(int port, Options options) { return Listen(new IPEndPoint(IPAddress.Any, port), options); }
+        public static Feather<TConnection> Listen(int port, ConnectionOptions options) { return Listen(new IPEndPoint(IPAddress.Any, port), options); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(EndPoint localEndPoint) { return new Feather<TConnection>(localEndPoint, new Options()); }
+        public static Feather<TConnection> Listen(EndPoint localEndPoint) { return new Feather<TConnection>(localEndPoint, new ConnectionOptions()); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(EndPoint endpoint, Options options) {
+        public static Feather<TConnection> Listen(EndPoint endpoint, ConnectionOptions options) {
             if (null == endpoint) {
                 throw new ArgumentNullException("endpoint");
             }
@@ -129,7 +130,7 @@ namespace InvertedTomato.Feather {
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(IPAddress serverAddress, int port, Options options) { return Connect(new IPEndPoint(serverAddress, port), options); }
+        public static TConnection Connect(IPAddress serverAddress, int port, ConnectionOptions options) { return Connect(new IPEndPoint(serverAddress, port), options); }
 
         /// <summary>
         /// Connect to a Feather server.
@@ -141,19 +142,19 @@ namespace InvertedTomato.Feather {
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(string serverName, int port, Options options) { return Connect(new DnsEndPoint(serverName, port), options); }
+        public static TConnection Connect(string serverName, int port, ConnectionOptions options) { return Connect(new DnsEndPoint(serverName, port), options); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint) { return Connect(endPoint, new Options()); }
+        public static TConnection Connect(EndPoint endPoint) { return Connect(endPoint, new ConnectionOptions()); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint, Options options) {
+        public static TConnection Connect(EndPoint endPoint, ConnectionOptions options) {
             if (null == endPoint) {
                 throw new ArgumentNullException("endPoint");
             }
@@ -170,6 +171,25 @@ namespace InvertedTomato.Feather {
             connection.Start(false, new SocketReal(clientSocket), options);
 
             return connection;
+        }
+
+        /// <summary>
+        /// Open Feather data file.
+        /// </summary>
+        public static FileBase Open(string path) { return Open(path, new FileOptions()); }
+
+        /// <summary>
+        /// Open Feather data file.
+        /// </summary>
+        public static FileBase Open(string path, FileOptions options) {
+            if (null == path) {
+                throw new ArgumentNullException("fileName");
+            }
+
+            var file = new FileBase();
+            file.Start(path, options);
+
+            return file;
         }
     }
 }

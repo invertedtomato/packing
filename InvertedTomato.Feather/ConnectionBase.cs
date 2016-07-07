@@ -54,7 +54,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Configuration options
         /// </summary>
-        private Options Options;
+        private ConnectionOptions Options;
 
         /// <summary>
         /// Timer to send keep-alive messages to prevent disconnection.
@@ -89,11 +89,9 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Start the connection. Can only be called once.
         /// </summary>
-        /// <param name="clientSocket"></param>
-        /// <param name="options"></param>
-        public void Start(bool isServerConnection, ISocket clientSocket, Options options) {
+        public void Start(bool isServerConnection, ISocket clientSocket, ConnectionOptions options) {
             if (null == options) {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException("options");
             }
             if (null == clientSocket) {
                 throw new ArgumentNullException("clientSocket");

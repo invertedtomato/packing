@@ -4,7 +4,7 @@ namespace InvertedTomato.Feather.TestClient {
     class Program {
         static void Main(string[] args) {
             Console.WriteLine("Connecting...");
-            var options = new Options() {
+            var options = new ConnectionOptions() {
                 IsSecure = true, // Make the connection secure
                 ServerCommonName = "choreographer.vlife.com.au" // Set the name of the certificate that the server must have (this stops someone impersonating the server)
             };
