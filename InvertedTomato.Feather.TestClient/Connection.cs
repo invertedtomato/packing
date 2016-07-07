@@ -14,10 +14,10 @@ namespace InvertedTomato.Feather.TestClient {
                 throw new ArgumentNullException("password");
             }
 
-            Send(0x00, emailAddress.GetBytes(), password.GetBytes());
+            Send(new Payload(0x00, emailAddress.GetBytes(), password.GetBytes()));
         }
         
-        protected override void OnMessageReceived(byte opcode, byte[] payload) {
+        protected override void OnMessageReceived(Payload payload) {
 
         }
     }

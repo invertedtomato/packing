@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ConnectionBase.cs" />
     <Compile Include="DisconnectionType.cs" />
+    <Compile Include="Payload.cs" />
     <Compile Include="Wing\GetByteExtensions.cs" />
     <Compile Include="Wing\StreamExtensions.cs" />
     <Compile Include="Feather.cs" />

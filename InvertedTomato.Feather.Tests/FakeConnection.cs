@@ -7,7 +7,7 @@ namespace InvertedTomato.Feather.Tests {
     class FakeConnection : ConnectionBase {
         public readonly SocketFake Socket = new SocketFake();
         public byte LastOpcode;
-        public byte[] LastPayload;
+        public byte[] LastParameters;
 
         public FakeConnection() : this(new Options()) { }
         public FakeConnection(Options configuration) {
@@ -19,7 +19,7 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         public byte[] TestSend(byte opcode, byte[] payload) {
-            Send(opcode, payload);
+            Send(new Payload(opcode, payload));
 
             return Socket.Stream.ReadOutput();
         }
@@ -28,16 +28,16 @@ namespace InvertedTomato.Feather.Tests {
         public byte[] TestReceive(byte[] wire) {
             Socket.Stream.QueueInput(wire);
 
-            var a = new byte[LastPayload.Length + 1];
+            var a = new byte[LastParameters.Length + 1];
             a[0] = LastOpcode;
-            Buffer.BlockCopy(LastPayload, 0, a, 1, LastPayload.Length);
+            Buffer.BlockCopy(LastParameters, 0, a, 1, LastParameters.Length);
 
             return a;
         }
 
-        protected override void OnMessageReceived(byte opcode, byte[] payload) {
-            LastOpcode = opcode;
-            LastPayload = payload;
+        protected override void OnMessageReceived(Payload payload) {
+            LastOpcode = payload.Opcode;
+            LastParameters = payload.Parameters;
         }
     }
 }

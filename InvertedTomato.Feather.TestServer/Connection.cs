@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Feather.TestServer {
     class Connection : ConnectionBase {
-        protected override void OnMessageReceived(byte opcode,byte[] payload) {
-            using (var stream = new MemoryStream(payload)) {
-                switch (opcode) {
+        protected override void OnMessageReceived(Payload payload) {
+            using (var stream = new MemoryStream(payload.Parameters)) {
+                switch (payload.Opcode) {
                     case 0x00:
-                        PrintMessage("GenerateAuthenticationKey", opcode, new Dictionary<string, string>() {
+                        PrintMessage("GenerateAuthenticationKey", payload.Opcode, new Dictionary<string, string>() {
                             {"email_address", stream.ReadString() },
                             {"password", stream.ReadString() }
                         });
@@ -21,7 +21,7 @@ namespace InvertedTomato.Feather.TestServer {
                             Console.Write(DateTime.UtcNow.ToString("HH:mm:ss") + " " + RemoteEndPoint.ToString() + " ");
 
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write("Unknown[0x" + BitConverter.ToString(new byte[] { opcode }) + "] ");
+                            Console.Write("Unknown[0x" + BitConverter.ToString(new byte[] { payload.Opcode }) + "] ");
 
                             Console.ForegroundColor = ConsoleColor.Gray;
                             Console.WriteLine("{");
