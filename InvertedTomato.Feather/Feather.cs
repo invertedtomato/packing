@@ -172,12 +172,14 @@ namespace InvertedTomato.Feather {
 
             return connection;
         }
+    }
 
+    public sealed class Feather {
         /// <summary>
         /// Open Feather data file.
         /// </summary>
         public static FileBase Open(string path) { return Open(path, new FileOptions()); }
-
+        
         /// <summary>
         /// Open Feather data file.
         /// </summary>
@@ -190,6 +192,38 @@ namespace InvertedTomato.Feather {
             file.Start(path, options);
 
             return file;
+        }
+
+        internal static byte[] PayloadsToBuffer(Payload[] payloads) {
+            // Calculate total buffer length needed
+            var bufferLength = 0;
+            foreach (var payload in payloads) {
+                // Check if null
+                if (null == payload) {
+                    throw new ArgumentException("Contains null element.", "payloads");
+                }
+
+                // Check payload is not too long
+                if (payload.Length > ushort.MaxValue) {
+                    throw new ArgumentException("Payload too long for message. Total size of payload must be less than" + ushort.MaxValue + " bytes. " + payload.Length + " bytes given.", "payload");
+                }
+
+                // Sum lengths
+                bufferLength += 2;
+                bufferLength += payload.Length;
+            }
+
+            // Merge everthing to be sent into a buffer
+            var buffer = new byte[bufferLength];
+            var pos = 0;
+            foreach (var payload in payloads) {
+                Buffer.BlockCopy(BitConverter.GetBytes(payload.Length), 0, buffer, pos, 2); // Length
+                buffer[pos + 2] = payload.Opcode; // Opcode
+                Buffer.BlockCopy(payload.Parameters, 0, buffer, pos + 3, payload.Parameters.Length); // Parameters
+                pos += 2 + payload.Length;
+            }
+
+            return buffer;
         }
     }
 }

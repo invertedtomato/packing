@@ -134,58 +134,46 @@ namespace InvertedTomato.Feather {
         }
 
         /// <summary>
-        /// Send single message to remote endpoint.
+        /// Send single payload to remote endpoint.
         /// </summary>    
         protected void Send(Payload payload) {
+            if (null == payload) {
+                throw new ArgumentNullException("payload");
+            }
+
             Send(new Payload[] { payload }, null);
         }
 
         /// <summary>
-        /// Send single message to remote endpoint and execute a callback when done.
+        /// Send single payload to remote endpoint and execute a callback when done.
         /// </summary>
         protected void Send(Payload payload, Action done) {
+            if (null == payload) {
+                throw new ArgumentNullException("payload");
+            }
+
             Send(new Payload[] { payload }, done);
         }
 
         /// <summary>
-        /// Send multiple messages to remote endpoint.
+        /// Send multiple payloads to remote endpoint.
         /// </summary>    
         protected void Send(Payload[] payloads) {
             Send(payloads, null);
         }
 
         /// <summary>
-        /// Send multiple messages to remote endpoint and execute a callback when done.
+        /// Send multiple payloads to remote endpoint and execute a callback when done.
         /// </summary>
         protected void Send(Payload[] payloads, Action done) {
             if (null == payloads) {
                 throw new ArgumentNullException("payload");
             }
 
-            // Calculate total buffer length needed
-            var bufferLength = 0;
-            foreach(var payload in payloads) {
-                // Check payload is not too long
-                if (payload.Length > ushort.MaxValue) {
-                    throw new ArgumentException("Payload too long for message. Total size of payload must be less than" + ushort.MaxValue + " bytes. " + payload.Length + " bytes given.", "payload");
-                }
+            // Convert to buffer
+            var buffer = Feather.PayloadsToBuffer(payloads);
 
-                // Sum lengths
-                bufferLength += 2;
-                bufferLength += payload.Length;
-            }
-            
-            // Merge everthing to be sent into a buffer
-            var buffer = new byte[bufferLength];
-            var pos = 0;
-            foreach (var payload in payloads) {
-                Buffer.BlockCopy(BitConverter.GetBytes(payload.Length), 0, buffer, pos, 2); // Length
-                buffer[pos+2] = payload.Opcode; // Opcode
-                Buffer.BlockCopy(payload.Parameters, 0, buffer, pos+3, payload.Parameters.Length); // Parameters
-                pos += 2 + payload.Length;
-            }
-
-            // Send
+            // Send buffer
             RawSend(buffer, done);
         }
 

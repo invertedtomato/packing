@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using InvertedTomato.Extensions;
 
 namespace InvertedTomato.Feather {
     public class FileBase : IDisposable {
@@ -17,6 +18,8 @@ namespace InvertedTomato.Feather {
         /// If the file has been disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
+
+        private object Sync = new object();
 
         /// <summary>
         /// Start the session. Can only be called once.
@@ -36,16 +39,59 @@ namespace InvertedTomato.Feather {
             FileStream = File.Open(path, FileMode.OpenOrCreate);
         }
 
+        /// <summary>
+        /// Read the next record. Returns null if no records remain.
+        /// </summary>
         public Payload Read() {
-            throw new NotImplementedException();
+            byte[] payload;
+            lock (Sync) {
+                // Stop if at end of file
+                if (FileStream.Position == FileStream.Length) {
+                    return null;
+                }
+
+                // Read payload
+                var payloadLength = FileStream.ReadUInt16();
+                 payload = FileStream.Read(payloadLength);
+            }
+
+            // Return payload
+            return new Payload(payload);
         }
 
+        /// <summary>
+        /// Move cursor to start of the file.
+        /// </summary>
         public void Rewind() {
-            throw new NotImplementedException();
+            FileStream.Position = 0;
         }
 
+        /// <summary>
+        /// Append single payload to the end of the file.
+        /// </summary>
         public void Append(Payload payload) {
-            throw new NotImplementedException();
+            if (null == payload) {
+                throw new ArgumentNullException("payload");
+            }
+
+            Append(new Payload[] { payload });
+        }
+
+        /// <summary>
+        /// Append multiple payloads to the end of the file.
+        /// </summary>
+        public void Append(Payload[] payloads) {
+            if (null == payloads) {
+                throw new ArgumentNullException("payload");
+            }
+
+            // Convert to buffer
+            var buffer = Feather.PayloadsToBuffer(payloads);
+
+            lock (Sync) {
+                FileStream.Position = FileStream.Length;
+                FileStream.Write(buffer);
+            }
         }
 
 
