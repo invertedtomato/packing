@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using InvertedTomato.Feather.Extensions;
 
 namespace InvertedTomato.Feather.Tests {
 	[TestFixture]

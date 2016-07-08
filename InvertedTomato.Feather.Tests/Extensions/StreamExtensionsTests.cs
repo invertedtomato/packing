@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using InvertedTomato.Feather.Extensions;
 
 namespace InvertedTomato.Feather.Tests.Extensions {
 	[TestFixture]
@@ -70,7 +71,7 @@ namespace InvertedTomato.Feather.Tests.Extensions {
 			var text = "Hello Vlife";
 			var byteArray = Encoding.UTF8.GetBytes(text);
 			using (var stream = new MemoryStream(100)) {
-				InvertedTomato.Feather.StreamExtensions.Write(stream, text);
+				InvertedTomato.Feather.Extensions.StreamExtensions.Write(stream, text);
 				stream.Position = 0; // reset the stream to the beginning again
 				Assert.AreEqual(text, stream.ReadString());
 				// Check nothing left in stream 
@@ -82,7 +83,7 @@ namespace InvertedTomato.Feather.Tests.Extensions {
 			var text = "¢¢¢¢¢";
 			var byteArray = Encoding.UTF8.GetBytes(text);
 			using (var stream = new MemoryStream(100)) {
-				InvertedTomato.Feather.StreamExtensions.Write(stream, text);
+				InvertedTomato.Feather.Extensions.StreamExtensions.Write(stream, text);
 				stream.Position = 0; // reset the stream to the beginning again
 				Assert.AreEqual(text, stream.ReadString());
 				// Check nothing left in stream 
@@ -94,7 +95,7 @@ namespace InvertedTomato.Feather.Tests.Extensions {
 			var text = "€€€€";
 			var byteArray = Encoding.UTF8.GetBytes(text);
 			using (var stream = new MemoryStream(100)) {
-				InvertedTomato.Feather.StreamExtensions.Write(stream, text);
+				InvertedTomato.Feather.Extensions.StreamExtensions.Write(stream, text);
 				stream.Position = 0; // reset the stream to the beginning again
 				Assert.AreEqual(text, stream.ReadString());
 				// Check nothing left in stream 
