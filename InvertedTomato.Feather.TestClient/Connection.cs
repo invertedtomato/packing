@@ -1,6 +1,6 @@
 ﻿using System;
 using InvertedTomato;
-using InvertedTomato.Feather.Extensions;
+using InvertedTomato.Feather;
 
 namespace InvertedTomato.Feather.TestClient {
     class Connection : ConnectionBase {

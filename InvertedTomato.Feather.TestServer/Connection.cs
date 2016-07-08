@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using InvertedTomato;
-using InvertedTomato.Feather.Extensions;
+using InvertedTomato.Feather;
 using System.Collections.Generic;
 
 namespace InvertedTomato.Feather.TestServer {

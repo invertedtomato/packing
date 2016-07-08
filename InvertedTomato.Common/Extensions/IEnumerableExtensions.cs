@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics.Contracts;
-using System.Globalization;
-using System.Linq;
 
 namespace InvertedTomato {
     public static class IEnumerableExtensions {

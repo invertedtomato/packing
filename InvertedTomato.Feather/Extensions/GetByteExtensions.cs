@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace InvertedTomato.Feather.Extensions {
+namespace InvertedTomato.Feather {
     /// <summary>
     /// A bunch of feather specific getByte extension methods
     /// </summary>
