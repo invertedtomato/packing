@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace InvertedTomato.Feather {
+namespace InvertedTomato.Feather.Extensions {
     public static class StreamExtensions {
         #region DateTime
         /// <summary>

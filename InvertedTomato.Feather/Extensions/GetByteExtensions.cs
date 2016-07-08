@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace InvertedTomato.Feather {
+namespace InvertedTomato.Feather.Extensions {
     /// <summary>
     /// A bunch of feather specific getByte extension methods
     /// </summary>
@@ -18,6 +18,7 @@ namespace InvertedTomato.Feather {
         public static byte[] GetBytes(this ushort? v) {
             return v.HasValue ? NullableWrapper(v.Value.GetBytes()) : NullableWrapper(null);
         }
+
         public static byte[] GetBytes(this short? v) {
             return v.HasValue ? NullableWrapper(v.Value.GetBytes()) : NullableWrapper(null);
         }
