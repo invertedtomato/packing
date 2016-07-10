@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InvertedTomato.Feather {
     public sealed class FileOptions {
-
+        /// <summary>
+        /// Flush buffer to disk every X appends. Disabled if less than 1.
+        /// </summary>
+        public int AppendFlushRate = 10;
     }
 }

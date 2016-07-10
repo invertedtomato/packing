@@ -5,20 +5,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InvertedTomato.Extensions;
+using System.Threading;
 
 namespace InvertedTomato.Feather {
     public class FileBase : IDisposable {
         /// <summary>
-        /// Configuration options
+        /// Configuration options.
         /// </summary>
         private FileOptions Options;
+
+        /// <summary>
+        /// File stream.
+        /// </summary>
         private FileStream FileStream;
+
+        /// <summary>
+        /// Number of appends to be performed before the next flush.
+        /// </summary>
+        private int UnflushedAppendsRemaining;
 
         /// <summary>
         /// If the file has been disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
+        /// <summary>
+        /// Sync lock.
+        /// </summary>
         private object Sync = new object();
 
         /// <summary>
@@ -28,15 +41,20 @@ namespace InvertedTomato.Feather {
             if (null == options) {
                 throw new ArgumentNullException("options");
             }
-            if (null != FileStream) {
-                throw new InvalidOperationException("Already started.");
+
+            lock (Sync) {
+                // Fail if already started
+                if (null != FileStream) {
+                    throw new InvalidOperationException("Already started.");
+                }
+
+                // Store options
+                Options = options;
+                UnflushedAppendsRemaining = options.AppendFlushRate;
+
+                // Setup file stream
+                FileStream = File.Open(path, FileMode.OpenOrCreate);
             }
-
-            // Store options
-            Options = options;
-
-            // Setup file stream
-            FileStream = File.Open(path, FileMode.OpenOrCreate);
         }
 
         /// <summary>
@@ -44,6 +62,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         public Payload Read() {
             byte[] payload;
+
             lock (Sync) {
                 // Stop if at end of file
                 if (FileStream.Position == FileStream.Length) {
@@ -52,7 +71,7 @@ namespace InvertedTomato.Feather {
 
                 // Read payload
                 var payloadLength = FileStream.ReadUInt16();
-                 payload = FileStream.Read(payloadLength);
+                payload = FileStream.Read(payloadLength);
             }
 
             // Return payload
@@ -63,7 +82,18 @@ namespace InvertedTomato.Feather {
         /// Move cursor to start of the file.
         /// </summary>
         public void Rewind() {
-            FileStream.Position = 0;
+            lock (Sync) {
+                FileStream.Position = 0;
+            }
+        }
+
+        /// <summary>
+        /// Clears buffer by causing all data to be writen to disk.
+        /// </summary>
+        public void Flush() { // TODO: Add unit tests
+            lock (Sync) {
+                FileStream.Flush();
+            }
         }
 
         /// <summary>
@@ -74,7 +104,18 @@ namespace InvertedTomato.Feather {
                 throw new ArgumentNullException("payload");
             }
 
-            Append(new Payload[] { payload });
+            lock (Sync) {
+                // Appends payload to file
+                Append(new Payload[] { payload });
+
+                // Check if flush required
+                if (Options.AppendFlushRate > 0 && --UnflushedAppendsRemaining <= 0) { // TODO: Add unit tests
+                    UnflushedAppendsRemaining = Options.AppendFlushRate;
+
+                    // Flush
+                    Flush();
+                }
+            }
         }
 
         /// <summary>
@@ -102,15 +143,11 @@ namespace InvertedTomato.Feather {
             IsDisposed = true;
 
             if (disposing) {
-
-                // TODO: dispose managed state (managed objects).
                 FileStream.DisposeIfNotNull();
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // TODO: set large fields to null.
-
-
+            // Set large fields to null.
+            FileStream = null;
         }
         public void Dispose() {
             Dispose(true);
