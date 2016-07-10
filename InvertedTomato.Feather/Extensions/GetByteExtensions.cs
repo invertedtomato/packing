@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
@@ -89,6 +90,18 @@ namespace InvertedTomato.Feather {
 
         public static byte[] GetBytes(this TimeSpan? v) {
             return v.HasValue ? NullableWrapper(v.Value.GetBytes()) : NullableWrapper(null);
+        }
+
+        public static byte[] GetBytes(this IPAddress v) {  // TODO: needs unit tests
+            if (null == v) {
+                return new byte[] { 0 };
+            }
+
+            var address = v.GetAddressBytes();
+            var buffer = new byte[1 + address.Length];
+            buffer[0] = (byte)address.Length;
+            Buffer.BlockCopy(address, 0, buffer, 1, address.Length);
+            return buffer;
         }
 
         /// <summary>

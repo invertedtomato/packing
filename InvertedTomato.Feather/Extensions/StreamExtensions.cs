@@ -1,6 +1,7 @@
 ﻿using InvertedTomato;
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
@@ -226,6 +227,43 @@ namespace InvertedTomato.Feather {
                 throw new ArgumentNullException("target");
             }
             target.Write((Int32)value.TotalSeconds);
+            return target;
+        }
+        #endregion
+
+        #region IPAddress
+        /// <summary>
+		/// Reads a TimeSpan from the memory stream
+		/// </summary>
+		/// <param name="target"></param>
+		/// <returns></returns>
+		public static IPAddress ReadIPAddress(this Stream target) { // TODO: needs unit tests
+            if (null == target) {
+                throw new ArgumentNullException("target");
+            }
+
+            // Read value
+            var length = target.ReadUInt8();
+            if (length==0) {
+                return null;
+            }
+            var address = target.Read(length);
+
+            return new IPAddress(address);
+        }
+
+        /// <summary>
+        /// Writes a TimeSpan to the stream
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Stream Write(this Stream target, IPAddress value) {  // TODO: needs unit tests
+            if (null == target) {
+                return null;
+            }
+            
+            target.Write(value.GetBytes());
             return target;
         }
         #endregion
