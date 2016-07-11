@@ -35,6 +35,11 @@ namespace InvertedTomato.Feather {
         private object Sync = new object();
 
         /// <summary>
+        /// Length of file in bytes.
+        /// </summary>
+        public long Length { get { return FileStream.Length; } }
+
+        /// <summary>
         /// Start the session. Can only be called once.
         /// </summary>
         public void Start(string path, FileOptions options) {
