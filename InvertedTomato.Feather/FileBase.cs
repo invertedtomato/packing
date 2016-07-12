@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvertedTomato.Extensions;
-using System.Threading;
 
 namespace InvertedTomato.Feather {
     public class FileBase : IDisposable {
@@ -69,6 +63,11 @@ namespace InvertedTomato.Feather {
             byte[] payload;
 
             lock (Sync) {
+                // Abort if disposed
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Object disposed.");
+                }
+
                 // Stop if at end of file
                 if (FileStream.Position == FileStream.Length) {
                     return null;
@@ -88,6 +87,11 @@ namespace InvertedTomato.Feather {
         /// </summary>
         public void Rewind() {
             lock (Sync) {
+                // Abort if disposed
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Object disposed.");
+                }
+
                 FileStream.Position = 0;
             }
         }
@@ -97,6 +101,11 @@ namespace InvertedTomato.Feather {
         /// </summary>
         public void Flush() { // TODO: Add unit tests
             lock (Sync) {
+                // Abort if disposed
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Object disposed.");
+                }
+
                 FileStream.Flush();
             }
         }
@@ -112,14 +121,6 @@ namespace InvertedTomato.Feather {
             lock (Sync) {
                 // Appends payload to file
                 Append(new Payload[] { payload });
-
-                // Check if flush required
-                if (Options.AppendFlushRate > 0 && --UnflushedAppendsRemaining <= 0) { // TODO: Add unit tests
-                    UnflushedAppendsRemaining = Options.AppendFlushRate;
-
-                    // Flush
-                    Flush();
-                }
             }
         }
 
@@ -135,24 +136,42 @@ namespace InvertedTomato.Feather {
             var buffer = Feather.PayloadsToBuffer(payloads);
 
             lock (Sync) {
+                // Abort if disposed
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Object disposed.");
+                }
+
+                // Append content
                 FileStream.Position = FileStream.Length;
                 FileStream.Write(buffer);
+
+                // Check if flush required
+                UnflushedAppendsRemaining -= payloads.Length;
+                if (Options.AppendFlushRate > 0 && UnflushedAppendsRemaining <= 0) { // TODO: Add unit tests
+                    UnflushedAppendsRemaining = Options.AppendFlushRate;
+
+                    // Flush
+                    Flush();
+                }
             }
         }
 
 
         protected virtual void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            IsDisposed = true;
+            lock (Sync) {
+                if (IsDisposed) {
+                    return;
+                }
+                IsDisposed = true;
 
-            if (disposing) {
-                FileStream.DisposeIfNotNull();
-            }
 
-            // Set large fields to null.
-            FileStream = null;
+                if (disposing) {
+                    FileStream.DisposeIfNotNull();
+                }
+
+                // Set large fields to null.
+                FileStream = null;
+            }
         }
         public void Dispose() {
             Dispose(true);
