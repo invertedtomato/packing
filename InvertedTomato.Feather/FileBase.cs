@@ -45,14 +45,14 @@ namespace InvertedTomato.Feather {
         public Payload Read() {
             byte[] payload;
             lock (Sync) {
-                // Stop if at end of file
-                if (FileStream.Position == FileStream.Length) {
+                // Read payload
+                ushort payloadLength;
+                try {
+                    payloadLength = FileStream.ReadUInt16();
+                } catch (EndOfStreamException) {
                     return null;
                 }
-
-                // Read payload
-                var payloadLength = FileStream.ReadUInt16();
-                 payload = FileStream.Read(payloadLength);
+                payload = FileStream.Read(payloadLength);
             }
 
             // Return payload
@@ -89,7 +89,6 @@ namespace InvertedTomato.Feather {
             var buffer = Feather.PayloadsToBuffer(payloads);
 
             lock (Sync) {
-                FileStream.Position = FileStream.Length;
                 FileStream.Write(buffer);
             }
         }

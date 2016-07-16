@@ -180,20 +180,13 @@ namespace InvertedTomato.Feather {
         private void RawSend(byte[] buffer, Action done) {
             // Increment outstanding counter
             Interlocked.Increment(ref OutstandingSends);
-
-#if DEBUG
-            // Show debug info
-            Debug.WriteLine("TX: " + BitConverter.ToString(buffer));
-#endif
-
+            
             // Send
             try {
                 ClientStream.BeginWrite(buffer, 0, buffer.Length, (ar) => {
                     try {
                         // Complete send
                         ClientStream.EndWrite(ar);
-                        //Logging only for testing purposes.
-                        Console.WriteLine(buffer);
                     } catch (ObjectDisposedException) {
                     } catch (IOException) {
                         // Report connection failure
@@ -307,9 +300,6 @@ namespace InvertedTomato.Feather {
 
                 // Yield payload
                 if (PayloadTotalBytes > 0) { // Filter out keep-alive messages
-#if DEBUG
-                    Debug.WriteLine("RX:" + BitConverter.ToString(PayloadBuffer));
-#endif
                     // Callback received message
                     OnMessageReceived(new Payload(PayloadBuffer));
                 }
