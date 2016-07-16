@@ -11,26 +11,26 @@ namespace InvertedTomato.Feather.Tests {
                 File.Delete("test.dat");
             } catch { }
         }
-        
+
         [TestMethod]
         public void Read() {
             File.WriteAllBytes("test.dat", new byte[] { 0x01, 0x00, 0x01, 0x02, 0x00, 0x02, 0x05, 0x01, 0x00, 0x03 });
 
             using (var file = Feather.Open("test.dat")) {
                 Payload payload;
-                
+
                 payload = file.Read();
                 Assert.AreEqual(1, payload.Opcode);
-                Assert.AreEqual(0, payload.Parameters.Length);
+                Assert.AreEqual(1, payload.Length);
 
                 payload = file.Read();
                 Assert.AreEqual(2, payload.Opcode);
-                Assert.AreEqual(1, payload.Parameters.Length);
-                Assert.AreEqual(5, payload.Parameters[0]);
+                Assert.AreEqual(2, payload.Length);
+                Assert.AreEqual(5, payload.ReadUInt8());
 
                 payload = file.Read();
                 Assert.AreEqual(3, payload.Opcode);
-                Assert.AreEqual(0, payload.Parameters.Length);
+                Assert.AreEqual(1, payload.Length);
 
                 payload = file.Read();
                 Assert.IsNull(payload);
@@ -40,7 +40,7 @@ namespace InvertedTomato.Feather.Tests {
         [TestMethod]
         [ExpectedException(typeof(EndOfStreamException))]
         public void Read_Corrupt() {
-            File.WriteAllBytes("test.dat", new byte[] { 0x02, 0x00,0x01}); // Length says it's a 2-byte payload, yet there's only 1 byte
+            File.WriteAllBytes("test.dat", new byte[] { 0x02, 0x00, 0x01 }); // Length says it's a 2-byte payload, yet there's only 1 byte
 
             using (var file = Feather.Open("test.dat")) {
                 Payload payload;
@@ -55,7 +55,7 @@ namespace InvertedTomato.Feather.Tests {
 
             using (var file = Feather.Open("test.dat")) {
                 Payload payload;
-                for(var i=0; i<3; i++) {
+                for (var i = 0; i < 3; i++) {
                     payload = file.Read();
                     Assert.IsNotNull(payload);
                     Assert.AreEqual(0x01, payload.Opcode);
@@ -68,7 +68,7 @@ namespace InvertedTomato.Feather.Tests {
         public void Append() {
             using (var file = Feather.Open("test.dat")) {
                 file.Append(new Payload(0x01));
-                file.Append(new Payload(0x02, new byte[] { 0x05 }));
+                file.Append(new Payload(0x02).Append((byte)0x05));
                 file.Append(new Payload(0x03));
             }
 

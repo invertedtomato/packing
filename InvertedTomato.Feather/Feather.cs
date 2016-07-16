@@ -179,7 +179,7 @@ namespace InvertedTomato.Feather {
         /// Open Feather data file.
         /// </summary>
         public static FileBase Open(string path) { return Open(path, new FileOptions()); }
-        
+
         /// <summary>
         /// Open Feather data file.
         /// </summary>
@@ -195,32 +195,35 @@ namespace InvertedTomato.Feather {
         }
 
         internal static byte[] PayloadsToBuffer(Payload[] payloads) {
-            // Calculate total buffer length needed
+            // Fetch raw payloads while calculating buffer length
             var bufferLength = 0;
-            foreach (var payload in payloads) {
+            var rawPayloads = new byte[payloads.Length][];
+            for (var i = 0; i < payloads.Length; i++) {
+                var payload = payloads[i];
+
                 // Check if null
                 if (null == payload) {
                     throw new ArgumentException("Contains null element.", "payloads");
                 }
 
-                // Check payload is not too long
-                if (payload.Length > ushort.MaxValue) {
-                    throw new ArgumentException("Payload too long for message. Total size of payload must be less than" + ushort.MaxValue + " bytes. " + payload.Length + " bytes given.", "payload");
+                // Get raw payload
+                rawPayloads[i] = payload.ToByteArray();
+                if (rawPayloads[i].Length > ushort.MaxValue) {
+                    throw new InternalBufferOverflowException("Payload longer than 65KB.");
                 }
 
-                // Sum lengths
-                bufferLength += 2;
-                bufferLength += payload.Length;
+                // Increment raw buffer length required
+                bufferLength += 2 + rawPayloads[i].Length;
             }
 
-            // Merge everthing to be sent into a buffer
+            // Merge everything to be sent into a buffer
             var buffer = new byte[bufferLength];
             var pos = 0;
-            foreach (var payload in payloads) {
-                Buffer.BlockCopy(BitConverter.GetBytes(payload.Length), 0, buffer, pos, 2); // Length
-                buffer[pos + 2] = payload.Opcode; // Opcode
-                Buffer.BlockCopy(payload.Parameters, 0, buffer, pos + 3, payload.Parameters.Length); // Parameters
-                pos += 2 + payload.Length;
+            foreach (var rawPayload in rawPayloads) {
+                var rawPayloadRawLength = BitConverter.GetBytes((ushort)rawPayload.Length);
+                Buffer.BlockCopy(rawPayloadRawLength, 0, buffer, pos, 2); // Length
+                Buffer.BlockCopy(rawPayload, 0, buffer, 2, rawPayload.Length); // Payload
+                pos += rawPayloadRawLength.Length + rawPayload.Length;
             }
 
             return buffer;

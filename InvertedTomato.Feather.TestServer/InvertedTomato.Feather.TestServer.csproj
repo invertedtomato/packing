@@ -50,10 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="choreographer_vlife_com_au.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="localhost.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">

@@ -41,8 +41,6 @@
     <Compile Include="FileBase.cs" />
     <Compile Include="FileOptions.cs" />
     <Compile Include="Payload.cs" />
-    <Compile Include="Extensions\GetByteExtensions.cs" />
-    <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Feather.cs" />
     <Compile Include="ConnectionOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -52,9 +50,6 @@
       <Project>{9306b15f-f6f9-44af-9b6e-f67b2a255cf5}</Project>
       <Name>InvertedTomato.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Extensions\Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
