@@ -38,8 +38,9 @@
   <ItemGroup>
     <Compile Include="ConnectionBase.cs" />
     <Compile Include="DisconnectionType.cs" />
-    <Compile Include="FileBase.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="FileOptions.cs" />
+    <Compile Include="FileReader.cs" />
     <Compile Include="Payload.cs" />
     <Compile Include="Feather.cs" />
     <Compile Include="ConnectionOptions.cs" />

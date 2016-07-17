@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using InvertedTomato.Testable.Sockets;
-using InvertedTomato.Testable.Streams;
 
 namespace InvertedTomato.Feather.Tests {
     class FakeConnection : ConnectionBase {

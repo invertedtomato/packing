@@ -1,22 +1,22 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
 namespace InvertedTomato.Feather.Tests {
-	[TestFixture]
-	public class ConnectionBaseTests {
-		[Test]
-		public void Send() {
+    [TestClass]
+    public class ConnectionBaseTests {
+        [TestMethod]
+        public void Send() {
 			using (var connection = new FakeConnection()) {
 				Assert.AreEqual("01-00-01", BitConverter.ToString(connection.TestSend(0x01, new byte[] { })));
 				Assert.AreEqual("09-00-02-01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestSend(0x02, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 })));
 			}
 		}
 
-		[Test]
-		public void Receive() {
+        [TestMethod]
+        public void Receive() {
 			using (var connection = new FakeConnection()) {
                 Assert.AreEqual("01", BitConverter.ToString(connection.TestReceive(new byte[] { 1, 0, 1 }))); // Opcode, no params
                 Assert.AreEqual("01-02", BitConverter.ToString(connection.TestReceive(new byte[] { 2, 0, 1,2 }))); // Opcode with params
@@ -24,9 +24,8 @@ namespace InvertedTomato.Feather.Tests {
 			}
 		}
 
-
-		[Test]
-		public void KeepAliveSend() {
+        [TestMethod]
+        public void KeepAliveSend() {
 			using (var connection = new FakeConnection(new ConnectionOptions() { KeepAliveInterval = 50 })) {
 				// Allow time for keep-alive - timers are finicky with such small intervals
 				Thread.Sleep(400);
@@ -39,8 +38,8 @@ namespace InvertedTomato.Feather.Tests {
 			}
 		}
 
-		[Test]
-		public void KeepAliveDisconnect() {
+        [TestMethod]
+        public void KeepAliveDisconnect() {
 			using (var connection = new FakeConnection(new ConnectionOptions() { ReceiveTimeout = 50 })) {
 				// Check not disposed
 				Assert.IsFalse(connection.IsDisposed);
@@ -54,13 +53,9 @@ namespace InvertedTomato.Feather.Tests {
 				Assert.IsTrue(connection.IsDisposed);
 			}
 		}
-		[Test]
-		public void BooleanGetBytes() {
-			Assert.AreEqual(new byte[] { 1 }, true.GetBytes());
-			Assert.AreEqual(new byte[] { 0 }, false.GetBytes());
-		}
-		[Test]
-		public void EndToEnd() {
+
+        [TestMethod]
+        public void EndToEnd() {
 			var clientConnected = 0;
 			var clientDisconnected = 0;
 			var clientPings = 0;

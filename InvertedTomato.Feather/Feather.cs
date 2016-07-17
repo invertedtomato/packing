@@ -176,22 +176,40 @@ namespace InvertedTomato.Feather {
 
     public sealed class Feather {
         /// <summary>
-        /// Open Feather data file.
+        /// Open Feather data file for reading.
         /// </summary>
-        public static FileBase Open(string path) { return Open(path, new FileOptions()); }
+        public static FileReader ReadFile(string path) { return ReadFile(path, new FileOptions()); }
 
         /// <summary>
-        /// Open Feather data file.
+        /// Open Feather data file for reading.
         /// </summary>
-        public static FileBase Open(string path, FileOptions options) {
+        public static FileReader ReadFile(string path, FileOptions options) {
             if (null == path) {
                 throw new ArgumentNullException("fileName");
             }
+            if (null == options) {
+                throw new ArgumentNullException("options");
+            }
 
-            var file = new FileBase();
-            file.Start(path, options);
+            return new FileReader(path, options);
+        }
+        /// <summary>
+        /// Open Feather data file for reading.
+        /// </summary>
+        public static FileWriter WriteFile(string path) { return WriteFile(path, new FileOptions()); }
 
-            return file;
+        /// <summary>
+        /// Open Feather data file for reading.
+        /// </summary>
+        public static FileWriter WriteFile(string path, FileOptions options) {
+            if (null == path) {
+                throw new ArgumentNullException("fileName");
+            }
+            if (null == options) {
+                throw new ArgumentNullException("options");
+            }
+
+            return new FileWriter(path, options);
         }
 
         internal static byte[] PayloadsToBuffer(Payload[] payloads) {

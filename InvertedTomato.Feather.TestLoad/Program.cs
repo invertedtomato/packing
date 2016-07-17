@@ -5,13 +5,13 @@ using System.IO;
 namespace InvertedTomato.Feather.TestLoad {
     class Program {
         static void Main(string[] args) {
-            using (var file = Feather.Open("test.dat")) {
+            using (var file = Feather.WriteFile("test.dat")) {
                 for (var i = 1; i < 10000000; i++) {
-                    file.Append(new Payload(0x00).Append(1).Append(2));
+                    file.Write(new Payload(0x00).Append(1).Append(2));
                 }
             }
 
-            using (var file = Feather.Open("test.dat")) {
+            using (var file = Feather.ReadFile("test.dat")) {
                 Payload payload;
                 while ((payload = file.Read()) != null) {
                     payload.ReadInt32();
