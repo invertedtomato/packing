@@ -59,6 +59,10 @@ namespace InvertedTomato.Feather {
             var buffer = Feather.PayloadsToBuffer(payloads);
 
             lock (Sync) {
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Disposed.");
+                }
+
                 // Write raw payload to file
                 FileStream.Write(buffer);
             }

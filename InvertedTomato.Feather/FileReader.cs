@@ -38,6 +38,10 @@ namespace InvertedTomato.Feather {
             byte[] rawPayload;
 
             lock (Sync) {
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Disposed.");
+                }
+
                 // Read payload
                 ushort payloadLength;
                 try {
@@ -56,22 +60,30 @@ namespace InvertedTomato.Feather {
         /// Move cursor to start of the file.
         /// </summary>
         public void Rewind() {
-            // Rewind underlying file stream
-            FileStream.Rewind();
+            lock (Sync) {
+                if (IsDisposed) {
+                    throw new ObjectDisposedException("Disposed.");
+                }
+
+                // Rewind underlying file stream
+                FileStream.Rewind();
+            }
         }
 
         protected virtual void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            IsDisposed = true;
+            lock (Sync) {
+                if (IsDisposed) {
+                    return;
+                }
+                IsDisposed = true;
 
-            if (disposing) {
-                // Dispose managed state (managed objects)
-                FileStream.DisposeIfNotNull();
-            }
+                if (disposing) {
+                    // Dispose managed state (managed objects)
+                    FileStream.DisposeIfNotNull();
+                }
 
-            // Set large fields to null
+                // Set large fields to null
+            }
         }
         public void Dispose() {
             Dispose(true);
