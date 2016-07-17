@@ -212,7 +212,7 @@ namespace InvertedTomato.Feather {
             return new FileWriter(path, options);
         }
 
-        internal static byte[] PayloadsToBuffer(Payload[] payloads) {
+        internal static byte[] PayloadsToBuffer(PayloadWriter[] payloads) {
             // Fetch raw payloads while calculating buffer length
             var bufferLength = 0;
             var rawPayloads = new byte[payloads.Length][];

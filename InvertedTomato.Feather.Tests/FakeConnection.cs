@@ -16,7 +16,7 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         public byte[] TestSend(byte opcode, byte[] payload) {
-            Send(new Payload(opcode).AppendFixedLength(payload));
+            Send(new PayloadWriter(opcode).AppendFixedLength(payload));
 
             return Socket.Stream.ReadOutput();
         }
@@ -28,7 +28,7 @@ namespace InvertedTomato.Feather.Tests {
             return LastPayload;
         }
 
-        protected override void OnMessageReceived(Payload payload) {
+        protected override void OnMessageReceived(PayloadReader payload) {
             LastPayload = payload.ToByteArray();
         }
     }

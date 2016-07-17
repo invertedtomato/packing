@@ -17,7 +17,7 @@ namespace InvertedTomato.Feather.Tests {
             File.WriteAllBytes("test.dat", new byte[] { 0x01, 0x00, 0x01, 0x02, 0x00, 0x02, 0x05, 0x01, 0x00, 0x03 });
 
             using (var file = Feather.ReadFile("test.dat")) {
-                Payload payload;
+                PayloadReader payload;
 
                 payload = file.Read();
                 Assert.AreEqual(1, payload.Opcode);
@@ -43,7 +43,7 @@ namespace InvertedTomato.Feather.Tests {
             File.WriteAllBytes("test.dat", new byte[] { 0x02, 0x00, 0x01 }); // Length says it's a 2-byte payload, yet there's only 1 byte
 
             using (var file = Feather.ReadFile("test.dat")) {
-                Payload payload;
+                PayloadReader payload;
 
                 payload = file.Read();
             }
@@ -54,7 +54,7 @@ namespace InvertedTomato.Feather.Tests {
             File.WriteAllBytes("test.dat", new byte[] { 0x01, 0x00, 0x01, 0x02, 0x00, 0x02, 0x05, 0x01, 0x00, 0x03 });
 
             using (var file = Feather.ReadFile("test.dat")) {
-                Payload payload;
+                PayloadReader payload;
                 for (var i = 0; i < 3; i++) {
                     payload = file.Read();
                     Assert.IsNotNull(payload);
@@ -67,9 +67,9 @@ namespace InvertedTomato.Feather.Tests {
         [TestMethod]
         public void Append() {
             using (var file = Feather.WriteFile("test.dat")) {
-                file.Write(new Payload(0x01));
-                file.Write(new Payload(0x02).Append((byte)0x05));
-                file.Write(new Payload(0x03));
+                file.Write(new PayloadWriter(0x01));
+                file.Write(new PayloadWriter(0x02).Append((byte)0x05));
+                file.Write(new PayloadWriter(0x03));
             }
 
             var bytes = BitConverter.ToString(File.ReadAllBytes("test.dat"));

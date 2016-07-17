@@ -41,7 +41,8 @@
     <Compile Include="FileWriter.cs" />
     <Compile Include="FileOptions.cs" />
     <Compile Include="FileReader.cs" />
-    <Compile Include="Payload.cs" />
+    <Compile Include="PayloadReader.cs" />
+    <Compile Include="PayloadWriter.cs" />
     <Compile Include="Feather.cs" />
     <Compile Include="ConnectionOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

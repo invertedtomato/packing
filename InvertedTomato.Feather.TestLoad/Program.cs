@@ -7,12 +7,12 @@ namespace InvertedTomato.Feather.TestLoad {
         static void Main(string[] args) {
             using (var file = Feather.WriteFile("test.dat")) {
                 for (var i = 1; i < 10000000; i++) {
-                    file.Write(new Payload(0x00).Append(1).Append(2));
+                    file.Write(new PayloadWriter(0x00).Append(1).Append(2));
                 }
             }
 
             using (var file = Feather.ReadFile("test.dat")) {
-                Payload payload;
+                PayloadReader payload;
                 while ((payload = file.Read()) != null) {
                     payload.ReadInt32();
                     payload.ReadInt32();
@@ -33,9 +33,9 @@ namespace InvertedTomato.Feather.TestLoad {
 
     public class TestConnection : ConnectionBase {
         public void TestSend() {
-            Send(new Payload(0x00).Append(1).Append(2));
+            Send(new PayloadWriter(0x00).Append(1).Append(2));
         }
-        protected override void OnMessageReceived(Payload payload) {
+        protected override void OnMessageReceived(PayloadReader payload) {
             payload.ReadInt32();
             payload.ReadInt32();
         }

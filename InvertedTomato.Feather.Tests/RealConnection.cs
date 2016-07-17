@@ -6,10 +6,10 @@ namespace InvertedTomato.Feather.Tests {
         public Action OnPingReceived;
 
         public void SendPing() {
-            Send(new Payload(0x01).Append(0x02));
+            Send(new PayloadWriter(0x01).Append(0x02));
         }
 
-        protected override void OnMessageReceived(Payload payload) {
+        protected override void OnMessageReceived(PayloadReader payload) {
             if (payload.Opcode != 0x01) {
                 throw new ProtocolViolationException("Unexpected opcode.");
             }

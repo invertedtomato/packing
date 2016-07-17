@@ -59,6 +59,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RealConnection.cs" />
     <Compile Include="FileBaseTests.cs" />
+    <Compile Include="PayloadReaderTests.cs" />
+    <Compile Include="PayloadWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">

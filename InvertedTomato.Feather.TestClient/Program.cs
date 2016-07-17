@@ -26,10 +26,10 @@ namespace InvertedTomato.Feather.TestClient {
                 throw new ArgumentNullException("password");
             }
 
-            Send(new Payload(0x00).Append(emailAddress).Append(password));
+            Send(new PayloadWriter(0x00).Append(emailAddress).Append(password));
         }
 
-        protected override void OnMessageReceived(Payload payload) {
+        protected override void OnMessageReceived(PayloadReader payload) {
             switch (payload.Opcode) {
                 case 0x00: // Chat message
                     var userName = payload.ReadString();

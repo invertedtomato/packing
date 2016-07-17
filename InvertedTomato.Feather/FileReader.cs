@@ -34,7 +34,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Read the next record. Returns null if no records remain.
         /// </summary>
-        public Payload Read() {
+        public PayloadReader Read() {
             byte[] rawPayload;
 
             lock (Sync) {
@@ -49,7 +49,7 @@ namespace InvertedTomato.Feather {
             }
 
             // Return payload
-            return new Payload(rawPayload);
+            return new PayloadReader(rawPayload);
         }
 
         /// <summary>

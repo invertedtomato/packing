@@ -39,18 +39,18 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Append single payload to the end of the file.
         /// </summary>
-        public void Write(Payload payload) {
+        public void Write(PayloadWriter payload) {
             if (null == payload) {
                 throw new ArgumentNullException("payload");
             }
 
-            Write(new Payload[] { payload });
+            Write(new PayloadWriter[] { payload });
         }
 
         /// <summary>
         /// Append multiple payloads to the end of the file.
         /// </summary>
-        public void Write(Payload[] payloads) {
+        public void Write(PayloadWriter[] payloads) {
             if (null == payloads) {
                 throw new ArgumentNullException("payload");
             }
