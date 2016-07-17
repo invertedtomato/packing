@@ -57,6 +57,9 @@ namespace InvertedTomato.Feather {
             if (null == value) {
                 throw new ArgumentNullException("value");
             }
+            if (value.Length > ushort.MaxValue) {
+                throw new InternalBufferOverflowException("Must be less than 65KB.");
+            }
 
             var rawLength = (ushort)value.Length;
             Inner.Write(rawLength);
@@ -75,6 +78,9 @@ namespace InvertedTomato.Feather {
             if (null == value) {
                 Inner.Write(0x00);
                 return this; // Allow chaining
+            }
+            if (value.Length > ushort.MaxValue) {
+                throw new InternalBufferOverflowException("Must be less than 65KB.");
             }
 
             Inner.Write(0x01);
@@ -157,6 +163,9 @@ namespace InvertedTomato.Feather {
             }
 
             var rawValue = Encoding.UTF8.GetBytes(value);
+            if (rawValue.Length > ushort.MaxValue) {
+                throw new InternalBufferOverflowException("Must be less than 65KB when encoded in UTF8.");
+            }
             Inner.Write((ushort)rawValue.Length);
             Inner.Write(rawValue);
             return this; // Allow chaining
