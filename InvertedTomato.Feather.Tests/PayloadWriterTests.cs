@@ -180,7 +180,7 @@ namespace InvertedTomato.Feather.Tests {
 		public void AppendFloat() {
 			var payload = new PayloadWriter(0x00);
 			payload.Append( 4.3f);
-			 
+			var ddf = BitConverter.ToString(payload.ToByteArray());
 			Assert.AreEqual(4.3f, new PayloadReader(payload.ToByteArray()).ReadFloat());
 		}
 
