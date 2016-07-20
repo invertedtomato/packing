@@ -11,19 +11,7 @@ namespace InvertedTomato.Feather.Tests {
 			Assert.AreEqual("01-02-03", BitConverter.ToString(payload.ReadByteArray()));
 		}
 
-		[TestMethod]
-		public void ReadInt32() {
-			var value = new PayloadWriter(0x00).Append(1400);
-			var payload = new PayloadReader(value.ToByteArray());
-			Assert.AreEqual(1400, payload.ReadInt32());
-		}
 
-		[TestMethod]// Check Negative Values
-		public void ReadInt32_NegativeValue() {
-			var value = new PayloadWriter(0x00).Append(-1400);
-			var payload = new PayloadReader(value.ToByteArray());
-			Assert.AreEqual(-1400, payload.ReadInt32());
-		}
 
 
 		[TestMethod]
@@ -102,7 +90,6 @@ namespace InvertedTomato.Feather.Tests {
 			Assert.AreEqual(ip, payload.ReadIPAddress());
 		}
 
-
 		[TestMethod]
 		public void ReadNullableIPAddress() {
 			IPAddress ip = null;
@@ -111,6 +98,112 @@ namespace InvertedTomato.Feather.Tests {
 
 			Assert.AreEqual(ip, payload.ReadNullableIPAddress());
 		}
+
+		[TestMethod]
+		public void ReadInt8() {
+			var value = new PayloadWriter(0x00).Append((sbyte)15);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual((sbyte)15, payload.ReadInt8());
+		}
+
+		[TestMethod]
+		public void ReadInt8_Negative() {
+			var value = new PayloadWriter(0x00).Append((sbyte)-15);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual((sbyte)-15, payload.ReadInt8());
+		}
+
+		[TestMethod]
+		public void ReadUInt8() {
+			var value = new PayloadWriter(0x00).Append((byte)50);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual((byte)50, payload.ReadUInt8());
+		}
+
+		[TestMethod]
+		public void ReadInt16() {
+			var value = new PayloadWriter(0x00).Append((short)1000);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual(1000, payload.ReadInt16());
+		}
+		[TestMethod]
+		public void ReadInt16_Negative() {
+			var value = new PayloadWriter(0x00).Append((short)-1000);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual(-1000, payload.ReadInt16());
+		}
+
+		[TestMethod]
+		public void ReadUInt16() {
+			var value = new PayloadWriter(0x00).Append((short)2000);
+			var payload = new PayloadReader(value.ToByteArray());
+
+			Assert.AreEqual(2000, payload.ReadUInt16());
+		}
+		[TestMethod]
+		public void ReadInt32() {
+			var value = new PayloadWriter(0x00).Append(1400);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual(1400, payload.ReadInt32());
+		}
+
+		[TestMethod]// Check Negative Values
+		public void ReadInt32_NegativeValue() {
+			var value = new PayloadWriter(0x00).Append(-1400);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual(-1400, payload.ReadInt32());
+		}
+
+		[TestMethod]
+		public void ReadUInt32() {
+			var value = new PayloadWriter(0x00).Append((uint)1500);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual((uint)1500, payload.ReadUInt32());
+		}
+
+
+		[TestMethod]
+		public void ReadInt64() {
+			var value = new PayloadWriter(0x00).Append((long)1500);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual((long)1500, payload.ReadInt64());
+		}
+
+
+		[TestMethod]
+		public void ReadUInt64() {
+			var value = new PayloadWriter(0x00).Append((ulong)300);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual((ulong)300, payload.ReadUInt64());
+		}
+
+		[TestMethod]
+		public void ReadDouble() {
+			var value = new PayloadWriter(0x00).Append(65.67D);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual(65.67D, payload.ReadDouble());
+		}
+
+		[TestMethod]
+		public void ReadFloat() {
+			var value = new PayloadWriter(0x00).Append(65.6F);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual(65.6F, payload.ReadDouble());
+		}
+
+		[TestMethod]
+		public void ReadNullableByteArray() {
+			byte[] arr = null;
+			var value = new PayloadWriter(0x00).AppendNullable(arr);
+			var payload = new PayloadReader(value.ToByteArray());
+			Assert.AreEqual(arr, payload.ReadNullableByteArray());
+		}
+
 
 		// TODO: Finish unit tests
 	}
