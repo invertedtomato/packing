@@ -4,18 +4,30 @@ using System.IO;
 namespace InvertedTomato.Feather {
     public class FileReader : IDisposable {
         /// <summary>
-        /// Configuration options
-        /// </summary>
-        private readonly FileOptions Options;
-        private readonly FileStream FileStream;
-
-        /// <summary>
         /// If the file has been disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
-        private object Sync = new object();
+        /// <summary>
+        /// Length of the file, in bytes.
+        /// </summary>
+        public long Length { get { return UnderlyingFile.Length; } }
 
+        /// <summary>
+        /// Configuration options.
+        /// </summary>
+        private readonly FileOptions Options;
+
+        /// <summary>
+        /// Underlying file.
+        /// </summary>
+        private readonly FileStream UnderlyingFile;
+
+        /// <summary>
+        /// Synchronisation lock.
+        /// </summary>
+        private readonly object Sync = new object();
+        
         internal FileReader(string path, FileOptions options) {
             if (string.IsNullOrEmpty(path)) {
                 throw new ArgumentException("Null or empty.", "path");
@@ -28,7 +40,7 @@ namespace InvertedTomato.Feather {
             Options = options;
 
             // Setup file stream
-            FileStream = File.Open(path, FileMode.Open, FileAccess.Read);
+            UnderlyingFile = File.Open(path, FileMode.Open, FileAccess.Read);
         }
 
         /// <summary>
@@ -45,11 +57,11 @@ namespace InvertedTomato.Feather {
                 // Read payload
                 ushort payloadLength;
                 try {
-                    payloadLength = FileStream.ReadUInt16();
+                    payloadLength = UnderlyingFile.ReadUInt16();
                 } catch (EndOfStreamException) {
                     return null;
                 }
-                rawPayload = FileStream.Read(payloadLength);
+                rawPayload = UnderlyingFile.Read(payloadLength);
             }
 
             // Return payload
@@ -66,7 +78,7 @@ namespace InvertedTomato.Feather {
                 }
 
                 // Rewind underlying file stream
-                FileStream.Rewind();
+                UnderlyingFile.Rewind();
             }
         }
 
@@ -79,7 +91,7 @@ namespace InvertedTomato.Feather {
 
                 if (disposing) {
                     // Dispose managed state (managed objects)
-                    FileStream.DisposeIfNotNull();
+                    UnderlyingFile.DisposeIfNotNull();
                 }
 
                 // Set large fields to null

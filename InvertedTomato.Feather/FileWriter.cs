@@ -1,25 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InvertedTomato.Extensions;
 
 namespace InvertedTomato.Feather {
     public class FileWriter : IDisposable {
-        /// <summary>
-        /// Configuration options
-        /// </summary>
-        private readonly FileOptions Options;
-        private readonly FileStream FileStream;
-
         /// <summary>
         /// If the file has been disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
-        private object Sync = new object();
+        /// <summary>
+        /// Length of the file, in bytes.
+        /// </summary>
+        public long Length { get { return UnderlyingFile.Length; } }
+
+        /// <summary>
+        /// Configuration options.
+        /// </summary>
+        private readonly FileOptions Options;
+
+        /// <summary>
+        /// Underlying file.
+        /// </summary>
+        private readonly FileStream UnderlyingFile;
+
+        /// <summary>
+        /// Synchronisation lock.
+        /// </summary>
+        private readonly object Sync = new object();
 
         internal FileWriter(string path, FileOptions options) {
             if (string.IsNullOrEmpty(path)) {
@@ -33,7 +40,7 @@ namespace InvertedTomato.Feather {
             Options = options;
 
             // Setup file stream
-            FileStream = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
+            UnderlyingFile = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
         }
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace InvertedTomato.Feather {
                 }
 
                 // Write raw payload to file
-                FileStream.Write(buffer);
+                UnderlyingFile.Write(buffer);
             }
         }
 
@@ -77,7 +84,7 @@ namespace InvertedTomato.Feather {
 
             if (disposing) {
                 // Dispose managed state (managed objects)
-                FileStream.DisposeIfNotNull();
+                UnderlyingFile.DisposeIfNotNull();
             }
 
             // Set large fields to null
