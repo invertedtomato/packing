@@ -10,7 +10,7 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         protected override void OnMessageReceived(PayloadReader payload) {
-            if (payload.Opcode != 0x01) {
+            if (payload.OpCode != 0x01) {
                 throw new ProtocolViolationException("Unexpected opcode.");
             }
             if (payload.Length != 2) {

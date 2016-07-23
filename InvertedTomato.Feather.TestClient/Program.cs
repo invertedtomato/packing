@@ -30,7 +30,7 @@ namespace InvertedTomato.Feather.TestClient {
         }
 
         protected override void OnMessageReceived(PayloadReader payload) {
-            switch (payload.Opcode) {
+            switch (payload.OpCode) {
                 case 0x00: // Chat message
                     var userName = payload.ReadString();
                     var message = payload.ReadString();

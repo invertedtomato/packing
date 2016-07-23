@@ -16,7 +16,7 @@ namespace InvertedTomato.Feather.TestServer {
 
     class Connection : ConnectionBase {
         protected override void OnMessageReceived(PayloadReader payload) {
-            switch (payload.Opcode) {
+            switch (payload.OpCode) {
                 case 0x00:
                     var userName = payload.ReadString();
                     var message = payload.ReadString();

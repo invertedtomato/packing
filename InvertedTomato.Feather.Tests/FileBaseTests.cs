@@ -20,16 +20,16 @@ namespace InvertedTomato.Feather.Tests {
                 PayloadReader payload;
 
                 payload = file.Read();
-                Assert.AreEqual(1, payload.Opcode);
+                Assert.AreEqual(1, payload.OpCode);
                 Assert.AreEqual(1, payload.Length);
 
                 payload = file.Read();
-                Assert.AreEqual(2, payload.Opcode);
+                Assert.AreEqual(2, payload.OpCode);
                 Assert.AreEqual(2, payload.Length);
                 Assert.AreEqual(5, payload.ReadUInt8());
 
                 payload = file.Read();
-                Assert.AreEqual(3, payload.Opcode);
+                Assert.AreEqual(3, payload.OpCode);
                 Assert.AreEqual(1, payload.Length);
 
                 payload = file.Read();
@@ -58,7 +58,7 @@ namespace InvertedTomato.Feather.Tests {
                 for (var i = 0; i < 3; i++) {
                     payload = file.Read();
                     Assert.IsNotNull(payload);
-                    Assert.AreEqual(0x01, payload.Opcode);
+                    Assert.AreEqual(0x01, payload.OpCode);
                     file.Rewind();
                 }
             }

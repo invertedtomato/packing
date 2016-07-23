@@ -5,7 +5,7 @@ using System.Text;
 
 namespace InvertedTomato.Feather {
     public class PayloadReader : IDisposable {
-        public byte Opcode { get; }
+        public byte OpCode { get; }
 
         public int Length { get { return (int)Inner.Length; } }
         public int Position { get { return (int)Inner.Position; } }
@@ -28,7 +28,7 @@ namespace InvertedTomato.Feather {
             Inner.Position = 1;
 
             // Note opcode separately
-            Opcode = rawPayload[0];
+            OpCode = rawPayload[0];
         }
 
         public DateTime ReadDateTime() {
