@@ -36,8 +36,11 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core.cs" />
+    <Compile Include="FeatherFile.cs" />
     <Compile Include="ConnectionBase.cs" />
     <Compile Include="DisconnectionType.cs" />
+    <Compile Include="FeatherTCP.cs" />
     <Compile Include="FileWriter.cs" />
     <Compile Include="FileOptions.cs" />
     <Compile Include="FileReader.cs" />

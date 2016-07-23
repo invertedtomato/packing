@@ -24,7 +24,7 @@ namespace InvertedTomato.Feather {
         private readonly FileStream UnderlyingFile;
 
         /// <summary>
-        /// Synchronisation lock.
+        /// Synchronization lock.
         /// </summary>
         private readonly object Sync = new object();
         

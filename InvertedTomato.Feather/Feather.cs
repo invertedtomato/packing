@@ -1,250 +1,106 @@
 ﻿using InvertedTomato.Testable.Sockets;
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
 namespace InvertedTomato.Feather {
-    public sealed class Feather<TConnection> : IDisposable where TConnection : ConnectionBase, new() {
+
+    [Obsolete("Use FeatherTCP instead.")]
+    public static class Feather<TConnection> where TConnection : ConnectionBase, new() {
         /// <summary>
-        /// When a client connects.
+        /// Start a Feather server by listening for connections.
         /// </summary>
-        public Action<TConnection> OnClientConnected;
-
-        /// <summary>
-        /// Has the server been disposed.
-        /// </summary>
-        public bool IsDisposed { get; private set; }
-
-        /// <summary>
-        /// User provided options.
-        /// </summary>
-        private readonly ConnectionOptions Options;
-
-        /// <summary>
-        /// Socket the server is listening on.
-        /// </summary>
-        private readonly Socket ListenerSocket;
-
-        private Feather(EndPoint endPoint, ConnectionOptions options) {
-            // Store configuration
-            Options = options;
-
-            try {
-                // Open socket
-                ListenerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                ListenerSocket.Bind(endPoint);
-                ListenerSocket.Listen(Options.MaxListenBacklog);
-
-                // Seed accepting
-                AcceptBegin();
-            } catch (ObjectDisposedException) { } // This occurs if the server is disposed during instantiation
-        }
-
-        private void AcceptBegin() {
-            // Wait for, and accept next connection
-            ListenerSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-        }
-
-        private void AcceptCallback(IAsyncResult ar) {
-            try {
-                // Get client socket
-                var clientSocket = ListenerSocket.EndAccept(ar);
-
-                // Create connection
-                var connection = new TConnection();
-                connection.Start(true, new SocketReal(clientSocket), Options);
-
-                // Raise event
-                OnClientConnected.TryInvoke(connection);
-
-                // Resume accepting sockets
-                AcceptBegin();
-            } catch (ObjectDisposedException) { } // This occurs naturally during dispose
-        }
-
-        /// <summary>
-        /// Send a message to all clients. The last message for each topic will be stored and delivered to newly connecting clients. 
-        /// NOTE: If clients are unable to receive messages at the rate they are being sent, messages will be dropped intelligently.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="payload"></param>
-        public void Broadcast(object topic, byte[] payload) {
-            throw new NotImplementedException("Broadcast functionality not yet implemented by Ben Thompson");
-        }
-
-        public void Dispose() { Dispose(true); }
-        void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            IsDisposed = true;
-
-            if (disposing) {
-                // Dispose managed state (managed objects)
-                ListenerSocket.Dispose();
-            }
-        }
-
+        /// <returns>Feather instance</returns>
+        [Obsolete("Use FeatherTCP instead.")]
+        public static FeatherTCP<TConnection> Listen(int port) { return FeatherTCP<TConnection>.Listen(port); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(int port) { return Listen(new IPEndPoint(IPAddress.Any, port)); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static FeatherTCP<TConnection> Listen(int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Listen(port, options); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(int port, ConnectionOptions options) { return Listen(new IPEndPoint(IPAddress.Any, port), options); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static FeatherTCP<TConnection> Listen(EndPoint localEndPoint) { return FeatherTCP<TConnection>.Listen(localEndPoint); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(EndPoint localEndPoint) { return new Feather<TConnection>(localEndPoint, new ConnectionOptions()); }
-
-        /// <summary>
-        /// Start a Feather server by listening for connections.
-        /// </summary>
-        /// <returns>Feather instance</returns>
-        public static Feather<TConnection> Listen(EndPoint endpoint, ConnectionOptions options) {
-            if (null == endpoint) {
-                throw new ArgumentNullException("endpoint");
-            }
-            if (null == options) {
-                throw new ArgumentNullException("options");
-            }
-
-            return new Feather<TConnection>(endpoint, options);
-        }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static FeatherTCP<TConnection> Listen(EndPoint endpoint, ConnectionOptions options) { return FeatherTCP<TConnection>.Listen(endpoint, options); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(IPAddress serverAddress, int port) { return Connect(new IPEndPoint(serverAddress, port)); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(IPAddress serverAddress, int port) { return FeatherTCP<TConnection>.Connect(serverAddress, port); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(IPAddress serverAddress, int port, ConnectionOptions options) { return Connect(new IPEndPoint(serverAddress, port), options); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(IPAddress serverAddress, int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(serverAddress, port, options); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(string serverName, int port) { return Connect(new DnsEndPoint(serverName, port)); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(string serverName, int port) { return FeatherTCP<TConnection>.Connect(serverName, port); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(string serverName, int port, ConnectionOptions options) { return Connect(new DnsEndPoint(serverName, port), options); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(string serverName, int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(serverName, port, options); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint) { return Connect(endPoint, new ConnectionOptions()); }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(EndPoint endPoint) { return FeatherTCP<TConnection>.Connect(endPoint); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint, ConnectionOptions options) {
-            if (null == endPoint) {
-                throw new ArgumentNullException("endPoint");
-            }
-            if (null == options) {
-                throw new ArgumentNullException("options");
-            }
-
-            // Open socket
-            var clientSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Connect(endPoint);
-
-            // Create connection
-            var connection = new TConnection();
-            connection.Start(false, new SocketReal(clientSocket), options);
-
-            return connection;
-        }
+        [Obsolete("Use FeatherTCP instead.")]
+        public static TConnection Connect(EndPoint endPoint, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(endPoint, options); }
     }
 
+    [Obsolete("Use FeatherFile instead.")]
     public sealed class Feather {
         /// <summary>
         /// Open Feather data file for reading.
         /// </summary>
-        public static FileReader ReadFile(string path) { return ReadFile(path, new FileOptions()); }
+        [Obsolete("Use FeatherFile instead.")]
+        public static FileReader ReadFile(string path) { return FeatherFile.OpenRead(path); }
 
         /// <summary>
         /// Open Feather data file for reading.
         /// </summary>
-        public static FileReader ReadFile(string path, FileOptions options) {
-            if (null == path) {
-                throw new ArgumentNullException("fileName");
-            }
-            if (null == options) {
-                throw new ArgumentNullException("options");
-            }
-
-            return new FileReader(path, options);
-        }
+        [Obsolete("Use FeatherFile instead.")]
+        public static FileReader ReadFile(string path, FileOptions options) { return FeatherFile.OpenRead(path, options); }
         /// <summary>
         /// Open Feather data file for reading.
         /// </summary>
-        public static FileWriter WriteFile(string path) { return WriteFile(path, new FileOptions()); }
+        [Obsolete("Use FeatherFile instead.")]
+        public static FileWriter WriteFile(string path) { return FeatherFile.OpenWrite(path); }
 
         /// <summary>
         /// Open Feather data file for reading.
         /// </summary>
-        public static FileWriter WriteFile(string path, FileOptions options) {
-            if (null == path) {
-                throw new ArgumentNullException("fileName");
-            }
-            if (null == options) {
-                throw new ArgumentNullException("options");
-            }
-
-            return new FileWriter(path, options);
-        }
-
-        internal static byte[] PayloadsToBuffer(PayloadWriter[] payloads) {
-            // Fetch raw payloads while calculating buffer length
-            var bufferLength = 0;
-            var rawPayloads = new byte[payloads.Length][];
-            for (var i = 0; i < payloads.Length; i++) {
-                var payload = payloads[i];
-
-                // Check if null
-                if (null == payload) {
-                    throw new ArgumentException("Contains null element.", "payloads");
-                }
-
-                // Get raw payload
-                rawPayloads[i] = payload.ToByteArray();
-                if (rawPayloads[i].Length > ushort.MaxValue) {
-                    throw new InternalBufferOverflowException("Payload longer than 65KB.");
-                }
-
-                // Increment raw buffer length required
-                bufferLength += 2 + rawPayloads[i].Length;
-            }
-
-            // Merge everything to be sent into a buffer
-            var buffer = new byte[bufferLength];
-            var pos = 0;
-            foreach (var rawPayload in rawPayloads) {
-                var rawPayloadRawLength = BitConverter.GetBytes((ushort)rawPayload.Length);
-                Buffer.BlockCopy(rawPayloadRawLength, 0, buffer, pos, 2); // Length
-                Buffer.BlockCopy(rawPayload, 0, buffer, 2, rawPayload.Length); // Payload
-                pos += rawPayloadRawLength.Length + rawPayload.Length;
-            }
-
-            return buffer;
-        }
+        [Obsolete("Use FeatherFile instead.")]
+        public static FileWriter WriteFile(string path, FileOptions options) { return FeatherFile.OpenWrite(path, options); }
     }
 }

@@ -65,7 +65,7 @@ namespace InvertedTomato.Feather.Tests {
 			};
 
 			// Create server
-			using (var server = Feather<RealConnection>.Listen(1234, options)) {
+			using (var server = FeatherTCP<RealConnection>.Listen(1234, options)) {
 				server.OnClientConnected += (connection) => {
 					clientConnected++;
 					connection.OnPingReceived += () => { serverPings++; };
@@ -78,7 +78,7 @@ namespace InvertedTomato.Feather.Tests {
 				};
 
 				// Create client
-				using (var client = Feather<RealConnection>.Connect("localhost", 1234, options)) {
+				using (var client = FeatherTCP<RealConnection>.Connect("localhost", 1234, options)) {
 					client.OnPingReceived += () => { clientPings++; };
 
 					// Send pings

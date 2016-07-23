@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
-	public class PayloadWriter : IDisposable {
+    public class PayloadWriter : IDisposable {
 		public byte Opcode { get; }
 
 		public int Length { get { return (int)Inner.Length; } }

@@ -171,7 +171,7 @@ namespace InvertedTomato.Feather {
             }
 
             // Convert to buffer
-            var buffer = Feather.PayloadsToBuffer(payloads);
+            var buffer = Core.PayloadsToBuffer(payloads);
 
             // Send buffer
             RawSend(buffer, done);

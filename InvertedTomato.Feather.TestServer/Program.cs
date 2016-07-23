@@ -3,11 +3,11 @@
 // TODO: Tidy this example
 namespace InvertedTomato.Feather.TestServer {
     class Program {
-        public static Feather<Connection> Server;
+        public static FeatherTCP<Connection> Server;
 
         static void Main(string[] args) {
             Console.WriteLine("Starting server...");
-            Server = Feather<Connection>.Listen(778);
+            Server = FeatherTCP<Connection>.Listen(778);
             Console.WriteLine("Chat server running. Press any key to terminate.");
             Console.ReadKey(true);
             Server.Dispose();

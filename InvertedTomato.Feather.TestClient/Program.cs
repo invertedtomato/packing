@@ -6,7 +6,7 @@ namespace InvertedTomato.Feather.TestClient {
     class Program {
         static void Main(string[] args) {
             Console.WriteLine("Connecting...");
-            using (var client = Feather<Connection>.Connect("localhost", 777)) {
+            using (var client = FeatherTCP<Connection>.Connect("localhost", 777)) {
                 Console.WriteLine("Ready. Press any key to send message.");
 
                 while (true) {

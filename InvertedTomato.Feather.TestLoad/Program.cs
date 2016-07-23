@@ -5,13 +5,13 @@ using System.IO;
 namespace InvertedTomato.Feather.TestLoad {
     class Program {
         static void Main(string[] args) {
-            using (var file = Feather.WriteFile("test.dat")) {
+            using (var file = FeatherFile.OpenWrite("test.dat")) {
                 for (var i = 1; i < 10000000; i++) {
                     file.Write(new PayloadWriter(0x00).Append(1).Append(2));
                 }
             }
 
-            using (var file = Feather.ReadFile("test.dat")) {
+            using (var file = FeatherFile.OpenRead("test.dat")) {
                 PayloadReader payload;
                 while ((payload = file.Read()) != null) {
                     payload.ReadInt32();
@@ -21,8 +21,8 @@ namespace InvertedTomato.Feather.TestLoad {
             
             File.Delete("test.dat");
 
-            using (var server = Feather<TestConnection>.Listen(777)) {
-                using (var client = Feather<TestConnection>.Connect("localhost", 777)) {
+            using (var server = FeatherTCP<TestConnection>.Listen(777)) {
+                using (var client = FeatherTCP<TestConnection>.Connect("localhost", 777)) {
                     for (var i = 1; i < 100000; i++) {
                         client.TestSend();
                     }

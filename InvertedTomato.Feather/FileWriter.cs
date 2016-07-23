@@ -24,7 +24,7 @@ namespace InvertedTomato.Feather {
         private readonly FileStream UnderlyingFile;
 
         /// <summary>
-        /// Synchronisation lock.
+        /// Synchronization lock.
         /// </summary>
         private readonly object Sync = new object();
 
@@ -63,7 +63,7 @@ namespace InvertedTomato.Feather {
             }
 
             // Convert to buffer
-            var buffer = Feather.PayloadsToBuffer(payloads);
+            var buffer = Core.PayloadsToBuffer(payloads);
 
             lock (Sync) {
                 if (IsDisposed) {
