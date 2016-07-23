@@ -65,9 +65,24 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         [TestMethod]
-        public void Append() {
+        public void Write() {
             using (var file = FeatherFile.OpenWrite("test.dat")) {
                 file.Write(new PayloadWriter(0x01));
+                file.Write(new PayloadWriter(0x02).Append((byte)0x05));
+                file.Write(new PayloadWriter(0x03));
+            }
+
+            var bytes = BitConverter.ToString(File.ReadAllBytes("test.dat"));
+
+            Assert.AreEqual("01-00-01" + "-02-00-02-05" + "-01-00-03", bytes);
+        }
+
+        [TestMethod]
+        public void WriteAppend() {
+            using (var file = FeatherFile.OpenWrite("test.dat")) {
+                file.Write(new PayloadWriter(0x01));
+            }
+            using (var file = FeatherFile.OpenWrite("test.dat")) {
                 file.Write(new PayloadWriter(0x02).Append((byte)0x05));
                 file.Write(new PayloadWriter(0x03));
             }

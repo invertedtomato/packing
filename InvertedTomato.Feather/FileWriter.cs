@@ -40,7 +40,7 @@ namespace InvertedTomato.Feather {
             Options = options;
 
             // Setup file stream
-            UnderlyingFile = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
+            UnderlyingFile = File.Open(path, FileMode.Append, FileAccess.Write);
         }
 
         /// <summary>
