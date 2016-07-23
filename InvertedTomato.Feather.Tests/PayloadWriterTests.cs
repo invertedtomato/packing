@@ -86,7 +86,7 @@ namespace InvertedTomato.Feather.Tests {
 
         [TestMethod]
         public void AppendIPAddress() {
-            IPAddress ip = new IPAddress(3232235527); //192.168.0.7
+            var ip = new IPAddress(3232235527); //192.168.0.7
             var payload = new PayloadWriter(0x00);
             payload.Append(ip);
 
@@ -95,9 +95,8 @@ namespace InvertedTomato.Feather.Tests {
 
         [TestMethod]
         public void AppendNullableIpAddress() {
-            IPAddress ip = null;
             var payload = new PayloadWriter(0x00);
-            payload.AppendNullable(ip);
+            payload.AppendNullable((IPAddress)null);
 
             Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
         }
@@ -143,7 +142,7 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         [TestMethod]
-        public void AppendUint32() {
+        public void AppendUInt32() {
             var payload = new PayloadWriter(0x00);
             payload.Append((uint)200);
 
@@ -151,7 +150,7 @@ namespace InvertedTomato.Feather.Tests {
         }
 
         [TestMethod]
-        public void AppendLong() {
+        public void AppendInt64() {
             var payload = new PayloadWriter(0x00);
             payload.Append((long)1400);
 
@@ -160,7 +159,7 @@ namespace InvertedTomato.Feather.Tests {
 
 
         [TestMethod]
-        public void AppendUlong() {
+        public void AppendUInt64() {
             var payload = new PayloadWriter(0x00);
             payload.Append((ulong)1500);
             //var ddf = BitConverter.ToString(payload.ToByteArray());
