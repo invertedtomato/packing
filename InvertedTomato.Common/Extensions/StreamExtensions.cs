@@ -46,7 +46,7 @@ namespace InvertedTomato {
                 return false;
             }
 
-            value = (sbyte)(buffer[0] - sbyte.MaxValue); // TODO: Check this line is correct
+            value = (sbyte)(buffer[0] + sbyte.MinValue);
             return true;
         }
 
@@ -635,6 +635,13 @@ namespace InvertedTomato {
             target.Write(data, 0, data.Length);
         }
 
+        public static void Write(this Stream target, float value) {
+            if (null == target) {
+                throw new ArgumentNullException("target");
+            }
+            var data = BitConverter.GetBytes(value);
+            target.Write(data, 0, data.Length);
+        }
 
 
 
