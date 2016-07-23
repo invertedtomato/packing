@@ -6,8 +6,8 @@ namespace InvertedTomato.Feather.Tests {
         public readonly SocketFake Socket = new SocketFake();
         public byte[] LastPayload;
 
-        public FakeConnection() : this(new ConnectionOptions()) { }
-        public FakeConnection(ConnectionOptions configuration) {
+        public FakeConnection() : this(new FeatherTCPOptions()) { }
+        public FakeConnection(FeatherTCPOptions configuration) {
             if (null == configuration) {
                 throw new ArgumentNullException("configuration");
             }

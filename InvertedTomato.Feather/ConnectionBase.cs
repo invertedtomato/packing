@@ -54,7 +54,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Configuration options
         /// </summary>
-        private ConnectionOptions Options;
+        private FeatherTCPOptions Options;
 
         /// <summary>
         /// Timer to send keep-alive messages to prevent disconnection.
@@ -89,7 +89,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Start the connection. Can only be called once.
         /// </summary>
-        public void Start(bool isServerConnection, ISocket clientSocket, ConnectionOptions options) {
+        public void Start(bool isServerConnection, ISocket clientSocket, FeatherTCPOptions options) {
             if (null == options) {
                 throw new ArgumentNullException("options");
             }
@@ -136,36 +136,36 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Send single payload to remote endpoint.
         /// </summary>    
-        protected void Send(PayloadWriter payload) {
+        protected void Send(Payload payload) {
             if (null == payload) {
                 throw new ArgumentNullException("payload");
             }
 
-            Send(new PayloadWriter[] { payload }, null);
+            Send(new Payload[] { payload }, null);
         }
 
         /// <summary>
         /// Send single payload to remote endpoint and execute a callback when done.
         /// </summary>
-        protected void Send(PayloadWriter payload, Action done) {
+        protected void Send(Payload payload, Action done) {
             if (null == payload) {
                 throw new ArgumentNullException("payload");
             }
 
-            Send(new PayloadWriter[] { payload }, done);
+            Send(new Payload[] { payload }, done);
         }
 
         /// <summary>
         /// Send multiple payloads to remote endpoint.
         /// </summary>    
-        protected void Send(PayloadWriter[] payloads) {
+        protected void Send(Payload[] payloads) {
             Send(payloads, null);
         }
 
         /// <summary>
         /// Send multiple payloads to remote endpoint and execute a callback when done.
         /// </summary>
-        protected void Send(PayloadWriter[] payloads, Action done) {
+        protected void Send(Payload[] payloads, Action done) {
             if (null == payloads) {
                 throw new ArgumentNullException("payload");
             }

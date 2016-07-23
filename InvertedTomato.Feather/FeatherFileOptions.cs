@@ -1,7 +1,5 @@
-﻿using System;
-
-namespace InvertedTomato.Feather {
-    public sealed class FileOptions {
+﻿namespace InvertedTomato.Feather {
+    public sealed class FeatherFileOptions {
         /// <summary>
         /// Flush buffer to disk every X appends. Disabled if less than 1.
         /// </summary>

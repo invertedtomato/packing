@@ -2,7 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 
 namespace InvertedTomato.Feather {
-    public sealed class ConnectionOptions {
+    public sealed class FeatherTCPOptions {
         /// <summary>
         /// Use SSL to secure the connection.
         /// </summary>

@@ -4,18 +4,18 @@ using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
-    public class PayloadWriter : IDisposable {
-        public byte OpCode { get; }
+    public class PayloadWriter : Payload {
+        //public int Position { get { return (int)Inner.Position; } }
+        //public int Remaining { get { return (int)(Inner.Length - Inner.Position); } }
 
-        public int Length { get { return (int)Inner.Length; } }
-        public int Position { get { return (int)Inner.Position; } }
-        public int Remaining { get { return (int)(Inner.Length - Inner.Position); } }
+        public PayloadWriter(byte opCode) {
+            // Setup inner store
+            Inner = new MemoryStream();
+            Inner.Write(opCode);
 
-        public bool IsDisposed { get; private set; }
-
-        private readonly MemoryStream Inner;
-
-        public PayloadWriter(byte opCode) : this(opCode, 8) { }
+            // Note opcode separately
+            OpCode = opCode;
+        }
 
         public PayloadWriter(byte opCode, int expectedCapacity) {
             // Setup inner store
@@ -322,26 +322,6 @@ namespace InvertedTomato.Feather {
 
             Inner.Write(value);
             return this; // Allow chaining
-        }
-
-
-        public byte[] ToByteArray() {
-            return Inner.ToArray();
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            IsDisposed = true;
-
-            if (disposing) {
-                // Dispose managed state (managed objects)
-                Inner.DisposeIfNotNull();
-            }
-        }
-        public void Dispose() {
-            Dispose(true);
         }
 
         private void BoolHelper(bool? value, byte offset, ref byte outValue, ref byte outNullable) {

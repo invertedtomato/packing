@@ -4,16 +4,10 @@ using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
-    public class PayloadReader : IDisposable {
-        public byte OpCode { get; }
-
-        public int Length { get { return (int)Inner.Length; } }
+    public class PayloadReader : Payload {
         public int Position { get { return (int)Inner.Position; } }
         public int Remaining { get { return (int)(Inner.Length - Inner.Position); } }
 
-        public bool IsDisposed { get; private set; }
-
-        private readonly MemoryStream Inner;
 
         public PayloadReader(byte[] rawPayload) {
             if (null == rawPayload) {
@@ -169,25 +163,6 @@ namespace InvertedTomato.Feather {
             return Inner.Read(count);
         }
 
-        public byte[] ToByteArray() {
-            return Inner.ToArray();
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            IsDisposed = true;
-
-            if (disposing) {
-                // Dispose managed state (managed objects)
-                Inner.DisposeIfNotNull();
-            }
-        }
-        public void Dispose() {
-            Dispose(true);
-        }
-
 
         private bool BoolHeaper(byte offset, byte rawValue) {
             var mask = 1 >> offset;
@@ -195,7 +170,6 @@ namespace InvertedTomato.Feather {
             //return (int)rawValue && mask; // Something like this
         }
         private bool? BoolHeaper(byte offset, byte rawValue, byte nullableValue) {
-
             var mask = 1 >> offset;
             throw new NotImplementedException(); // TODO
             /*

@@ -16,7 +16,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Configuration options.
         /// </summary>
-        private readonly FileOptions Options;
+        private readonly FeatherFileOptions Options;
 
         /// <summary>
         /// Underlying file.
@@ -28,7 +28,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         private readonly object Sync = new object();
 
-        internal FileWriter(string path, FileOptions options) {
+        internal FileWriter(string path, FeatherFileOptions options) {
             if (string.IsNullOrEmpty(path)) {
                 throw new ArgumentException("Null or empty.", "path");
             }

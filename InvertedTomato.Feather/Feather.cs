@@ -19,7 +19,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <returns>Feather instance</returns>
         [Obsolete("Use FeatherTCP instead.")]
-        public static FeatherTCP<TConnection> Listen(int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Listen(port, options); }
+        public static FeatherTCP<TConnection> Listen(int port, FeatherTCPOptions options) { return FeatherTCP<TConnection>.Listen(port, options); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
@@ -33,7 +33,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <returns>Feather instance</returns>
         [Obsolete("Use FeatherTCP instead.")]
-        public static FeatherTCP<TConnection> Listen(EndPoint endpoint, ConnectionOptions options) { return FeatherTCP<TConnection>.Listen(endpoint, options); }
+        public static FeatherTCP<TConnection> Listen(EndPoint endpoint, FeatherTCPOptions options) { return FeatherTCP<TConnection>.Listen(endpoint, options); }
 
         /// <summary>
         /// Connect to a Feather server.
@@ -47,7 +47,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <returns>Server connection</returns>
         [Obsolete("Use FeatherTCP instead.")]
-        public static TConnection Connect(IPAddress serverAddress, int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(serverAddress, port, options); }
+        public static TConnection Connect(IPAddress serverAddress, int port, FeatherTCPOptions options) { return FeatherTCP<TConnection>.Connect(serverAddress, port, options); }
 
         /// <summary>
         /// Connect to a Feather server.
@@ -61,7 +61,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <returns>Server connection</returns>
         [Obsolete("Use FeatherTCP instead.")]
-        public static TConnection Connect(string serverName, int port, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(serverName, port, options); }
+        public static TConnection Connect(string serverName, int port, FeatherTCPOptions options) { return FeatherTCP<TConnection>.Connect(serverName, port, options); }
 
         /// <summary>
         /// Connect to a Feather server.
@@ -75,7 +75,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <returns>Server connection</returns>
         [Obsolete("Use FeatherTCP instead.")]
-        public static TConnection Connect(EndPoint endPoint, ConnectionOptions options) { return FeatherTCP<TConnection>.Connect(endPoint, options); }
+        public static TConnection Connect(EndPoint endPoint, FeatherTCPOptions options) { return FeatherTCP<TConnection>.Connect(endPoint, options); }
     }
 
     [Obsolete("Use FeatherFile instead.")]
@@ -90,7 +90,7 @@ namespace InvertedTomato.Feather {
         /// Open Feather data file for reading.
         /// </summary>
         [Obsolete("Use FeatherFile instead.")]
-        public static FileReader ReadFile(string path, FileOptions options) { return FeatherFile.OpenRead(path, options); }
+        public static FileReader ReadFile(string path, FeatherFileOptions options) { return FeatherFile.OpenRead(path, options); }
         /// <summary>
         /// Open Feather data file for reading.
         /// </summary>
@@ -101,6 +101,6 @@ namespace InvertedTomato.Feather {
         /// Open Feather data file for reading.
         /// </summary>
         [Obsolete("Use FeatherFile instead.")]
-        public static FileWriter WriteFile(string path, FileOptions options) { return FeatherFile.OpenWrite(path, options); }
+        public static FileWriter WriteFile(string path, FeatherFileOptions options) { return FeatherFile.OpenWrite(path, options); }
     }
 }

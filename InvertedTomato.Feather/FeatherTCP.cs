@@ -19,14 +19,14 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// User provided options.
         /// </summary>
-        private readonly ConnectionOptions Options;
+        private readonly FeatherTCPOptions Options;
 
         /// <summary>
         /// Socket the server is listening on.
         /// </summary>
         private readonly Socket ListenerSocket;
 
-        internal FeatherTCP(EndPoint endPoint, ConnectionOptions options) {
+        internal FeatherTCP(EndPoint endPoint, FeatherTCPOptions options) {
             // Store configuration
             Options = options;
 
@@ -69,7 +69,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <param name="key"></param>
         /// <param name="payload"></param>
-        public void Broadcast(object topic, byte[] payload) {
+        public void Broadcast(object topic, Payload payload) {
             throw new NotImplementedException("Broadcast functionality not yet implemented by Ben Thompson");
         }
 
@@ -97,27 +97,27 @@ namespace InvertedTomato.Feather {
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static FeatherTCP<TConnection> Listen(int port, ConnectionOptions options) { return Listen(new IPEndPoint(IPAddress.Any, port), options); }
+        public static FeatherTCP<TConnection> Listen(int port, FeatherTCPOptions options) { return Listen(new IPEndPoint(IPAddress.Any, port), options); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static FeatherTCP<TConnection> Listen(EndPoint localEndPoint) { return new FeatherTCP<TConnection>(localEndPoint, new ConnectionOptions()); }
+        public static FeatherTCP<TConnection> Listen(EndPoint localEndPoint) { return Listen(localEndPoint, new FeatherTCPOptions()); }
 
         /// <summary>
         /// Start a Feather server by listening for connections.
         /// </summary>
         /// <returns>Feather instance</returns>
-        public static FeatherTCP<TConnection> Listen(EndPoint endpoint, ConnectionOptions options) {
-            if (null == endpoint) {
+        public static FeatherTCP<TConnection> Listen(EndPoint localEndPoint, FeatherTCPOptions options) {
+            if (null == localEndPoint) {
                 throw new ArgumentNullException("endpoint");
             }
             if (null == options) {
                 throw new ArgumentNullException("options");
             }
 
-            return new FeatherTCP<TConnection>(endpoint, options);
+            return new FeatherTCP<TConnection>(localEndPoint, options);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace InvertedTomato.Feather {
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(IPAddress serverAddress, int port, ConnectionOptions options) { return Connect(new IPEndPoint(serverAddress, port), options); }
+        public static TConnection Connect(IPAddress serverAddress, int port, FeatherTCPOptions options) { return Connect(new IPEndPoint(serverAddress, port), options); }
 
         /// <summary>
         /// Connect to a Feather server.
@@ -142,19 +142,19 @@ namespace InvertedTomato.Feather {
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(string serverName, int port, ConnectionOptions options) { return Connect(new DnsEndPoint(serverName, port), options); }
+        public static TConnection Connect(string serverName, int port, FeatherTCPOptions options) { return Connect(new DnsEndPoint(serverName, port), options); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint) { return Connect(endPoint, new ConnectionOptions()); }
+        public static TConnection Connect(EndPoint endPoint) { return Connect(endPoint, new FeatherTCPOptions()); }
 
         /// <summary>
         /// Connect to a Feather server.
         /// </summary>
         /// <returns>Server connection</returns>
-        public static TConnection Connect(EndPoint endPoint, ConnectionOptions options) {
+        public static TConnection Connect(EndPoint endPoint, FeatherTCPOptions options) {
             if (null == endPoint) {
                 throw new ArgumentNullException("endPoint");
             }

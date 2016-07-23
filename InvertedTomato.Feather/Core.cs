@@ -3,7 +3,7 @@ using System.IO;
 
 namespace InvertedTomato.Feather {
     internal static class Core {
-        internal static byte[] PayloadsToBuffer(PayloadWriter[] payloads) {
+        internal static byte[] PayloadsToBuffer(Payload[] payloads) {
             // Fetch raw payloads while calculating buffer length
             var bufferLength = 0;
             var rawPayloads = new byte[payloads.Length][];
