@@ -146,7 +146,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableInt16() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableInt16());
 		}
 
@@ -164,7 +164,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableUInt16() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableUInt16());
 		}
 
@@ -200,7 +200,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableUInt32() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableUInt32());
 		}
 
@@ -218,7 +218,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableInt64 () {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableInt64());
 		}
 
@@ -236,7 +236,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableUInt64() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableUInt64());
 		}
 
@@ -254,7 +254,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableFloat() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00  });
 			Assert.AreEqual(null, payload.ReadNullableFloat());
 		}
 
@@ -273,7 +273,7 @@ namespace InvertedTomato.Feather.Tests {
 
 		[TestMethod]
 		public void ReadNullableDouble() {
-			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+			var payload = new PayloadReader(new byte[] { 0x00, 0x00, 0x00 });
 			Assert.AreEqual(null, payload.ReadNullableDouble());
 		}
 
