@@ -75,6 +75,7 @@ namespace InvertedTomato.Feather.Tests {
 
 			Assert.AreEqual("00-59-30-81-5D-F1-D9-62-46-90-2B-01-43-7B-DB-7E-F9", BitConverter.ToString(payload.ToByteArray()));
 		}
+		 
 
 		[TestMethod]
 		public void AppendNullableGUI() {
@@ -85,6 +86,14 @@ namespace InvertedTomato.Feather.Tests {
 			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
+		[TestMethod]
+		public void AppendNullableGUI_WithValue() {
+			var payload = new PayloadWriter(0x00);
+			Guid? value = new Guid("5d813059-d9f1-4662-902b-01437bdb7ef9");
+			payload.AppendNullable(value); 
+			Assert.AreEqual("00-01-59-30-81-5D-F1-D9-62-46-90-2B-01-43-7B-DB-7E-F9", BitConverter.ToString(payload.ToByteArray()));
+		}
+		 
 
 		[TestMethod]
 		public void AppendIPAddress() {
@@ -186,6 +195,14 @@ namespace InvertedTomato.Feather.Tests {
 
 			Assert.AreEqual("00-78-05-00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
+		[TestMethod]
+		public void AppendNullableInt32_WithValue() {
+			var payload = new PayloadWriter(0x00);
+			int? value = 1400;
+			payload.AppendNullable(value); 
+			Assert.AreEqual("00-01-78-05-00-00", BitConverter.ToString(payload.ToByteArray()));
+		}
+
 		[TestMethod]
 		public void AppendNullableInt32() {
 			var payload = new PayloadWriter(0x00);
