@@ -28,7 +28,7 @@ namespace InvertedTomato.Feather.Tests {
 			DateTime? date = null;
 			payload.AppendNullable(date);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -45,7 +45,7 @@ namespace InvertedTomato.Feather.Tests {
 			TimeSpan? timeSpan = null;
 			payload.AppendNullable(timeSpan);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -62,7 +62,7 @@ namespace InvertedTomato.Feather.Tests {
 			string value = null;
 			payload.AppendNullable(value);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 
@@ -70,8 +70,6 @@ namespace InvertedTomato.Feather.Tests {
 		public void AppendGuid() {
 			var payload = new PayloadWriter(0x00);
 			payload.Append(new Guid("5d813059-d9f1-4662-902b-01437bdb7ef9"));
-
-
 
 			Assert.AreEqual("00-59-30-81-5D-F1-D9-62-46-90-2B-01-43-7B-DB-7E-F9", BitConverter.ToString(payload.ToByteArray()));
 		}
@@ -83,7 +81,7 @@ namespace InvertedTomato.Feather.Tests {
 			Guid? value = null;
 			payload.AppendNullable(value);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -91,6 +89,7 @@ namespace InvertedTomato.Feather.Tests {
 			var payload = new PayloadWriter(0x00);
 			Guid? value = new Guid("5d813059-d9f1-4662-902b-01437bdb7ef9");
 			payload.AppendNullable(value); 
+
 			Assert.AreEqual("00-01-59-30-81-5D-F1-D9-62-46-90-2B-01-43-7B-DB-7E-F9", BitConverter.ToString(payload.ToByteArray()));
 		}
 		 
@@ -109,7 +108,7 @@ namespace InvertedTomato.Feather.Tests {
 			var payload = new PayloadWriter(0x00);
 			payload.AppendNullable((IPAddress)null);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -127,7 +126,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -144,7 +143,7 @@ namespace InvertedTomato.Feather.Tests {
 			byte? value = null;
 			payload.AppendNullable(value);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -164,7 +163,7 @@ namespace InvertedTomato.Feather.Tests {
 
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 
@@ -184,7 +183,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -210,7 +209,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 		[TestMethod]
 		public void AppendUInt32() {
@@ -228,7 +227,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -246,7 +245,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -267,7 +266,7 @@ namespace InvertedTomato.Feather.Tests {
 
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -286,7 +285,7 @@ namespace InvertedTomato.Feather.Tests {
 			payload.AppendNullable(value);
 
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		[TestMethod]
@@ -303,7 +302,7 @@ namespace InvertedTomato.Feather.Tests {
 			float? value = null;
 			payload.AppendNullable(value);
 
-			Assert.AreEqual("00-00-00-00-00", BitConverter.ToString(payload.ToByteArray()));
+			Assert.AreEqual("00-00", BitConverter.ToString(payload.ToByteArray()));
 		}
 
 		// TODO: Finish unit tests

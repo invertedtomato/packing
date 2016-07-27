@@ -33,11 +33,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(DateTime? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -48,11 +48,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(TimeSpan? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -71,11 +71,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(string value) {
             if (null == value) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value); // Allow chaining
         }
 
@@ -86,11 +86,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(Guid? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -142,11 +142,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(IPAddress value) {
             if (null == value) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value); // Allow chaining
         }
 
@@ -157,10 +157,10 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(sbyte? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); ; // Allow chaining; 
         }
 
@@ -170,11 +170,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(byte? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -184,11 +184,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(short? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -198,11 +198,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(ushort? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -212,11 +212,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(int? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -226,11 +226,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(uint? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -240,11 +240,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(long? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -254,11 +254,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(ulong? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
@@ -268,7 +268,7 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter AppendNullable(double? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
@@ -282,11 +282,11 @@ namespace InvertedTomato.Feather {
         }
         public PayloadWriter Append(float? value) {
             if (!value.HasValue) {
-                Inner.Write(0x00);
+                Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
-            Inner.Write(0x01);
+            Inner.Write((byte)0x01);
             return Append(value.Value); // Allow chaining
         }
 
