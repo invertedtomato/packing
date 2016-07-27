@@ -21,7 +21,7 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// A keep-alive message will be sent after this amount of time if no other message has been sent.
         /// </summary>
-        public int KeepAliveInterval { get; set; } = 15000; // ms;
+        public int KeepAliveInterval { get; set; } = 10000; // ms;
 
         /// <summary>
         /// Disconnect if a message hasn't been received in this length of time
