@@ -284,7 +284,14 @@ namespace InvertedTomato.Feather.Tests {
 			var payload = new PayloadReader(value.ToByteArray());
 			Assert.AreEqual(arr, payload.ReadNullableByteArray());
 		}
+		
 
+		[TestMethod]
+		public void ReadByteArrayFixedLength() { 
+			var value = new PayloadWriter(0x00).Append(new byte[] {0x01, 0x02, 0x03, 0x04, 0x01, 0x01, 0x01, 0x02, 0x01, 0x01, 0x06, 0x01, 0x01, 0x09, 0x01, 0x01 });
+			var payload = new PayloadReader(value.ToByteArray()); 
+			Assert.AreEqual("01-02-03-04-01-01-01-02-01-01-06-01-01-09-01-01", BitConverter.ToString(payload.ReadByteArrayFixedLength(16)));
+		}
 
 		// TODO: Finish unit tests
 	}
