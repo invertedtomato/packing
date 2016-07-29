@@ -241,7 +241,6 @@ namespace InvertedTomato.Feather {
 			return ReadByteArray();
 		}
 		public byte[] ReadByteArrayFixedLength(int count) {
-			var valueLength = Inner.ReadUInt16();
 			return Inner.Read(count);
 		}
 

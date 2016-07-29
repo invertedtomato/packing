@@ -13,6 +13,7 @@ namespace InvertedTomato.Feather.Tests {
 			Assert.AreEqual("00-03-00-01-02-03", BitConverter.ToString(payload.ToByteArray()));
 		}
 
+		 
 
 		[TestMethod]
 		public void AppendDateTime() {
