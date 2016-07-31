@@ -37,6 +37,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VLQ\SignedVLQ.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
@@ -52,7 +53,6 @@
     <Compile Include="Extensions\IDisposableExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\Int32Extensions.cs" />
-    <Compile Include="Extensions\GetBytesExtensions.cs" />
     <Compile Include="Extensions\SocketExtensions.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -74,7 +74,7 @@
     <Compile Include="Utilities\IPAddressUtility.cs" />
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
-    <Compile Include="VLQ.cs" />
+    <Compile Include="VLQ\UnsignedVLQ.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

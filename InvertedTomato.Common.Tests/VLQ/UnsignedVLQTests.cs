@@ -1,9 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using InvertedTomato.VLQ;
 
 namespace InvertedTomato.Common.Tests {
     [TestClass]
-    public class VLQTests {
+    public class UnsignedVLQTests {
         /*
         [TestMethod]
         public void Encode_UInt64_0() {
@@ -13,10 +14,10 @@ namespace InvertedTomato.Common.Tests {
 
         [TestMethod]
         public void Decode_UInt64_0() {
-            var vlq = new VLQ(false);
+            var vlq = new UnsignedVLQ();
             vlq.AppendByte(Convert.ToByte("10000000", 2));
 
-            Assert.AreEqual((ulong)0, vlq.ToUInt64());
+            Assert.AreEqual((ulong)0, vlq.ToValue());
         }
     }
 }
