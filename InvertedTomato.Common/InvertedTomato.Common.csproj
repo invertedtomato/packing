@@ -40,6 +40,7 @@
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
+    <Compile Include="Extensions\ByteExtensions.cs" />
     <Compile Include="Extensions\ConcurrentDictionaryExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Utilities\IPAddressUtility.cs" />
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
+    <Compile Include="VLQ.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
