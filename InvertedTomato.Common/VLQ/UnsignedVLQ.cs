@@ -15,7 +15,7 @@ namespace InvertedTomato.VLQ {
         /// Has enough bytes been provided. If false more bytes need to be added using AppendByte before a value is available.
         /// </summary>
         public bool IsComplete { get; private set; }
-        
+
         /// <summary>
         /// Output parameters
         /// </summary>
@@ -31,7 +31,7 @@ namespace InvertedTomato.VLQ {
             }
 
             byte InputPosition = 0;
-            
+
             // Add value
             for (var i = InputPosition; InputPosition < 7; InputPosition++) {
                 if (value.GetBit(InputPosition)) {
@@ -42,9 +42,16 @@ namespace InvertedTomato.VLQ {
             }
 
             // Determine if complete
-            return IsComplete = value.GetBit(7);
+            IsComplete = value.GetBit(7);
+
+            // If not complete, and we have 64 bits already, then throw an exception - we can't handle a larger number
+            if (!IsComplete && Position >= 64) {
+                throw new OverflowException("VLQ is too long. Max of 64 bits supported.");
+            }
+
+            return IsComplete;
         }
-        
+
         /// <summary>
         /// Convert value to an unsigned integer.
         /// </summary>
