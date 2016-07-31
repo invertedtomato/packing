@@ -35,7 +35,9 @@ namespace InvertedTomato.VLQ {
             // Add value
             for (var i = InputPosition; InputPosition < 7; InputPosition++) {
                 if (value.GetBit(InputPosition)) {
-                    Value += 1UL << Position;
+                    checked { // Recieved more bits than can fit in an int64 - throw an exception instead of wrapping
+                        Value += 1UL << Position;
+                    }
                 }
 
                 Position++;
@@ -43,12 +45,7 @@ namespace InvertedTomato.VLQ {
 
             // Determine if complete
             IsComplete = value.GetBit(7);
-
-            // If not complete, and we have 64 bits already, then throw an exception - we can't handle a larger number
-            if (!IsComplete && Position >= 64) {
-                throw new OverflowException("VLQ is too long. Max of 64 bits supported.");
-            }
-
+            
             return IsComplete;
         }
 
