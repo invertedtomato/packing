@@ -8,11 +8,6 @@ namespace InvertedTomato.VLQ {
         public static byte[] Encode(long value) {
             throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Has enough bytes been provided. If false more bytes need to be added using AppendByte before a value is available.
-        /// </summary>
-        public bool IsComplete { get; private set; }
         
         /// <summary>
         /// Output parameters
@@ -20,12 +15,17 @@ namespace InvertedTomato.VLQ {
         private long Value;
         private byte Position;
         private bool IsPositive;
-        
+
+        /// <summary>
+        /// Is there more bytes remaining
+        /// </summary>
+        private bool IsMore=true;
+
         /// <summary>
         /// Append a byte to the VLQ. Returns true if all bytes are accounted for and the value is ready for reading.
         /// </summary>
         public bool AppendByte(byte value) {
-            if (IsComplete) {
+            if (!IsMore) {
                 throw new InvalidOperationException("Value already complete.");
             }
 
@@ -53,9 +53,9 @@ namespace InvertedTomato.VLQ {
             }
 
             // Determine if complete
-             IsComplete = value.GetBit(7);
+             IsMore = value.GetBit(7);
             
-            return IsComplete;
+            return IsMore;
         }
 
         /// <summary>
@@ -63,11 +63,8 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <returns></returns>
         public long ToInt64() {
-            if (!IsComplete) {
+            if (IsMore) {
                 throw new InvalidOperationException("Value not complete.");
-            }
-            if (Value > long.MaxValue) {
-                throw new OverflowException("Value too large for UInt64.");
             }
 
             return IsPositive ? -1 * Value : Value;

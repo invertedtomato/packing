@@ -12,9 +12,9 @@ namespace InvertedTomato.VLQ {
         }
 
         /// <summary>
-        /// Has enough bytes been provided. If false more bytes need to be added using AppendByte before a value is available.
+        /// Is there more bytes remaining
         /// </summary>
-        public bool IsComplete { get; private set; }
+        private bool IsMore = true;
 
         /// <summary>
         /// Output parameters
@@ -26,7 +26,7 @@ namespace InvertedTomato.VLQ {
         /// Append a byte to the VLQ. Returns true if all bytes are accounted for and the value is ready for reading.
         /// </summary>
         public bool AppendByte(byte value) {
-            if (IsComplete) {
+            if (!IsMore) {
                 throw new InvalidOperationException("Value already complete.");
             }
 
@@ -44,9 +44,9 @@ namespace InvertedTomato.VLQ {
             }
 
             // Determine if complete
-            IsComplete = value.GetBit(7);
-            
-            return IsComplete;
+            IsMore = value.GetBit(7);
+
+            return IsMore;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <returns></returns>
         public ulong ToValue() {
-            if (!IsComplete) {
+            if (IsMore) {
                 throw new InvalidOperationException("Value not complete.");
             }
 
