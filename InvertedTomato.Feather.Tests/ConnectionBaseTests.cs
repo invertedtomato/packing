@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -14,8 +15,28 @@ namespace InvertedTomato.Feather.Tests {
                 Assert.AreEqual("09-00-02-01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestSend(0x02, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 })));
             }
         }
+		[TestMethod]
+		public void SendMany() {
+			using (var connection = new FakeConnection()) {
+				var PayLoad = new List<PayloadWriter>();
 
-        [TestMethod]
+				List<Floor> floors = new List<Floor>() {
+				new Floor() {Id=Guid.NewGuid(),Code="C1",Name="Floor1" },
+				new Floor() {Id=Guid.NewGuid(),Code="C2",Name="Floorwe" }
+			};
+				foreach (var floor in floors) {
+					PayLoad.Add(new PayloadWriter(0x83)
+					.Append(floor.Id)
+					.Append(floor.Code)
+					.Append(floor.Name));
+				} 
+
+				Assert.AreEqual("1D-00-83-52-A2-6C-EB-E3-CF-99-40-A0-49-D7-3F-25-75-87-1B-02-00-43-31-06-00-46-6C-6F-6F-72-31-1E-00-83-2A-A2-66-88-40-3C-F9-46-86-8A-42-AF-87-F6-EC-A0-02-00-43-32-07-00-46-6C-6F-6F-72-77-65", BitConverter.ToString(connection.TestSendMany(PayLoad.ToArray())));
+				 
+			}
+		}
+
+		[TestMethod]
         public void Receive() {
             using (var connection = new FakeConnection()) {
                 Assert.AreEqual("01", BitConverter.ToString(connection.TestReceive(new byte[] { 1, 0, 1 }))); // Opcode, no params
@@ -97,4 +118,12 @@ namespace InvertedTomato.Feather.Tests {
         // Local disconnect
         // Connection interrupted
     }
+	public class Floor {
+
+		public Guid Id { get; set; }
+
+		public string Code { get; set; }
+		public string Name { get; set; }
+
+	}
 }
