@@ -19,5 +19,9 @@ namespace InvertedTomato.Testable.Sockets {
         IStream GetStream();
         IStream GetSecureClientStream(string serverCommonName, RemoteCertificateValidationCallback serverCerficateValidationCallback);
         IStream GetSecureServerStream(X509Certificate serverCertificate);
+
+        void SetKeepAlive(bool enabled);
+        void SetKeepAlive(bool enabled, TimeSpan idle);
+        void SetKeepAlive(bool enabled, TimeSpan idle, TimeSpan interval);
     }
 }

@@ -62,11 +62,6 @@ namespace InvertedTomato.Feather {
         private System.Timers.Timer KeepAliveTimer;
 
         /// <summary>
-        /// Time to disconnect if a message hasn't been received in a given amount of time.
-        /// </summary>
-        private System.Timers.Timer ReceiveTimeoutTimer;
-
-        /// <summary>
         /// Client socket.
         /// </summary>
         private ISocket ClientSocket;
@@ -119,15 +114,16 @@ namespace InvertedTomato.Feather {
                 ClientStream = ClientSocket.GetSecureClientStream(Options.ServerCommonName, ValidateServerCertificate);
             }
 
-            // Start keep-alive timer (must be before receive start)
-            KeepAliveTimer = new System.Timers.Timer(options.KeepAliveInterval);
-            KeepAliveTimer.Elapsed += KeepAliveTimer_OnElapsed;
-            KeepAliveTimer.Start();
-
-            // Start keep-alive timer (must be before receive start)
-            ReceiveTimeoutTimer = new System.Timers.Timer(options.ReceiveTimeout);
-            ReceiveTimeoutTimer.Elapsed += ReceiveTimeoutTimer_OnElapsed; ;
-            ReceiveTimeoutTimer.Start();
+            // Setup keep-alives
+            if (options.ApplicationLayerKeepAlive) {
+                // Start keep-alive timer (must be before receive start)
+                KeepAliveTimer = new System.Timers.Timer(options.KeepAliveInterval.TotalMilliseconds);
+                KeepAliveTimer.Elapsed += KeepAliveTimer_OnElapsed;
+                KeepAliveTimer.Start();
+            } else {
+                // Enable TCP keep-alive
+                ClientSocket.SetKeepAlive(true, options.KeepAliveInterval);
+            }
 
             // Seed receiving
             ReceiveLengthInit();
@@ -180,7 +176,7 @@ namespace InvertedTomato.Feather {
         private void RawSend(byte[] buffer, Action done) {
             // Increment outstanding counter
             Interlocked.Increment(ref OutstandingSends);
-            
+
             // Send
             try {
                 ClientStream.BeginWrite(buffer, 0, buffer.Length, (ar) => {
@@ -210,7 +206,9 @@ namespace InvertedTomato.Feather {
             }
 
             // Restart keep-alive timer
-            KeepAliveTimer.Restart();
+            if (Options.ApplicationLayerKeepAlive) {
+                KeepAliveTimer.Restart();
+            }
         }
 
         /// <summary>
@@ -295,9 +293,6 @@ namespace InvertedTomato.Feather {
         private void ReceivePayloadBegin() {
             // If there is no more remaining
             if (PayloadRecievedBytes == PayloadTotalBytes) {
-                // Kick the KeepAliveReceive timer
-                ReceiveTimeoutTimer.Restart();
-
                 // Yield payload
                 if (PayloadTotalBytes > 0) { // Filter out keep-alive messages
                     // Callback received message
@@ -342,14 +337,6 @@ namespace InvertedTomato.Feather {
 
             // Get next chunk
             ReceivePayloadBegin();
-        }
-
-        /// <summary>
-        /// Fires when message hasn't been received by the receive timeout.
-        /// </summary>
-        private void ReceiveTimeoutTimer_OnElapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            // Timed out - disconnect
-            DisconnectInner(DisconnectionType.KeepAliveTimeout);
         }
 
         /// <summary>

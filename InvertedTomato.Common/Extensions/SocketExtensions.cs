@@ -27,14 +27,14 @@ namespace InvertedTomato {
         /// Setup TCP keep-alive
         /// </summary>
         /// <param name="enabled">If TCP keep-alives are to be enabled</param>
-        public static void SetKeepAlive(this Socket target, bool enabled) { target.SetKeepAlive(enabled, 2 * 60 * 60 * 1000); }
+        public static void SetKeepAlive(this Socket target, bool enabled) { target.SetKeepAlive(enabled, TimeSpan.FromHours(2)); }
 
         /// <summary>
         /// Setup TCP keep-alive
         /// </summary>
         /// <param name="enabled">If TCP keep-alives are to be enabled</param>
         /// <param name="idle">Amount of time socket needs to be idle before keep-alive is sent (milliseconds).</param>
-        public static void SetKeepAlive(this Socket target, bool enabled, ulong idle) { target.SetKeepAlive(enabled, idle, 1 * 1000); }
+        public static void SetKeepAlive(this Socket target, bool enabled, TimeSpan idle) { target.SetKeepAlive(enabled, idle, TimeSpan.FromSeconds(1)); }
 
         /// <summary>
         /// Setup TCP keep-alive
@@ -42,15 +42,15 @@ namespace InvertedTomato {
         /// <param name="enabled">If TCP keep-alives are to be enabled</param>
         /// <param name="idle">Amount of time socket needs to be idle before keep-alive is sent (milliseconds).</param>
         /// <param name="interval">The delay between keep-alive retries (milliseconds).</param>
-        public static void SetKeepAlive(this Socket target, bool enabled, ulong idle, ulong interval) {
+        public static void SetKeepAlive(this Socket target, bool enabled, TimeSpan idle, TimeSpan interval) {
             const int bytesPerLong = 4; // 32 / 8
             const int bitsPerByte = 8;
 
             // Prepare inputs
             var input = new ulong[3];
             input[0] = enabled ? 0UL : 1UL;
-            input[1] = idle;
-            input[2] = interval;
+            input[1] = (ulong)idle.TotalMilliseconds;
+            input[2] = (ulong)interval.TotalMilliseconds;
 
             // Pack input into byte struct
             var SIO_KEEPALIVE_VALS = new byte[3 * bytesPerLong];

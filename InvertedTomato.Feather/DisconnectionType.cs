@@ -2,9 +2,6 @@
 
 namespace InvertedTomato.Feather {
     public enum DisconnectionType : byte {
-        [Description("No message received within the keep-alive window.")]
-        KeepAliveTimeout,
-
         [Description("The connection was unexpectedly interrupted.")]
         ConnectionInterupted,
 

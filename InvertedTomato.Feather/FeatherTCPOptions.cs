@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 namespace InvertedTomato.Feather {
@@ -19,14 +20,14 @@ namespace InvertedTomato.Feather {
         public string ServerCommonName { get; set; } = null;
 
         /// <summary>
-        /// A keep-alive message will be sent after this amount of time if no other message has been sent.
+        /// A keep-alive message will be sent after this amount of time if no other message has been sent. If the connection has been broken the issue will be detected causing a disconnection.
         /// </summary>
-        public int KeepAliveInterval { get; set; } = 10000; // ms;
+        public TimeSpan KeepAliveInterval { get; set; } = TimeSpan.FromSeconds(10); // ms;
 
         /// <summary>
-        /// Disconnect if a message hasn't been received in this length of time
+        /// Use the application-level keep-alive option instead of the standard TCP keep-alive. This works around buggy TCP implimentations on some remote devices.
         /// </summary>
-        public int ReceiveTimeout { get; set; } = 30000; // ms
+        public bool ApplicationLayerKeepAlive { get; set; } = false;
 
         /// <summary>
         /// Size of receive buffer before blocking occurs.

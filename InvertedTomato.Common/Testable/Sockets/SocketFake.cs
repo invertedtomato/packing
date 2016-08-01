@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -20,25 +21,20 @@ namespace InvertedTomato.Testable.Sockets {
 
         public int SendBufferSize { get { return 0; } set { } }
 
-        
-        public void Close() {
-            Dispose();
-        }
+        public void Close() { Dispose(); }
 
-        public void Dispose() {
-            IsDisposed = true;
-        }
+        public void Dispose() { IsDisposed = true; }
 
-        public IStream GetStream() {
-            return Stream;
-        }
+        public IStream GetStream() { return Stream; }
 
-        public IStream GetSecureClientStream(string serverCommonName, RemoteCertificateValidationCallback serverCerficateValidationCallback) {
-            return Stream;
-        }
+        public IStream GetSecureClientStream(string serverCommonName, RemoteCertificateValidationCallback serverCerficateValidationCallback) { return Stream; }
 
-        public IStream GetSecureServerStream(X509Certificate serverCertificate) {
-            return Stream;
-        }
+        public IStream GetSecureServerStream(X509Certificate serverCertificate) { return Stream; }
+
+        public void SetKeepAlive(bool enabled) { }
+
+        public void SetKeepAlive(bool enabled, TimeSpan idle) { }
+
+        public void SetKeepAlive(bool enabled, TimeSpan idle, TimeSpan interval) { }
     }
 }

@@ -7,7 +7,7 @@ namespace InvertedTomato.Feather.TestServer {
 
         static void Main(string[] args) {
             Console.WriteLine("Starting server...");
-            Server = FeatherTCP<Connection>.Listen(778);
+            Server = FeatherTCP<Connection>.Listen(777);
             Console.WriteLine("Chat server running. Press any key to terminate.");
             Console.ReadKey(true);
             Server.Dispose();

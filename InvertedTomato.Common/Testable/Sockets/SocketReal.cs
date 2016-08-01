@@ -29,6 +29,10 @@ namespace InvertedTomato.Testable.Sockets {
 
         public IStream GetStream() { return new StreamReal(new NetworkStream(Socket, true)); }
 
+        public void SetKeepAlive(bool enabled) { Socket.SetKeepAlive(enabled); }
+        public void SetKeepAlive(bool enabled, TimeSpan idle) { Socket.SetKeepAlive(enabled, idle); }
+        public void SetKeepAlive(bool enabled, TimeSpan idle, TimeSpan interval) { Socket.SetKeepAlive(enabled, idle, interval); }
+
         public IStream GetSecureClientStream(string serverCommonName, RemoteCertificateValidationCallback serverCerficateValidationCallback) {
             var secureClientStream = new SslStream(new NetworkStream(Socket, true), false, serverCerficateValidationCallback, null, EncryptionPolicy.RequireEncryption);
             secureClientStream.AuthenticateAsClient(serverCommonName);
@@ -36,7 +40,7 @@ namespace InvertedTomato.Testable.Sockets {
         }
 
         public IStream GetSecureServerStream(X509Certificate serverCertificate) {
-            var secureClientStream = new SslStream(new NetworkStream(Socket, true), false); 
+            var secureClientStream = new SslStream(new NetworkStream(Socket, true), false);
             secureClientStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
             return new StreamReal(secureClientStream);
         }
