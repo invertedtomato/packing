@@ -3,7 +3,7 @@ using System.IO;
 
 namespace InvertedTomato.Feather {
     internal static class Core {
-		internal static byte[] PayloadsToBuffer(Payload[] payloads) {
+        internal static byte[] PayloadsToBuffer(Payload[] payloads) {
             // Fetch raw payloads while calculating buffer length
             var bufferLength = 0;
             var rawPayloads = new byte[payloads.Length][];
@@ -16,7 +16,7 @@ namespace InvertedTomato.Feather {
                 }
 
                 // Get raw payload
-                rawPayloads[i] = payload.ToByteArray(); 
+                rawPayloads[i] = payload.ToByteArray();
                 if (rawPayloads[i].Length > ushort.MaxValue) {
                     throw new InternalBufferOverflowException("Payload longer than 65KB.");
                 }
@@ -28,17 +28,14 @@ namespace InvertedTomato.Feather {
             // Merge everything to be sent into a buffer
             var buffer = new byte[bufferLength];
             var pos = 0;
-			var dsOffset = 2; // destination OffSet
             foreach (var rawPayload in rawPayloads) {
                 var rawPayloadRawLength = BitConverter.GetBytes((ushort)rawPayload.Length);
-                Buffer.BlockCopy(rawPayloadRawLength, 0, buffer, pos, 2); // Length
-                Buffer.BlockCopy(rawPayload, 0, buffer, dsOffset, rawPayload.Length); // Payload		 
-				pos += rawPayloadRawLength.Length + rawPayload.Length;
-				dsOffset += 2 + rawPayload.Length;
+                Buffer.BlockCopy(rawPayloadRawLength, 0, buffer, pos, rawPayloadRawLength.Length); // Length
+                Buffer.BlockCopy(rawPayload, 0, buffer, pos + rawPayloadRawLength.Length, rawPayload.Length); // Payload		 
+                pos += rawPayloadRawLength.Length + rawPayload.Length;
+            }
 
-			}
-	 
-			return buffer;
+            return buffer;
         }
     }
 }

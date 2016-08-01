@@ -15,28 +15,24 @@ namespace InvertedTomato.Feather.Tests {
                 Assert.AreEqual("09-00-02-01-02-03-04-05-06-07-08", BitConverter.ToString(connection.TestSend(0x02, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 })));
             }
         }
-		[TestMethod]
-		public void SendMany() {
-			using (var connection = new FakeConnection()) {
-				var PayLoad = new List<PayloadWriter>();
+        [TestMethod]
+        public void SendMany() {
+            using (var connection = new FakeConnection()) {
+                var payloads = new List<PayloadWriter>();
+                payloads.Add(new PayloadWriter(0x83)
+                    .Append(new Guid())
+                    .Append("C1")
+                    .Append("Floor1"));
+                payloads.Add(new PayloadWriter(0x83)
+                    .Append(new Guid())
+                    .Append("C2")
+                    .Append("Floorwe"));
 
-				List<Floor> floors = new List<Floor>() {
-				new Floor() {Id=Guid.NewGuid(),Code="C1",Name="Floor1" },
-				new Floor() {Id=Guid.NewGuid(),Code="C2",Name="Floorwe" }
-			};
-				foreach (var floor in floors) {
-					PayLoad.Add(new PayloadWriter(0x83)
-					.Append(floor.Id)
-					.Append(floor.Code)
-					.Append(floor.Name));
-				} 
+                Assert.AreEqual("1D-00-83-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-00-43-31-06-00-46-6C-6F-6F-72-31-1E-00-83-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-00-43-32-07-00-46-6C-6F-6F-72-77-65", BitConverter.ToString(connection.TestSendMany(payloads.ToArray())));
+            }
+        }
 
-				Assert.AreEqual("1D-00-83-52-A2-6C-EB-E3-CF-99-40-A0-49-D7-3F-25-75-87-1B-02-00-43-31-06-00-46-6C-6F-6F-72-31-1E-00-83-2A-A2-66-88-40-3C-F9-46-86-8A-42-AF-87-F6-EC-A0-02-00-43-32-07-00-46-6C-6F-6F-72-77-65", BitConverter.ToString(connection.TestSendMany(PayLoad.ToArray())));
-				 
-			}
-		}
-
-		[TestMethod]
+        [TestMethod]
         public void Receive() {
             using (var connection = new FakeConnection()) {
                 Assert.AreEqual("01", BitConverter.ToString(connection.TestReceive(new byte[] { 1, 0, 1 }))); // Opcode, no params
@@ -47,7 +43,7 @@ namespace InvertedTomato.Feather.Tests {
 
         [TestMethod]
         public void KeepAliveSend() {
-            using (var connection = new FakeConnection(new FeatherTCPOptions() {ApplicationLayerKeepAlive=true, KeepAliveInterval = TimeSpan.FromMilliseconds(50) })) {
+            using (var connection = new FakeConnection(new FeatherTCPOptions() { ApplicationLayerKeepAlive = true, KeepAliveInterval = TimeSpan.FromMilliseconds(50) })) {
                 // Allow time for keep-alive - timers are finicky with such small intervals
                 Thread.Sleep(400);
 
@@ -118,12 +114,4 @@ namespace InvertedTomato.Feather.Tests {
         // Local disconnect
         // Connection interrupted
     }
-	public class Floor {
-
-		public Guid Id { get; set; }
-
-		public string Code { get; set; }
-		public string Name { get; set; }
-
-	}
 }
