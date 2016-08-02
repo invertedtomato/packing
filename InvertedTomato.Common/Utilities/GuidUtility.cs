@@ -47,6 +47,11 @@ namespace InvertedTomato {
 			}
 		}
 
+        /// <summary>
+        /// Convert a short representation of a GUID back into a GUID.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
 		public static Guid FromShort(string value) {
 			if (null == value) {
 				throw new ArgumentOutOfRangeException("value");
