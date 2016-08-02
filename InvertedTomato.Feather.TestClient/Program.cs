@@ -1,17 +1,22 @@
 ﻿using System;
 
-// TODO: Tidy this example
-
 namespace InvertedTomato.Feather.TestClient {
     class Program {
         static void Main(string[] args) {
-            Console.WriteLine("Connecting...");
+            // Connect to server
             using (var client = FeatherTCP<Connection>.Connect("localhost", 777)) {
-                Console.WriteLine("Ready. Press any key to send message.");
+                // Get user's name
+                Console.WriteLine("What's your name?");
+                var userName = Console.ReadLine();
 
+                // Go in a loop, sending any message the user types
+                Console.WriteLine("Ready. Type your messages to send.");
                 while (true) {
-                    Console.ReadKey(true);
-                    client.SendMessage("Ben", "Hi there!");
+                    Console.Write(userName + "> ");
+                    var message =  Console.ReadLine();
+                    if (!string.IsNullOrEmpty(message)) {
+                        client.SendMessage(userName, message);
+                    }
                 }
             }
         }
@@ -19,23 +24,29 @@ namespace InvertedTomato.Feather.TestClient {
 
     class Connection : ConnectionBase {
         public void SendMessage(string emailAddress, string password) {
-            if (null == emailAddress) {
-                throw new ArgumentNullException("emailAddress");
-            }
-            if (null == password) {
-                throw new ArgumentNullException("password");
-            }
+            // Compose message payload ready for sending
+            var payload = new PayloadWriter(5) // "5" is the opcode, identifying what type of message we're sending
+                .Append(emailAddress)
+                .Append(password);
 
-            Send(new PayloadWriter(0x00).Append(emailAddress).Append(password));
+            // Send it to the server
+            Send(payload);
         }
 
         protected override void OnMessageReceived(PayloadReader payload) {
+            // Detect what type of message has arrived
             switch (payload.OpCode) {
-                case 0x00: // Chat message
+                case 5: // Oh, it's a chat message
+                    // Get parameters (in the same order they were sent)
                     var userName = payload.ReadString();
                     var message = payload.ReadString();
 
+                    // Print it on the screen
                     Console.WriteLine(userName + "> " + message);
+                    break;
+                default:
+                    // Report that an unknown opcode arrived
+                    Console.WriteLine("Unknown message arrived with opcode " + payload.OpCode);
                     break;
             }
         }
