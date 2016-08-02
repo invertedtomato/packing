@@ -61,7 +61,7 @@ class Connection : ConnectionBase {
 ```
 
 ### Server
-```
+```C#
 class Program {
     public static ConcurrentDictionary<EndPoint, Connection> Connections = new ConcurrentDictionary<EndPoint, Connection>();
 
@@ -122,7 +122,7 @@ class Connection : ConnectionBase {
 
 ### Writing data file
 Feather can also be used to write really small data files. It's great if you need to archive data and it doesn't fit the bill for SQL. We use this to archive large volumes of data in Amazon S3.
-```
+```C#
 // Open file
 using (var file = FeatherFile.OpenWrite("test.dat")) {
 	for (var i = 1; i < 10000000; i++) {
@@ -140,7 +140,7 @@ using (var file = FeatherFile.OpenWrite("test.dat")) {
 ```
 
 ### Reading data file
-```
+```C#
 // Open file
 using (var file = FeatherFile.OpenRead("test.dat")) {
 	// Iterate through each record
