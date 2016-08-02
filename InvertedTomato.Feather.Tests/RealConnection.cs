@@ -6,7 +6,7 @@ namespace InvertedTomato.Feather.Tests {
         public Action OnPingReceived;
 
         public void SendPing() {
-            Send(new PayloadWriter(0x01).Append(0x02));
+            Send(new PayloadWriter(0x01).Append((byte)0x02));
         }
 
         protected override void OnMessageReceived(PayloadReader payload) {
