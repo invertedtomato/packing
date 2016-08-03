@@ -8,132 +8,210 @@ namespace InvertedTomato.Common.Tests {
         // TODO: Add UnsignedVLQ encoding tests for all the values below
         // TODO: Add SignedVLQ encoding tests
         // TODO: Add SignedVLQ decoding tests
-        /*
+
         [TestMethod]
-        public void Encode_UInt64_0() {
-            Assert.AreEqual("00", BitConverter.ToString(VLQ.Encode(ulong.MinValue)));
+        public void Encode_Min() {
+            Assert.AreEqual("00", BitConverter.ToString(UnsignedVLQ.Encode(ulong.MinValue)));
         }
-        */
+
+        [TestMethod]
+        public void Encode_1() {
+            Assert.AreEqual("01", BitConverter.ToString(UnsignedVLQ.Encode(1)));
+        }
+
+        [TestMethod]
+        public void Encode_127() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("01111111", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(127)));
+        }
+
+        [TestMethod]
+        public void Encode_128() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(128)));
+        }
+
+        [TestMethod]
+        public void Encode_16383() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("01111111", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(16383)));
+        }
+
+        [TestMethod]
+        public void Encode_16384() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(16384)));
+        }
+
+        [TestMethod]
+        public void Encode_2097151() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("01111111", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(2097151)));
+        }
+
+        [TestMethod]
+        public void Encode_2097152() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(2097152)));
+        }
+
+        [TestMethod]
+        public void Encode_Max() {
+            Assert.AreEqual(BitConverter.ToString(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("00000001", 2)
+            }), BitConverter.ToString(UnsignedVLQ.Encode(ulong.MaxValue)));
+        }
 
         [TestMethod]
         public void Decode_Min() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000000", 2)));
-            Assert.AreEqual(ulong.MinValue, vlq.ToValue());
+            Assert.AreEqual(ulong.MinValue, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("00000000", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_1() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000001", 2)));
-            Assert.AreEqual((ulong)1, vlq.ToValue());
+            Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("00000001", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_127() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("01111111", 2)));
-            Assert.AreEqual((ulong)127, vlq.ToValue());
+            Assert.AreEqual((ulong)127, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("01111111", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_128() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000001", 2)));
-            Assert.AreEqual((ulong)128, vlq.ToValue());
+            Assert.AreEqual((ulong)128, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_16383() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("01111111", 2)));
-            Assert.AreEqual((ulong)16383, vlq.ToValue());
+            Assert.AreEqual((ulong)16383, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("11111111", 2) ,
+                Convert.ToByte("01111111", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_16384() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000001", 2)));
-            Assert.AreEqual((ulong)16384, vlq.ToValue());
+            Assert.AreEqual((ulong)16384, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_2097151() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("01111111", 2)));
-            Assert.AreEqual((ulong)2097151, vlq.ToValue());
+            Assert.AreEqual((ulong)2097151, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("01111111", 2)
+            }));
         }
 
         [TestMethod]
         public void Decode_2097152() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("10000000", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000001", 2)));
-            Assert.AreEqual((ulong)2097152, vlq.ToValue());
+            Assert.AreEqual((ulong)2097152, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("10000000", 2),
+                Convert.ToByte("00000001", 2) }));
         }
 
         [TestMethod]
         public void Decode_Max() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000001", 2)));
-            Assert.AreEqual(ulong.MaxValue, vlq.ToValue());
+            Assert.AreEqual(ulong.MaxValue, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("00000001", 2)
+            }));
         }
 
         [TestMethod]
         [ExpectedException(typeof(OverflowException))]
         public void Decode_ValueOverflow() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            Assert.IsTrue(vlq.AppendByte(Convert.ToByte("11111111", 2)));
-            vlq.AppendByte(Convert.ToByte("00000011", 2));
+            var a = UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("11111111", 2),
+
+                Convert.ToByte("11111111", 2),
+                Convert.ToByte("00000011", 2)
+            });
+
+            var b = a;
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Decode_TooManyBytes() {
-            var vlq = new UnsignedVLQ();
-            Assert.IsFalse(vlq.AppendByte(Convert.ToByte("00000000", 2)));
-            vlq.AppendByte(Convert.ToByte("00000000", 2));
+        public void Decode_UnneededBytes() {
+            Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("00000001", 2),
+                Convert.ToByte("00000001", 2), // Waste
+                Convert.ToByte("00000001", 2) // Waste
+            }));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
         public void Decode_InsufficentBytes1() {
-            var vlq = new UnsignedVLQ();
-            vlq.ToValue();
+            Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] { }));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
         public void Decode_InsufficentBytes2() {
-            var vlq = new UnsignedVLQ();
-            vlq.AppendByte(Convert.ToByte("10000000", 2));
-            vlq.ToValue();
+            Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("10000000", 2)
+            }));
         }
-
     }
 }

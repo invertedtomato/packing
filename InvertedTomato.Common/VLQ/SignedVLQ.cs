@@ -2,7 +2,8 @@
 using System.IO;
 
 namespace InvertedTomato.VLQ {
-    public sealed class SignedVLQ {
+    public static class SignedVLQ {
+        /* To be written
         /// <summary>
         /// Encode integer as signed VLQ.
         /// </summary>
@@ -80,6 +81,6 @@ namespace InvertedTomato.VLQ {
             }
 
             return IsPositive ? -1 * Value : Value;
-        }
+        }*/
     }
 }
