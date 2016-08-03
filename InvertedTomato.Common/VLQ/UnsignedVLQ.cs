@@ -11,7 +11,7 @@ namespace InvertedTomato.VLQ {
         /// <returns></returns>
         public static byte[] Encode(ulong value) {
             var input = BitConverter.GetBytes(value);
-            var buffer = new byte[10];
+            var buffer = new byte[] { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 };
             byte i;
 
             // Remodulate 8-bits down to 7-bits
@@ -24,16 +24,14 @@ namespace InvertedTomato.VLQ {
             // Find how many bytes were actually used
             int usedBytes = 1; // Must be 1 to allow for at least one byte in output
             for (i = (byte)(buffer.Length - 1); i > 0; i--) {
-                if (buffer[i] > 0) {
-                    usedBytes = i+1;
+                if (buffer[i] != 128) {
+                    usedBytes = i + 1;
                     break;
                 }
             }
 
-            // Set 'more' bits
-            for (i = 0; i < usedBytes - 1; i++) {
-                buffer[i] |= (1 << 7);
-            }
+            // Clear 'more' bit in last byte
+            buffer[usedBytes-1] &= byte.MaxValue ^ (1 << 7);
 
             // Move into output array
             var output = new byte[usedBytes];
