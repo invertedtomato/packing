@@ -38,22 +38,22 @@ namespace InvertedTomato.Feather {
             return ReadDateTime();
         }
 
-        public TimeSpan ReadTimeSpanSeconds() {
+        public TimeSpan ReadTimeSpanToSeconds() {
             var rawValue = Inner.ReadUInt32();
             return TimeSpan.FromSeconds(rawValue);
         }
-        public TimeSpan? ReadNullableTimeSpanSeconds() {
+        public TimeSpan? ReadNullableTimeSpanToSeconds() {
             var hasValue = Inner.ReadByte() > 0;
             if (!hasValue) {
                 return null;
             }
 
-            return ReadTimeSpanSeconds();
+            return ReadTimeSpanToSeconds();
         }
-        [Obsolete("Use ReadTimeSpanSeconds() instead. This method definition will change in a future release.")]
-        public TimeSpan ReadTimeSpan() { return ReadTimeSpanSeconds(); }
-        [Obsolete("Use ReadTimeSpanNullableSeconds() instead. This method definition will change in a future release.")]
-        public TimeSpan? ReadNullableTimeSpan() { return ReadNullableTimeSpanSeconds(); }
+        [Obsolete("Use ReadTimeSpanToSeconds() instead. This method definition will change in a future release.")]
+        public TimeSpan ReadTimeSpan() { return ReadTimeSpanToSeconds(); }
+        [Obsolete("Use ReadNullableTimeSpanToSeconds() instead. This method definition will change in a future release.")]
+        public TimeSpan? ReadNullableTimeSpan() { return ReadNullableTimeSpanToSeconds(); }
         
         public string ReadString() {
             var valueLength = Inner.ReadUInt16();
