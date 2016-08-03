@@ -11,7 +11,13 @@ namespace InvertedTomato.VLQ {
         public static byte[] Encode(ulong value) {
             throw new NotImplementedException();
         }
+        public static void Encode(long value, Stream output) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
 
+            throw new NotImplementedException();
+        }
         public static ulong Decode(Stream stream) {
             var qlv = new UnsignedVLQ();
             while (qlv.AppendByte(stream.ReadUInt8())) { }

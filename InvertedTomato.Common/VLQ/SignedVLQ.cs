@@ -9,8 +9,13 @@ namespace InvertedTomato.VLQ {
         public static byte[] Encode(long value) {
             throw new NotImplementedException();
         }
+        public static void Encode(long value, Stream output) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
 
-
+            throw new NotImplementedException();
+        }
         public static long Decode(Stream stream) {
             var qlv = new SignedVLQ();
             while (qlv.AppendByte(stream.ReadUInt8())) { }
