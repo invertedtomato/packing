@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace InvertedTomato.VLQ {
     public class UnsignedVLQ {
@@ -9,6 +10,12 @@ namespace InvertedTomato.VLQ {
         /// <returns></returns>
         public static byte[] Encode(ulong value) {
             throw new NotImplementedException();
+        }
+
+        public static ulong Decode(Stream stream) {
+            var qlv = new UnsignedVLQ();
+            while (qlv.AppendByte(stream.ReadUInt8())) { }
+            return qlv.ToValue();
         }
 
         /// <summary>
