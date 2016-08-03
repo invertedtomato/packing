@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace InvertedTomato.VLQ {
     public class UnsignedVLQ {
@@ -11,26 +12,96 @@ namespace InvertedTomato.VLQ {
         public static byte[] Encode(ulong value) {
             throw new NotImplementedException();
         }
-        public static void Encode(long value, Stream output) {
+        public static void Encode(long input, Stream output) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
 
             throw new NotImplementedException();
         }
-        public static ulong Decode(Stream stream) {
+        public static ulong Decode(Stream input) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
             ulong result = 0;
             int position = 0;
+            byte b;
 
             while (true) {
-                var b = (byte)stream.ReadByte();
+                // Get next byte
+                b = (byte)input.ReadByte();
 
+                // Add bits
                 for (byte i = 0; i < 7; i++) {
                     if (b.GetBit(i)) {
                         result += 1UL << position;
                     }
                     position++;
                 }
+
+                // Abort if last
+                if (b.GetBit(7)) {
+                    return result;
+                }
+            }
+        }
+
+        public static ulong Decode(IEnumerator<byte> input) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            ulong result = 0;
+            int position = 0;
+            byte b;
+
+            while (true) {
+                // Get byte
+                b = input.Current;
+
+                // Add bits
+                for (byte i = 0; i < 7; i++) {
+                    if (b.GetBit(i)) {
+                        result += 1UL << position;
+                    }
+                    position++;
+                }
+
+                // Abort if last
+                if (b.GetBit(7)) {
+                    return result;
+                }
+
+                // Check if more bytes are available
+                if (!input.MoveNext()) {
+                    throw new EndOfStreamException();
+                }
+            }
+        }
+
+        public static ulong Decode(Func<byte> input) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            ulong result = 0;
+            int position = 0;
+            byte b;
+
+            while (true) {
+                // Get next byte
+                b = input();
+
+                // Add bits
+                for (byte i = 0; i < 7; i++) {
+                    if (b.GetBit(i)) {
+                        result += 1UL << position;
+                    }
+                    position++;
+                }
+
+                // Abort if last
                 if (b.GetBit(7)) {
                     return result;
                 }
