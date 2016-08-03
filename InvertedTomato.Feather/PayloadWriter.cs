@@ -41,20 +41,24 @@ namespace InvertedTomato.Feather {
             return Append(value.Value); // Allow chaining
         }
 
-        public PayloadWriter Append(TimeSpan value) {
+        public PayloadWriter AppendSeconds(TimeSpan value) {
             var rawValue = (int)value.TotalSeconds;
             Inner.Write(rawValue);
             return this; // Allow chaining
         }
-        public PayloadWriter AppendNullable(TimeSpan? value) {
+        public PayloadWriter AppendSecondsNullable(TimeSpan? value) {
             if (!value.HasValue) {
                 Inner.Write((byte)0x00);
                 return this; // Allow chaining
             }
 
             Inner.Write((byte)0x01);
-            return Append(value.Value); // Allow chaining
+            return AppendSeconds(value.Value); // Allow chaining
         }
+        [Obsolete("Use AppendSeconds() instead. This method definition will change in a future release.")]
+        public PayloadWriter Append(TimeSpan value) { return AppendSeconds(value); }
+        [Obsolete("Use AppendSecondsNullable() instead. This method definition will change in a future release.")]
+        public PayloadWriter AppendNullable(TimeSpan? value) { return AppendSecondsNullable(value); }
 
         public PayloadWriter Append(string value) {
             if (null == value) {
