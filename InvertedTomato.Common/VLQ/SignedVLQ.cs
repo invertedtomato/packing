@@ -42,17 +42,16 @@ namespace InvertedTomato.VLQ {
                 throw new InvalidOperationException("Value already complete.");
             }
 
-            byte InputPosition = 0;
-
             // Handle sign
+            byte startBit = 0;
             if (Position == 0) {
                 IsPositive = !value.GetBit(0);
-                InputPosition++;
+                startBit++;
             }
 
             // Add value
-            for (var i = InputPosition; InputPosition < 7; InputPosition++) {
-                if (value.GetBit(InputPosition)) {
+            for (var i = startBit; i < 7; i++) {
+                if (value.GetBit(startBit)) {
                     checked { // Recieved more bits than can fit in an uint64 - throw an exception instead of wrapping
                         if (IsPositive) {
                             Value += 1 << Position;

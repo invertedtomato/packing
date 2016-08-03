@@ -19,9 +19,22 @@ namespace InvertedTomato.VLQ {
             throw new NotImplementedException();
         }
         public static ulong Decode(Stream stream) {
-            var qlv = new UnsignedVLQ();
-            while (qlv.AppendByte(stream.ReadUInt8())) { }
-            return qlv.ToValue();
+            ulong result = 0;
+            int position = 0;
+
+            while (true) {
+                var b = (byte)stream.ReadByte();
+
+                for (byte i = 0; i < 7; i++) {
+                    if (b.GetBit(i)) {
+                        result += 1UL << position;
+                    }
+                    position++;
+                }
+                if (b.GetBit(7)) {
+                    return result;
+                }
+            }
         }
 
         /// <summary>
@@ -43,11 +56,9 @@ namespace InvertedTomato.VLQ {
                 throw new InvalidOperationException("Value already complete.");
             }
 
-            byte InputPosition = 0;
-
             // Add value
-            for (var i = InputPosition; InputPosition < 7; InputPosition++) {
-                if (value.GetBit(InputPosition)) {
+            for (byte i = 0; i < 7; i++) {
+                if (value.GetBit(i)) {
                     checked { // Recieved more bits than can fit in an int64 - throw an exception instead of wrapping
                         Value += 1UL << Position;
                     }
