@@ -132,36 +132,36 @@ namespace InvertedTomato.Feather {
         /// <summary>
         /// Send single payload to remote endpoint.
         /// </summary>    
-        protected void Send(Payload payload) {
+        protected void Send(IPayload payload) {
             if (null == payload) {
                 throw new ArgumentNullException("payload");
             }
 
-            Send(new Payload[] { payload }, null);
+            Send(new IPayload[] { payload }, null);
         }
 
         /// <summary>
         /// Send single payload to remote endpoint and execute a callback when done.
         /// </summary>
-        protected void Send(Payload payload, Action done) {
+        protected void Send(IPayload payload, Action done) {
             if (null == payload) {
                 throw new ArgumentNullException("payload");
             }
 
-            Send(new Payload[] { payload }, done);
+            Send(new IPayload[] { payload }, done);
         }
 
         /// <summary>
         /// Send multiple payloads to remote endpoint.
         /// </summary>    
-        protected void Send(Payload[] payloads) {
+        protected void Send(IPayload[] payloads) {
             Send(payloads, null);
         }
 
         /// <summary>
         /// Send multiple payloads to remote endpoint and execute a callback when done.
         /// </summary>
-        protected void Send(Payload[] payloads, Action done) {
+        protected void Send(IPayload[] payloads, Action done) {
             if (null == payloads) {
                 throw new ArgumentNullException("payload");
             }

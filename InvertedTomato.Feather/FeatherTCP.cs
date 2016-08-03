@@ -69,7 +69,7 @@ namespace InvertedTomato.Feather {
         /// </summary>
         /// <param name="key"></param>
         /// <param name="payload"></param>
-        public void Broadcast(object topic, Payload payload) {
+        public void Broadcast(object topic, IPayload payload) {
             throw new NotImplementedException("Broadcast functionality not yet implemented by Ben Thompson");
         }
 

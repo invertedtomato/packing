@@ -20,7 +20,7 @@ namespace InvertedTomato.Feather.Tests {
 
 			return Socket.Stream.ReadOutput();
 		}
-		public byte[] TestSendMany(Payload[] payloads) {
+		public byte[] TestSendMany(IPayload[] payloads) {
 			Send(payloads);
 
 			return Socket.Stream.ReadOutput();

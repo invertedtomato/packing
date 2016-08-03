@@ -4,10 +4,19 @@ using System.Net;
 using System.Text;
 
 namespace InvertedTomato.Feather {
-    public class PayloadReader : Payload {
+    public sealed class PayloadReader : IPayload {
+        public byte OpCode { get; private set; }
+
+        public int Length { get { return (int)Inner.Length; } }
         public int Position { get { return (int)Inner.Position; } }
         public int Remaining { get { return (int)(Inner.Length - Inner.Position); } }
 
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Underlying stream holding buffer.
+        /// </summary>
+        private MemoryStream Inner;
 
         public PayloadReader(byte[] rawPayload) {
             if (null == rawPayload) {
@@ -54,7 +63,7 @@ namespace InvertedTomato.Feather {
         public TimeSpan ReadTimeSpan() { return ReadTimeSpanToSeconds(); }
         [Obsolete("Use ReadNullableTimeSpanToSeconds() instead. This method definition will change in a future release.")]
         public TimeSpan? ReadNullableTimeSpan() { return ReadNullableTimeSpanToSeconds(); }
-        
+
         public string ReadString() {
             var valueLength = Inner.ReadUInt16();
             var rawValue = Inner.Read(valueLength);
@@ -265,5 +274,24 @@ namespace InvertedTomato.Feather {
 												 }*/
         }
 
+
+        public byte[] ToByteArray() {
+            return Inner.ToArray();
+        }
+
+        void Dispose(bool disposing) {
+            if (IsDisposed) {
+                return;
+            }
+            IsDisposed = true;
+
+            if (disposing) {
+                // Dispose managed state (managed objects)
+                Inner.DisposeIfNotNull();
+            }
+        }
+        public void Dispose() {
+            Dispose(true);
+        }
     }
 }
