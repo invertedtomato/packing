@@ -40,13 +40,12 @@ namespace InvertedTomato {
         }
 
         public static byte CurrentWeek { get { return (byte)DateTimeFormatInfo.CurrentInfo.Calendar.GetWeekOfYear(DateTime.UtcNow, DateTimeFormatInfo.CurrentInfo.CalendarWeekRule, DayOfWeek.Sunday); } }
+        
         /// <summary>
         /// Get the start of the week
         /// </summary>
-        /// <param name="startOfWeek"></param>
-        /// <returns></returns>
         public static DateTime StartOfWeek(DayOfWeek startOfWeek = DayOfWeek.Sunday) {
-            var dt = DateTime.UtcNow;
+            var dt = DateTime.UtcNow.Date;
             int diff = dt.DayOfWeek - startOfWeek;
             if (diff < 0) {
                 diff += 7;
@@ -54,13 +53,11 @@ namespace InvertedTomato {
 
             return dt.AddDays(-1 * diff).Date;
         }
-        // <summary>
+        /// <summary>
         /// Get the start of the week
         /// </summary>
-        /// <param name="startOfWeek"></param>
-        /// <returns></returns>
         public static DateTime EndOfWeek(DayOfWeek endOfWeek = DayOfWeek.Saturday) {
-            var dt = DateTime.UtcNow;
+            var dt = DateTime.UtcNow.Date;
             int diff = dt.DayOfWeek - endOfWeek;
             if (diff < 0) {
                 diff += 7;
