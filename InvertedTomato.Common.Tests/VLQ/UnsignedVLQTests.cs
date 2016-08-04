@@ -5,10 +5,6 @@ using InvertedTomato.VLQ;
 namespace InvertedTomato.Common.Tests {
     [TestClass]
     public class UnsignedVLQTests {
-        // TODO: Add UnsignedVLQ encoding tests for all the values below
-        // TODO: Add SignedVLQ encoding tests
-        // TODO: Add SignedVLQ decoding tests
-
         [TestMethod]
         public void Encode_Min() {
             Assert.AreEqual("00", BitConverter.ToString(UnsignedVLQ.Encode(ulong.MinValue)));
@@ -173,7 +169,7 @@ namespace InvertedTomato.Common.Tests {
         [TestMethod]
         [ExpectedException(typeof(OverflowException))]
         public void Decode_ValueOverflow() {
-            var a = UnsignedVLQ.Decode(new byte[] {
+            UnsignedVLQ.Decode(new byte[] {
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("11111111", 2),
@@ -187,16 +183,14 @@ namespace InvertedTomato.Common.Tests {
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("00000011", 2)
             });
-
-            var b = a;
         }
 
         [TestMethod]
         public void Decode_UnneededBytes() {
             Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
                 Convert.ToByte("00000001", 2),
-                Convert.ToByte("00000001", 2), // Waste
-                Convert.ToByte("00000001", 2) // Waste
+                Convert.ToByte("00000000", 2), // Waste
+                Convert.ToByte("00000000", 2) // Waste
             }));
         }
 

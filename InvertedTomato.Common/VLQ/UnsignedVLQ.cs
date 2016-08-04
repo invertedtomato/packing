@@ -4,50 +4,61 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.VLQ {
     public static class UnsignedVLQ {
-        /// <summary>
-        /// Encode integer as unsigned VLQ.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static byte[] Encode(ulong value) {
-            var input = BitConverter.GetBytes(value);
-            var buffer = new byte[] { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 };
-            byte i;
-
-            // Remodulate 8-bits down to 7-bits
-            for (i = 0; i < input.Length * 8; i++) {
-                if (input[i / 8].GetBit(i % 8)) {
-                    buffer[i / 7] |= (byte)(1 << (i % 7));
-                }
-            }
-
-            // Find how many bytes were actually used
-            int usedBytes = 1; // Must be 1 to allow for at least one byte in output
-            for (i = (byte)(buffer.Length - 1); i > 0; i--) {
-                if (buffer[i] != 128) {
-                    usedBytes = i + 1;
-                    break;
-                }
-            }
-
-            // Clear 'more' bit in last byte
-            buffer[usedBytes-1] &= byte.MaxValue ^ (1 << 7);
-
-            // Move into output array
-            var output = new byte[usedBytes];
-            Buffer.BlockCopy(buffer, 0, output, 0, output.Length);
-
-            return output;
-        }
         public static void Encode(ulong value, Stream output) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
 
-            var buffer = Encode(value);
-            output.Write(buffer);
+            while (true) {
+                // Add 7 bits to buffer, setting the 'more' bit at the same time
+                var buffer = (byte)(value & 0x7F | 0x80);
+
+                // Shift the input by 7 bits ready for the next byte
+                value = value >> 7;
+
+                // If there's no more input remaining...
+                if (value == 0) {
+                    // Write byte without 'more' but
+                    output.WriteByte((byte)(buffer & 0x7F));
+                    break;
+                } else {
+                    // Write byte
+                    output.Write(buffer);
+                }
+            }
+        }
+        public static byte[] Encode(ulong value) {
+            using (var stream = new MemoryStream()) {
+                Encode(value, stream);
+                return stream.ToArray();
+            }
         }
 
+        public static ulong Decode(Stream input) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            int inputPosition = 0;
+            ulong outputValue = 0;
+
+            while (true) {
+                // Read next byte
+                var b = input.ReadByte();
+                if (b == -1) {
+                    throw new EndOfStreamException();
+                }
+
+                // Add bits to putput
+                outputValue += (ulong)((b & 0x7F) << inputPosition);
+                inputPosition += 7;
+
+                // Abort if last
+                if (b >= 0x7F) {
+                    return outputValue;
+                }
+            }
+        }
         public static ulong Decode(byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -60,63 +71,24 @@ namespace InvertedTomato.VLQ {
                 return b;
             });
         }
-        public static ulong Decode(Stream input) {
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-
-            byte inputValue;
-            int inputPosition;
-            ulong outputValue = 0;
-            byte outputPosition = 0;
-
-            while (true) {
-                // Get next byte
-                inputValue = input.ReadUInt8();
-
-                // Add bits
-                for (inputPosition = 0; inputPosition < 7; inputPosition++) {
-                    if (inputValue.GetBit(inputPosition)) {
-                        checked {
-                            outputValue += 1UL << outputPosition;
-                        }
-                    }
-                    outputPosition++;
-                }
-
-                // Abort if last
-                if (!inputValue.GetBit(7)) {
-                    return outputValue;
-                }
-            }
-        }
-
         public static ulong Decode(IEnumerator<byte> input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
-            byte inputValue;
-            int inputPosition;
+            int inputPosition = 0;
             ulong outputValue = 0;
-            byte outputPosition = 0;
 
             while (true) {
-                // Get byte
-                inputValue = input.Current;
+                // Read next byte
+                var b = input.Current;
 
-                // Add bits
-                for (inputPosition = 0; inputPosition < 7; inputPosition++) {
-                    if (inputValue.GetBit(inputPosition)) {
-                        checked {
-                            outputValue += 1UL << outputPosition;
-                        }
-                    }
-                    outputPosition++;
-                }
+                // Add bits to putput
+                outputValue += (ulong)((b & 0x7F) << inputPosition);
+                inputPosition += 7;
 
                 // Abort if last
-                if (!inputValue.GetBit(7)) {
+                if (b >= 0x7F) {
                     return outputValue;
                 }
 
@@ -126,33 +98,24 @@ namespace InvertedTomato.VLQ {
                 }
             }
         }
-
         public static ulong Decode(Func<byte> input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-
-            byte inputValue;
-            int inputPosition;
+            
+            int inputPosition = 0;
             ulong outputValue = 0;
-            byte outputPosition = 0;
 
             while (true) {
-                // Get next byte
-                inputValue = input();
+                // Read next byte
+                var b = input();
 
-                // Add bits
-                for (inputPosition = 0; inputPosition < 7; inputPosition++) {
-                    if (inputValue.GetBit(inputPosition)) {
-                        checked {
-                            outputValue += 1UL << outputPosition;
-                        }
-                    }
-                    outputPosition++;
-                }
+                // Add bits to putput
+                outputValue += (ulong)((b & 0x7F) << inputPosition);
+                inputPosition += 7;
 
                 // Abort if last
-                if (!inputValue.GetBit(7)) {
+                if (b >= 0x7F) {
                     return outputValue;
                 }
             }
