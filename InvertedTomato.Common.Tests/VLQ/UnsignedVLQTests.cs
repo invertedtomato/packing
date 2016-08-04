@@ -165,26 +165,7 @@ namespace InvertedTomato.Common.Tests {
                 Convert.ToByte("00000001", 2)
             }));
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(OverflowException))]
-        public void Decode_ValueOverflow() {
-            UnsignedVLQ.Decode(new byte[] {
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("11111111", 2),
-
-                Convert.ToByte("11111111", 2),
-                Convert.ToByte("00000011", 2)
-            });
-        }
-
+        
         [TestMethod]
         public void Decode_UnneededBytes() {
             Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {

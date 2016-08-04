@@ -9,23 +9,13 @@ namespace InvertedTomato.VLQ {
                 throw new ArgumentNullException("output");
             }
 
-            while (true) {
-                // Add 7 bits to buffer, setting the 'more' bit at the same time
-                var buffer = (byte)(value & 0x7F | 0x80);
-
-                // Shift the input by 7 bits ready for the next byte
-                value = value >> 7;
-
-                // If there's no more input remaining...
-                if (value == 0) {
-                    // Write byte without 'more' but
-                    output.WriteByte((byte)(buffer & 0x7F));
-                    break;
-                } else {
-                    // Write byte
-                    output.Write(buffer);
-                }
+            while (value > 0x7F) {
+                output.WriteByte((byte)(value & 0x7F | 0x80));
+                value >>= 7;
             }
+
+            // Output last byte
+            output.WriteByte((byte)value);
         }
         public static byte[] Encode(ulong value) {
             using (var stream = new MemoryStream()) {
@@ -39,25 +29,25 @@ namespace InvertedTomato.VLQ {
                 throw new ArgumentNullException("input");
             }
 
-            int inputPosition = 0;
-            ulong outputValue = 0;
+            int position = 0;
+            ulong value = 0;
+            int b;
 
-            while (true) {
+            do {
                 // Read next byte
-                var b = input.ReadByte();
+                b = input.ReadByte();
                 if (b == -1) {
                     throw new EndOfStreamException();
                 }
 
-                // Add bits to putput
-                outputValue += (ulong)((b & 0x7F) << inputPosition);
-                inputPosition += 7;
+                // Add bits to value
+                value += (ulong)(b & 0x7F) << position; // Unchecked for performance - should it be?
 
-                // Abort if last
-                if (b >= 0x7F) {
-                    return outputValue;
-                }
-            }
+                // Move position for next byte
+                position += 7;
+            } while ((b & 0x80) > 0);
+
+            return value;
         }
         public static ulong Decode(byte[] input) {
             if (null == input) {
@@ -71,25 +61,26 @@ namespace InvertedTomato.VLQ {
                 return b;
             });
         }
+        
         public static ulong Decode(IEnumerator<byte> input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
-            int inputPosition = 0;
-            ulong outputValue = 0;
+            byte position = 0;
+            ulong value = 0;
 
             while (true) {
                 // Read next byte
                 var b = input.Current;
 
                 // Add bits to putput
-                outputValue += (ulong)((b & 0x7F) << inputPosition);
-                inputPosition += 7;
+                value += (ulong)(b & 0x7F) << position; // Unchecked for performance - should it be?
+                position += 7;
 
                 // Abort if last
                 if (b >= 0x7F) {
-                    return outputValue;
+                    return value;
                 }
 
                 // Check if more bytes are available
@@ -102,23 +93,23 @@ namespace InvertedTomato.VLQ {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-            
-            int inputPosition = 0;
-            ulong outputValue = 0;
 
-            while (true) {
+            ulong value = 0;
+            byte position = 0;
+            byte b;
+
+            do {
                 // Read next byte
-                var b = input();
+                b = input();
 
-                // Add bits to putput
-                outputValue += (ulong)((b & 0x7F) << inputPosition);
-                inputPosition += 7;
+                // Add bits to value
+                value += (ulong)(b & 0x7F) << position; // Unchecked for performance - should it be?
 
-                // Abort if last
-                if (b >= 0x7F) {
-                    return outputValue;
-                }
-            }
+                // Move position for next byte
+                position += 7;
+            } while ((b & 0x80) > 0);
+
+            return value;
         }
     }
 }
