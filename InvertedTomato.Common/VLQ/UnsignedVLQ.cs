@@ -208,55 +208,5 @@ namespace InvertedTomato.VLQ {
             var position = 0;
             return Decode(input, ref position);
         }
-        /*
-        public static ulong Decode(IEnumerator<byte> input) {
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-
-            byte position = 0;
-            ulong value = 0;
-
-            while (true) {
-                // Read next byte
-                var b = input.Current;
-
-                // Add bits to putput
-                value += (ulong)(b & DATA_MASK) << position; // Unchecked for performance - should it be?
-                position += 7;
-
-                // Abort if last
-                if (b >= 0x7F) {
-                    return value;
-                }
-
-                // Check if more bytes are available
-                if (!input.MoveNext()) { // This is the reason this can't use Decode(Func<byte>)
-                    throw new EndOfStreamException();
-                }
-            }
-        }
-        public static ulong Decode(Func<byte> input) {
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-
-            ulong value = 0;
-            byte position = 0;
-            byte b;
-
-            do {
-                // Read next byte
-                b = input();
-
-                // Add bits to value
-                value += (ulong)(b & DATA_MASK) << position; // Unchecked for performance - should it be?
-
-                // Move position for next byte
-                position += 7;
-            } while ((b & MORE_MASK) > 0);
-
-            return value;
-        }*/
     }
 }
