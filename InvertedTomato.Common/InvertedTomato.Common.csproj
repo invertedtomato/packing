@@ -37,6 +37,8 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IReadByte.cs" />
+    <Compile Include="Interfaces\IWriteByte.cs" />
     <Compile Include="VLQ\SignedVLQ.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />

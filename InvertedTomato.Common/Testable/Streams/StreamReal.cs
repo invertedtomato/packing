@@ -32,5 +32,17 @@ namespace InvertedTomato.Testable.Streams {
         public void Dispose() {
             Stream.Dispose();
         }
+
+        public byte ReadByte() {
+            var value = Stream.ReadByte();
+            if (value < 0) {
+                throw new EndOfStreamException();
+            }
+            return (byte)value;
+        }
+
+        public void WriteByte(byte value) {
+            Stream.WriteByte(value);
+        }
     }
 }

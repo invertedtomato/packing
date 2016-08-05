@@ -78,12 +78,16 @@ namespace InvertedTomato.Testable.Streams {
                 callback(result);
             });
         }
-        
 
-        public void EndWrite(IAsyncResult ar) {}
+
+        public void EndWrite(IAsyncResult ar) { }
 
         public void Dispose() {
             IsDisposed = true;
         }
+
+        public byte ReadByte() { return (byte)Output.ReadByte(); }
+
+        public void WriteByte(byte value) { Input.WriteByte(value); }
     }
 }
