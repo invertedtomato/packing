@@ -22,12 +22,12 @@ namespace InvertedTomato.VLQ {
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
-        const int DATA_MASK = 0x7F; // 0111 0000
+        const int DATA_MASK = 0x7F; // 0111 0000  - this is an int32 to save later casting
 
         /// <summary>
         /// Mask to extract the 'more' bit from a byte
         /// </summary>
-        const int MORE_MASK = 0x80; // 1000 0000
+        const int MORE_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
         /// <summary>
         /// Encode number into an existing byte array (best performance).
@@ -119,20 +119,20 @@ namespace InvertedTomato.VLQ {
             }
 
             ulong value = 0;
-            int b;
+            int currentByte;
             int bitOffset = 0;
 
             do {
                 // Read next byte
-                b = input[position];
+                currentByte = input[position];
 
                 // Add bits to value
-                value += (ulong)(b & DATA_MASK) << bitOffset; // Unchecked for performance - should it be?
+                value += (ulong)(currentByte & DATA_MASK) << bitOffset; // Unchecked for performance - should it be?
 
                 // Move position for next byte
                 position++;
                 bitOffset += 7;
-            } while ((b & MORE_MASK) > 0);
+            } while ((currentByte & MORE_MASK) > 0);
 
             return value;
         }
@@ -149,21 +149,21 @@ namespace InvertedTomato.VLQ {
 
             int position = 0;
             ulong value = 0;
-            int b;
+            int currentByte;
 
             do {
                 // Read next byte
-                b = input.ReadByte();
-                if (b == -1) {
+                currentByte = input.ReadByte();
+                if (currentByte == -1) {
                     throw new EndOfStreamException();
                 }
 
                 // Add bits to value
-                value += (ulong)(b & DATA_MASK) << position; // Unchecked for performance - should it be?
+                value += (ulong)(currentByte & DATA_MASK) << position; // Unchecked for performance - should it be?
 
                 // Move position for next byte
                 position += 7;
-            } while ((b & MORE_MASK) > 0);
+            } while ((currentByte & MORE_MASK) > 0);
 
             return value;
         }
@@ -180,21 +180,21 @@ namespace InvertedTomato.VLQ {
 
             int position = 0;
             ulong value = 0;
-            int b;
+            int currentByte;
 
             do {
                 // Read next byte
-                b = input.ReadByte();
-                if (b == -1) {
+                currentByte = input.ReadByte();
+                if (currentByte == -1) {
                     throw new EndOfStreamException();
                 }
 
                 // Add bits to value
-                value += (ulong)(b & DATA_MASK) << position; // Unchecked for performance - should it be?
+                value += (ulong)(currentByte & DATA_MASK) << position; // Unchecked for performance - should it be?
 
                 // Move position for next byte
                 position += 7;
-            } while ((b & MORE_MASK) > 0);
+            } while ((currentByte & MORE_MASK) > 0);
 
             return value;
         }
