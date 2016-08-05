@@ -22,12 +22,12 @@ namespace InvertedTomato.VLQ {
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
-        const byte DATA_MASK = 0x7F; // 0111 0000
+        const int DATA_MASK = 0x7F; // 0111 0000
 
         /// <summary>
         /// Mask to extract the 'more' bit from a byte
         /// </summary>
-        const byte MORE_MASK = 0x80; // 1000 0000
+        const int MORE_MASK = 0x80; // 1000 0000
 
         /// <summary>
         /// Encode number into an existing byte array (best performance).
@@ -120,16 +120,18 @@ namespace InvertedTomato.VLQ {
 
             ulong value = 0;
             int b;
+            int bitOffset = 0;
 
             do {
                 // Read next byte
                 b = input[position];
 
                 // Add bits to value
-                value += (ulong)(b & DATA_MASK) << position * 7; // Unchecked for performance - should it be?
+                value += (ulong)(b & DATA_MASK) << bitOffset; // Unchecked for performance - should it be?
 
                 // Move position for next byte
                 position++;
+                bitOffset += 7;
             } while ((b & MORE_MASK) > 0);
 
             return value;

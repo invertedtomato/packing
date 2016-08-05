@@ -165,7 +165,7 @@ namespace InvertedTomato.Common.Tests {
                 Convert.ToByte("00000001", 2)
             }));
         }
-        
+
         [TestMethod]
         public void Decode_UnneededBytes() {
             Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
@@ -173,6 +173,15 @@ namespace InvertedTomato.Common.Tests {
                 Convert.ToByte("00000000", 2), // Waste
                 Convert.ToByte("00000000", 2) // Waste
             }));
+        }
+
+        [TestMethod]
+        public void Decode_NotFirstByte() {
+            var position = 1;
+            Assert.AreEqual((ulong)1, UnsignedVLQ.Decode(new byte[] {
+                Convert.ToByte("00000000", 2),
+                Convert.ToByte("00000001", 2)
+            }, ref position));
         }
 
         [TestMethod]
