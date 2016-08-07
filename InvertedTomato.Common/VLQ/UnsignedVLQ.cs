@@ -18,7 +18,7 @@ namespace InvertedTomato.VLQ {
     ///   16383 encodes to 1111 1111  0111 1111
     ///   16384 encodes to 1000 0000  1000 0000  0000 0001
     /// </summary>
-    public static class UnsignedVLQ {
+    public class UnsignedVLQ {
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
@@ -35,7 +35,7 @@ namespace InvertedTomato.VLQ {
         /// <param name="value">Value to encode.</param>
         /// <param name="output">Buffer to output to.</param>
         /// <param name="position">Position to start reading in the input. Updated to the last position read after execution.</param>
-        public static void Encode(ulong value, byte[] output, ref int position) {
+        public void Encode(ulong value, byte[] output, ref int position) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
@@ -55,7 +55,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="value">Value to encode.</param>
         /// <param name="output">Stream to output into.</param>
-        public static void Encode(ulong value, Stream output) {
+        public void Encode(ulong value, Stream output) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
@@ -75,7 +75,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="value">Value to encode.</param>
         /// <param name="output">Object to output to.</param>
-        public static void Encode(ulong value, IWriteByte output) {
+        public void Encode(ulong value, IWriteByte output) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
@@ -95,7 +95,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="value"></param>
         /// <returns>VLQ as byte array.</returns>
-        public static byte[] Encode(ulong value) {
+        public byte[] Encode(ulong value) {
             // Encode to buffer
             var buffer = new byte[10];
             var position = 0;
@@ -113,7 +113,7 @@ namespace InvertedTomato.VLQ {
         /// <param name="input">Array to read from.</param>
         /// <param name="position">Position to start reading at. Updated with last read position after call.</param>
         /// <returns>Next VLQ.</returns>
-        public static ulong Decode(byte[] input, ref int position) {
+        public ulong Decode(byte[] input, ref int position) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
@@ -142,7 +142,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="input">Stream to read the VLQ from.</param>
         /// <returns>Next VLQ.</returns>
-        public static ulong Decode(Stream input) {
+        public ulong Decode(Stream input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
@@ -173,7 +173,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="input">Object to read the VLQ from.</param>
         /// <returns>Next VLQ.</returns>
-        public static ulong Decode(IReadByte input) {
+        public ulong Decode(IReadByte input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
@@ -204,7 +204,7 @@ namespace InvertedTomato.VLQ {
         /// </summary>
         /// <param name="input">Byte array to read the VLQ from.</param>
         /// <returns>Next VLQ.</returns>
-        public static ulong Decode(byte[] input) {
+        public ulong Decode(byte[] input) {
             var position = 0;
             return Decode(input, ref position);
         }
