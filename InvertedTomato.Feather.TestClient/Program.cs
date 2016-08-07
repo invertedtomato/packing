@@ -23,11 +23,11 @@ namespace InvertedTomato.Feather.TestClient {
     }
 
     class Connection : ConnectionBase {
-        public void SendMessage(string emailAddress, string password) {
+        public void SendMessage(string emailAddress, string message) {
             // Compose message payload ready for sending
             var payload = new PayloadWriter(5) // "5" is the opcode, identifying what type of message we're sending
                 .Append(emailAddress)
-                .Append(password);
+                .Append(message);
 
             // Send it to the server
             Send(payload);
