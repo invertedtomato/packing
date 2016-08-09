@@ -7,27 +7,31 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
     /// Utility to encode and decode unsigned numbers to the smallest possible number of raw bytes.
     /// 
-    /// The number is encoded into 7 bits per byte, with the most significant bit (the 'last' bit) indicating if
+    /// The number is encoded into 7 bits per byte, with the most significant bit (the 'final' bit) indicating if
     /// that byte is the last byte in the sequence.
     /// 
-    /// For example:
+    /// Also uses the redundancy removal technique.
+    /// 
+    /// See https://hbfs.wordpress.com/2014/02/18/universal-coding-part-iii/ for details.
+    /// 
+    /// Examples:
     ///   0     encodes to 1000 0000
     ///   1     encodes to 1000 0001
     ///   127   encodes to 1111 1111
-    ///   128   encodes to 0000 0001  1000 0000
-    ///   16383 encodes to 0111 1111  1111 1111
-    ///   16384 encodes to 0000 0000  0000 0000  1000 0001
+    ///   128   encodes to 0000 0000  1000 0000
+    ///   16511 encodes to 0111 1111  1111 1111
+    ///   16512 encodes to 0000 0000  0000 0000  1000 0000
     /// </summary>
     public class UVarInt {
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
-        const int DATA_MASK = 0x7F; // 0111 0000  - this is an int32 to save later casting
+        const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
 
         /// <summary>
         /// Mask to extract the 'final' bit from a byte.
         /// </summary>
-        const int FINAL_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
+        const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
         /// <summary>
         /// Encode number into an existing byte array (best performance).
@@ -41,13 +45,14 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > DATA_MASK) {
-                output[position++] = (byte)(value & DATA_MASK);
+            while (value > PAYLOAD_MASK) {
+                output[position++] = (byte)(value & PAYLOAD_MASK);
                 value >>= 7;
+                value -= 1;
             }
 
             // Output remaining bits, with the 'final' bit set
-            output[position++] = (byte)(value | FINAL_MASK);
+            output[position++] = (byte)(value | CONTINUITY_MASK);
         }
 
         /// <summary>
@@ -61,13 +66,14 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > DATA_MASK) {
-                output.WriteByte((byte)(value & DATA_MASK)); // Set the 'more' bit on each output byte
+            while (value > PAYLOAD_MASK) {
+                output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
                 value >>= 7;
+                value -= 1;
             }
 
             // Output remaining bits, with the 'final' bit set
-            output.WriteByte((byte)(value | FINAL_MASK));
+            output.WriteByte((byte)(value | CONTINUITY_MASK));
         }
 
         /// <summary>
@@ -81,13 +87,14 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > DATA_MASK) {
-                output.WriteByte((byte)(value & DATA_MASK)); // Set the 'more' bit on each output byte
+            while (value > PAYLOAD_MASK) {
+                output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
                 value >>= 7;
+                value -= 1;
             }
 
             // Output remaining bits, with the 'final' bit set
-            output.WriteByte((byte)(value | FINAL_MASK));
+            output.WriteByte((byte)(value | CONTINUITY_MASK));
         }
 
         /// <summary>
@@ -121,20 +128,19 @@ namespace InvertedTomato.VariableLengthIntegers {
             ulong value = 0;
             int currentByte;
             int bitOffset = 0;
-
             do {
                 // Read next byte
                 currentByte = input[position];
 
                 // Add bits to value
-                value += (ulong)(currentByte & DATA_MASK) << bitOffset;
+                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
 
                 // Move position for next byte
                 position++;
                 bitOffset += 7;
-            } while ((currentByte & FINAL_MASK) == 0);
+            } while ((currentByte & CONTINUITY_MASK) == 0);
 
-            return value;
+            return value - 1;
         }
 
         /// <summary>
@@ -159,13 +165,13 @@ namespace InvertedTomato.VariableLengthIntegers {
                 }
 
                 // Add bits to value
-                value += (ulong)(currentByte & DATA_MASK) << position;
+                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << position;
 
                 // Move position for next byte
                 position += 7;
-            } while ((currentByte & FINAL_MASK) == 0);
+            } while ((currentByte & CONTINUITY_MASK) == 0);
 
-            return value;
+            return value - 1;
         }
 
         /// <summary>
@@ -190,13 +196,13 @@ namespace InvertedTomato.VariableLengthIntegers {
                 }
 
                 // Add bits to value
-                value += (ulong)(currentByte & DATA_MASK) << position;
+                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << position;
 
                 // Move position for next byte
                 position += 7;
-            } while ((currentByte & FINAL_MASK) == 0);
+            } while ((currentByte & CONTINUITY_MASK) == 0);
 
-            return value;
+            return value - 1;
         }
 
         /// <summary>
