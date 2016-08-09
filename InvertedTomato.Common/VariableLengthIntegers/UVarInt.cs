@@ -3,7 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using InvertedTomato.Interfaces;
 
-namespace InvertedTomato.VLQ {
+namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
     /// Utility to encode and decode unsigned numbers to the smallest possible number of raw bytes.
     /// 
@@ -18,7 +18,7 @@ namespace InvertedTomato.VLQ {
     ///   16383 encodes to 1111 1111  0111 1111
     ///   16384 encodes to 1000 0000  1000 0000  0000 0001
     /// </summary>
-    public class UnsignedVLQ {
+    public class UVarInt {
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>

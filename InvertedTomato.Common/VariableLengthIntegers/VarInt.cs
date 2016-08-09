@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 
-namespace InvertedTomato.VLQ {
-    public static class SignedVLQ {
+namespace InvertedTomato.VariableLengthIntegers {
+    public static class VarInt {
         /* To be written
         /// <summary>
         /// Encode integer as signed VLQ.

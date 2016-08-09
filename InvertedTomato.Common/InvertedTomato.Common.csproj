@@ -39,7 +39,7 @@
   <ItemGroup>
     <Compile Include="Interfaces\IReadByte.cs" />
     <Compile Include="Interfaces\IWriteByte.cs" />
-    <Compile Include="VLQ\SignedVLQ.cs" />
+    <Compile Include="VariableLengthIntegers\VarInt.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
@@ -76,7 +76,7 @@
     <Compile Include="Utilities\IPAddressUtility.cs" />
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
-    <Compile Include="VLQ\UnsignedVLQ.cs" />
+    <Compile Include="VariableLengthIntegers\UVarInt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
