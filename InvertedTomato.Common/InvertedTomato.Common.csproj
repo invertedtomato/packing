@@ -39,7 +39,6 @@
   <ItemGroup>
     <Compile Include="Interfaces\IReadByte.cs" />
     <Compile Include="Interfaces\IWriteByte.cs" />
-    <Compile Include="VariableLengthIntegers\VarInt.cs" />
     <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
@@ -77,6 +76,7 @@
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
     <Compile Include="VariableLengthIntegers\UVarInt.cs" />
+    <Compile Include="VariableLengthIntegers\VarInt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

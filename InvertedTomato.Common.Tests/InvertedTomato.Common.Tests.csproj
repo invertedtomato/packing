@@ -60,6 +60,7 @@
     <Compile Include="Utilities\EmailAddressUtilityTest.cs" />
     <Compile Include="Utilities\GuidUtilityTest.cs" />
     <Compile Include="Utilities\IPEndPointUtilityTests.cs" />
+    <Compile Include="VariableLengthIntegers\VarIntTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">

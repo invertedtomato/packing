@@ -1,86 +1,100 @@
-﻿using System;
+﻿using InvertedTomato.Interfaces;
+using System;
 using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
-    public static class VarInt {
-        /* To be written
-        /// <summary>
-        /// Encode integer as signed VLQ.
-        /// </summary>
-        public static byte[] Encode(long value) {
-            throw new NotImplementedException();
-        }
-        public static void Encode(long value, Stream output) {
-            if (null == output) {
-                throw new ArgumentNullException("output");
-            }
+    /// <summary>
+    /// Utility to encode and decode signed numbers to the smallest possible number of raw bytes.
+    /// </summary>
+    public class VarInt {
+        private readonly UVarInt UVarInt;
 
-            throw new NotImplementedException();
-        }
-        public static long Decode(Stream stream) {
-            var qlv = new SignedVLQ();
-            while (qlv.AppendByte(stream.ReadUInt8())) { }
-            return qlv.ToValue();
+        public VarInt() {
+            UVarInt = new UVarInt();
         }
 
         /// <summary>
-        /// Output parameters
+        /// Encode number into an existing byte array (best performance).
         /// </summary>
-        private long Value;
-        private byte Position;
-        private bool IsPositive;
-
-        /// <summary>
-        /// Is there more bytes remaining
-        /// </summary>
-        private bool IsMore = true;
-
-        /// <summary>
-        /// Append a byte to the VLQ. Returns true if all bytes are accounted for and the value is ready for reading.
-        /// </summary>
-        public bool AppendByte(byte value) {
-            if (!IsMore) {
-                throw new InvalidOperationException("Value already complete.");
-            }
-
-            // Handle sign
-            byte startBit = 0;
-            if (Position == 0) {
-                IsPositive = !value.GetBit(0);
-                startBit++;
-            }
-
-            // Add value
-            for (var i = startBit; i < 7; i++) {
-                if (value.GetBit(startBit)) {
-                    checked { // Recieved more bits than can fit in an uint64 - throw an exception instead of wrapping
-                        if (IsPositive) {
-                            Value += 1 << Position;
-                        } else {
-                            Value -= 1 << Position;
-                        }
-                    }
-                }
-
-                Position++;
-            }
-
-            // Determine if complete
-            IsMore = value.GetBit(7);
-
-            return IsMore;
+        /// <param name="value">Value to encode.</param>
+        /// <param name="output">Buffer to output to.</param>
+        /// <param name="position">Position to start reading in the input. Updated to the last position read after execution.</param>
+        public void Encode(long value, byte[] output, ref int position) {
+            UVarInt.Encode(ZigZagEncode(value), output, ref position);
         }
 
         /// <summary>
-        /// Convert value to a signed integer.
+        /// Encode a number into a stream.
         /// </summary>
-        /// <returns></returns>
-        public long ToValue() {
-            if (IsMore) {
-                throw new InvalidOperationException("Value not complete.");
-            }
+        /// <param name="value">Value to encode.</param>
+        /// <param name="output">Stream to output into.</param>
+        public void Encode(long value, Stream output) {
+            UVarInt.Encode(ZigZagEncode(value), output);
+        }
 
-            return IsPositive ? -1 * Value : Value;
-        }*/
+        /// <summary>
+        /// Encode a number into a generic object.
+        /// </summary>
+        /// <param name="value">Value to encode.</param>
+        /// <param name="output">Object to output to.</param>
+        public void Encode(long value, IWriteByte output) {
+            UVarInt.Encode(ZigZagEncode(value), output);
+        }
+
+        /// <summary>
+        /// Encode a number into a byte array (low performance).
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>VLQ as byte array.</returns>
+        public byte[] Encode(long value) {
+            return UVarInt.Encode(ZigZagEncode(value));
+        }
+
+        /// <summary>
+        /// Decode the next VLQ from a given byte array starting at a given position (best performance).
+        /// </summary>
+        /// <param name="input">Array to read from.</param>
+        /// <param name="position">Position to start reading at. Updated with last read position after call.</param>
+        /// <returns>Next VLQ.</returns>
+        public long Decode(byte[] input, ref int position) {
+            return ZigZagDecode(UVarInt.Decode(input, ref position));
+        }
+
+        /// <summary>
+        /// Decode the next VLQ from a given stream.
+        /// </summary>
+        /// <param name="input">Stream to read the VLQ from.</param>
+        /// <returns>Next VLQ.</returns>
+        public long Decode(Stream input) {
+            return ZigZagDecode(UVarInt.Decode(input));
+        }
+
+        /// <summary>
+        /// Read the next VLQ from a generic object.
+        /// </summary>
+        /// <param name="input">Object to read the VLQ from.</param>
+        /// <returns>Next VLQ.</returns>
+        public long Decode(IReadByte input) {
+            return ZigZagDecode(UVarInt.Decode(input));
+        }
+
+        /// <summary>
+        /// Decode the next VLQ from a given byte array.
+        /// </summary>
+        /// <param name="input">Byte array to read the VLQ from.</param>
+        /// <returns>Next VLQ.</returns>
+        public long Decode(byte[] input) {
+            return ZigZagDecode(UVarInt.Decode(input));
+        }
+
+
+        private ulong ZigZagEncode(long value) {
+            return (ulong)((value << 1) ^ (value >> 63));
+        }
+
+        private long ZigZagDecode(ulong value) {
+            var a = (long)value;
+            return (a >> 1) ^ (-(a & 1));
+        }
     }
 }

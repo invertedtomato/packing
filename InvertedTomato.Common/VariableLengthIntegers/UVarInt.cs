@@ -23,6 +23,11 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///   16512 encodes to 0000 0000  0000 0000  1000 0000
     /// </summary>
     public class UVarInt {
+
+        //TODO: mode
+        //TODO: return size?
+
+
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
