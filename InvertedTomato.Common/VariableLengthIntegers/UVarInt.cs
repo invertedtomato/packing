@@ -219,5 +219,61 @@ namespace InvertedTomato.VariableLengthIntegers {
             var position = 0;
             return Decode(input, ref position);
         }
+
+
+        /* Alternate approach that allows for Mode. The Decode has issues.
+        public void Encode(ulong value, byte[] output, ref int position) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+
+            var mode = Mode;
+
+            while (true) {
+                if ((mode & 1) == 0) { // Next byte needs 8 bits
+                    output[position++] = (byte)value;
+                    value >>= 8;
+                } else if (value > PAYLOAD_MASK) { // Next byte needs 7 bits
+                    output[position++] = (byte)(value & PAYLOAD_MASK);
+                    value >>= 7;
+                    value--;
+                } else { // Next takes <7 bits
+                    output[position++] = (byte)(value | CONTINUITY_MASK);
+                    return;
+                }
+
+                mode >>= 1;
+            }
+        }
+
+
+        public ulong Decode(byte[] input, ref int position) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            var mode = Mode;
+            ulong value = 0;
+            int bitOffset = 0;
+
+            while (true) {
+                // Read next byte
+                int currentByte = input[position++];
+
+                if ((mode & 1) == 0) {
+                    value += (ulong)currentByte << bitOffset;
+                    bitOffset += 8;
+                } else {
+                    value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
+
+                    if ((currentByte & CONTINUITY_MASK) > 0) {
+                        return value - 1;
+                    }
+                    bitOffset += 7;
+                }
+
+                mode >>= 1;
+            }
+        }*/
     }
 }
