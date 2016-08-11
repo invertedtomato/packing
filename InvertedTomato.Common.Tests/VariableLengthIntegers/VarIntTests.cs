@@ -1,6 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.VariableLengthIntegers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.VariableLengthIntegers;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]

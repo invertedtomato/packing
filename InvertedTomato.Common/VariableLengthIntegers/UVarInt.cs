@@ -33,14 +33,21 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
-
+        /// <summary>
+        /// Minimum length (in bytes) of the output of each encoded number.
+        /// </summary>
         private readonly int MinBytes;
 
+        /// <summary>
+        /// Instantiate the UVarInt encoder.
+        /// </summary>
+        /// <param name="minBytes">Minimum number of bytes to include in output (between 1 and 8). Higher values increase efficiency when encoding larger values. Decoder must use these same values.</param>
         public UVarInt(int minBytes = 1) {
             if (minBytes < 1 || minBytes > 8) {
                 throw new ArgumentOutOfRangeException("Must be between 1 and 8.", "minBytes");
             }
 
+            // Store
             MinBytes = minBytes;
         }
 
@@ -55,6 +62,7 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
+            // Add any full bytes to start to fulfill min-bytes requirements
             for (var i = 0; i < MinBytes - 1; i++) {
                 output[position++] = (byte)value;
                 value >>= 8;
@@ -82,12 +90,18 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
-            throw new NotImplementedException();
+            // Add any full bytes to start to fulfill min-bytes requirements
+            for (var i = 0; i < MinBytes - 1; i++) {
+                output.WriteByte((byte)value);
+                value >>= 8;
+            }
+
+
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
-                output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
+                output.WriteByte((byte)(value & PAYLOAD_MASK));
                 value >>= 7;
-                value -= 1;
+                value--;
             }
 
             // Output remaining bits, with the 'final' bit set
@@ -104,12 +118,18 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
-            throw new NotImplementedException();
+            // Add any full bytes to start to fulfill min-bytes requirements
+            for (var i = 0; i < MinBytes - 1; i++) {
+                output.WriteByte((byte)value);
+                value >>= 8;
+            }
+
+
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
-                output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
+                output.WriteByte((byte)(value & PAYLOAD_MASK));
                 value >>= 7;
-                value -= 1;
+                value--;
             }
 
             // Output remaining bits, with the 'final' bit set
@@ -148,6 +168,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             int currentByte;
             int bitOffset = 0;
 
+            // Read any full bytes per min-bytes requirements
             for (var i = 0; i < MinBytes - 1; i++) {
                 // Read next byte
                 currentByte = input[position++];
@@ -162,18 +183,19 @@ namespace InvertedTomato.VariableLengthIntegers {
 
             // Add bits to value
             value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
-            bitOffset += 7;
-
+            
             while ((currentByte & CONTINUITY_MASK) == 0) {
+                // Update target offset
+                bitOffset += 7;
+
                 // Read next byte
                 currentByte = input[position++];
 
                 // Add bits to value
                 value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
-                bitOffset += 7;
             }
 
-            return value ;
+            return value;
         }
 
         /// <summary>
@@ -185,26 +207,39 @@ namespace InvertedTomato.VariableLengthIntegers {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-            throw new NotImplementedException();
-            int position = 0;
+
             ulong value = 0;
             int currentByte;
+            int bitOffset = 0;
 
-            do {
+            // Read any full bytes per min-bytes requirements
+            for (var i = 0; i < MinBytes - 1; i++) {
                 // Read next byte
                 currentByte = input.ReadByte();
-                if (currentByte == -1) {
-                    throw new EndOfStreamException();
-                }
 
                 // Add bits to value
-                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << position;
+                value += (ulong)currentByte << bitOffset;
+                bitOffset += 8;
+            }
 
-                // Move position for next byte
-                position += 7;
-            } while ((currentByte & CONTINUITY_MASK) == 0);
+            // Read next byte
+            currentByte = input.ReadByte();
 
-            return value - 1;
+            // Add bits to value
+            value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
+
+            while ((currentByte & CONTINUITY_MASK) == 0) {
+                // Update target offset
+                bitOffset += 7;
+
+                // Read next byte
+                currentByte = input.ReadByte();
+
+                // Add bits to value
+                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -217,26 +252,38 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("input");
             }
 
-            throw new NotImplementedException();
-            int position = 0;
             ulong value = 0;
             int currentByte;
+            int bitOffset = 0;
 
-            do {
+            // Read any full bytes per min-bytes requirements
+            for (var i = 0; i < MinBytes - 1; i++) {
                 // Read next byte
                 currentByte = input.ReadByte();
-                if (currentByte == -1) {
-                    throw new EndOfStreamException();
-                }
 
                 // Add bits to value
-                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << position;
+                value += (ulong)currentByte << bitOffset;
+                bitOffset += 8;
+            }
 
-                // Move position for next byte
-                position += 7;
-            } while ((currentByte & CONTINUITY_MASK) == 0);
+            // Read next byte
+            currentByte = input.ReadByte();
 
-            return value - 1;
+            // Add bits to value
+            value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
+
+            while ((currentByte & CONTINUITY_MASK) == 0) {
+                // Update target offset
+                bitOffset += 7;
+
+                // Read next byte
+                currentByte = input.ReadByte();
+
+                // Add bits to value
+                value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
+            }
+
+            return value;
         }
 
         /// <summary>
