@@ -23,11 +23,6 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///   16512 encodes to 0000 0000  0000 0000  1000 0000
     /// </summary>
     public class UVarInt {
-
-        //TODO: mode
-        //TODO: return size?
-
-
         /// <summary>
         /// Mask to extract the data from a byte
         /// </summary>
@@ -37,6 +32,17 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// Mask to extract the 'final' bit from a byte.
         /// </summary>
         const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
+
+
+        private readonly int MinBytes;
+
+        public UVarInt(int minBytes = 1) {
+            if (minBytes < 1 || minBytes > 8) {
+                throw new ArgumentOutOfRangeException("Must be between 1 and 8.", "minBytes");
+            }
+
+            MinBytes = minBytes;
+        }
 
         /// <summary>
         /// Encode number into an existing byte array (best performance).
@@ -49,11 +55,17 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
+            for (var i = 0; i < MinBytes - 1; i++) {
+                output[position++] = (byte)value;
+                value >>= 8;
+            }
+
+
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
                 output[position++] = (byte)(value & PAYLOAD_MASK);
                 value >>= 7;
-                value -= 1;
+                value--;
             }
 
             // Output remaining bits, with the 'final' bit set
@@ -70,6 +82,7 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
+            throw new NotImplementedException();
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
                 output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
@@ -91,6 +104,7 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
+            throw new NotImplementedException();
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
                 output.WriteByte((byte)(value & PAYLOAD_MASK)); // Set the 'more' bit on each output byte
@@ -133,19 +147,33 @@ namespace InvertedTomato.VariableLengthIntegers {
             ulong value = 0;
             int currentByte;
             int bitOffset = 0;
-            do {
+
+            for (var i = 0; i < MinBytes - 1; i++) {
                 // Read next byte
-                currentByte = input[position];
+                currentByte = input[position++];
+
+                // Add bits to value
+                value += (ulong)currentByte << bitOffset;
+                bitOffset += 8;
+            }
+
+            // Read next byte
+            currentByte = input[position++];
+
+            // Add bits to value
+            value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
+            bitOffset += 7;
+
+            while ((currentByte & CONTINUITY_MASK) == 0) {
+                // Read next byte
+                currentByte = input[position++];
 
                 // Add bits to value
                 value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
-
-                // Move position for next byte
-                position++;
                 bitOffset += 7;
-            } while ((currentByte & CONTINUITY_MASK) == 0);
+            }
 
-            return value - 1;
+            return value ;
         }
 
         /// <summary>
@@ -157,7 +185,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-
+            throw new NotImplementedException();
             int position = 0;
             ulong value = 0;
             int currentByte;
@@ -189,6 +217,7 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("input");
             }
 
+            throw new NotImplementedException();
             int position = 0;
             ulong value = 0;
             int currentByte;
@@ -219,61 +248,5 @@ namespace InvertedTomato.VariableLengthIntegers {
             var position = 0;
             return Decode(input, ref position);
         }
-
-
-        /* Alternate approach that allows for Mode. The Decode has issues.
-        public void Encode(ulong value, byte[] output, ref int position) {
-            if (null == output) {
-                throw new ArgumentNullException("output");
-            }
-
-            var mode = Mode;
-
-            while (true) {
-                if ((mode & 1) == 0) { // Next byte needs 8 bits
-                    output[position++] = (byte)value;
-                    value >>= 8;
-                } else if (value > PAYLOAD_MASK) { // Next byte needs 7 bits
-                    output[position++] = (byte)(value & PAYLOAD_MASK);
-                    value >>= 7;
-                    value--;
-                } else { // Next takes <7 bits
-                    output[position++] = (byte)(value | CONTINUITY_MASK);
-                    return;
-                }
-
-                mode >>= 1;
-            }
-        }
-
-
-        public ulong Decode(byte[] input, ref int position) {
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-
-            var mode = Mode;
-            ulong value = 0;
-            int bitOffset = 0;
-
-            while (true) {
-                // Read next byte
-                int currentByte = input[position++];
-
-                if ((mode & 1) == 0) {
-                    value += (ulong)currentByte << bitOffset;
-                    bitOffset += 8;
-                } else {
-                    value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
-
-                    if ((currentByte & CONTINUITY_MASK) > 0) {
-                        return value - 1;
-                    }
-                    bitOffset += 7;
-                }
-
-                mode >>= 1;
-            }
-        }*/
     }
 }
