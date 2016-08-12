@@ -36,7 +36,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <summary>
         /// Minimum length (in bytes) of the output of each encoded number.
         /// </summary>
-        private readonly int MinBytes;
+        private readonly int PrefixBytes;
 
         /// <summary>
         /// Instantiate the UVarInt encoder.
@@ -48,7 +48,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Store
-            MinBytes = minBytes;
+            PrefixBytes = minBytes - 1;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 output[position++] = (byte)value;
                 value >>= 8;
             }
@@ -91,7 +91,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 output.WriteByte((byte)value);
                 value >>= 8;
             }
@@ -119,7 +119,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 output.WriteByte((byte)value);
                 value >>= 8;
             }
@@ -169,7 +169,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             int bitOffset = 0;
 
             // Read any full bytes per min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 // Read next byte
                 currentByte = input[position++];
 
@@ -183,7 +183,7 @@ namespace InvertedTomato.VariableLengthIntegers {
 
             // Add bits to value
             value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
-            
+
             while ((currentByte & CONTINUITY_MASK) == 0) {
                 // Update target offset
                 bitOffset += 7;
@@ -213,7 +213,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             int bitOffset = 0;
 
             // Read any full bytes per min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 // Read next byte
                 currentByte = input.ReadByte();
 
@@ -257,7 +257,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             int bitOffset = 0;
 
             // Read any full bytes per min-bytes requirements
-            for (var i = 0; i < MinBytes - 1; i++) {
+            for (var i = 0; i < PrefixBytes; i++) {
                 // Read next byte
                 currentByte = input.ReadByte();
 
