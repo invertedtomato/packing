@@ -4,16 +4,16 @@ using InvertedTomato.VariableLengthIntegers;
 
 namespace InvertedTomato.Common.Tests {
     [TestClass]
-    public class UVarIntTests {
-        UVarInt Min1;
-        UVarInt Min2;
-        UVarInt Min4;
+    public class UnsignedVLQTests {
+        UnsignedVLQ Min1;
+        UnsignedVLQ Min2;
+        UnsignedVLQ Min4;
 
         [TestInitialize]
         public void Initialize() {
-            Min1 = new UVarInt();
-            Min2 = new UVarInt(2);
-            Min4 = new UVarInt(4);
+            Min1 = new UnsignedVLQ();
+            Min2 = new UnsignedVLQ(2);
+            Min4 = new UnsignedVLQ(4);
         }
 
         [TestMethod]

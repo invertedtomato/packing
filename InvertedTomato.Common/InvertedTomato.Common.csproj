@@ -75,8 +75,9 @@
     <Compile Include="Utilities\IPAddressUtility.cs" />
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
-    <Compile Include="VariableLengthIntegers\UVarInt.cs" />
-    <Compile Include="VariableLengthIntegers\VarInt.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedVLQ.cs" />
+    <Compile Include="VariableLengthIntegers\SignedVLQ.cs" />
+    <Compile Include="VariableLengthIntegers\ZigZag.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

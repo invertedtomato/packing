@@ -6,11 +6,24 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
     /// Utility to encode and decode signed numbers to the smallest possible number of raw bytes.
     /// </summary>
-    public class VarInt {
-        private readonly UVarInt UVarInt;
+    public class SignedVLQ {
+        private readonly UnsignedVLQ Underlying;
 
-        public VarInt() {
-            UVarInt = new UVarInt();
+        /// <summary>
+        /// Instantiate encoder
+        /// </summary>
+        /// <param name="minBytes">Minimum number of bytes to use when encoding. Used to further optimize output size.</param>
+        public SignedVLQ(int minBytes = 1) {
+            Underlying = new UnsignedVLQ(minBytes);
+        }
+
+        /// <summary>
+        /// Encode VLQ using lambda expression to retrieve next byte.
+        /// </summary>
+        /// <param name="value">Signed value to be encoded.</param>
+        /// <param name="write">Method to write byte. First parameter contains byte to be OR'd with the existing value. Second parameter indicate is a position move is required after the byte is writted.</param>
+        public void Encode(long value, Action<byte, bool> write) {
+            Underlying.Encode(ZigZag.Encode(value), write);
         }
 
         /// <summary>
@@ -20,7 +33,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="output">Buffer to output to.</param>
         /// <param name="position">Position to start reading in the input. Updated to the last position read after execution.</param>
         public void Encode(long value, byte[] output, ref int position) {
-            UVarInt.Encode(ZigZagEncode(value), output, ref position);
+            Underlying.Encode(ZigZag.Encode(value), output, ref position);
         }
 
         /// <summary>
@@ -29,16 +42,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="value">Value to encode.</param>
         /// <param name="output">Stream to output into.</param>
         public void Encode(long value, Stream output) {
-            UVarInt.Encode(ZigZagEncode(value), output);
-        }
-
-        /// <summary>
-        /// Encode a number into a generic object.
-        /// </summary>
-        /// <param name="value">Value to encode.</param>
-        /// <param name="output">Object to output to.</param>
-        public void Encode(long value, IWriteByte output) {
-            UVarInt.Encode(ZigZagEncode(value), output);
+            Underlying.Encode(ZigZag.Encode(value), output);
         }
 
         /// <summary>
@@ -47,7 +51,16 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="value"></param>
         /// <returns>VLQ as byte array.</returns>
         public byte[] Encode(long value) {
-            return UVarInt.Encode(ZigZagEncode(value));
+            return Underlying.Encode(ZigZag.Encode(value));
+        }
+
+        /// <summary>
+        /// Decode VLQ using lambda expression to retrieve next byte.
+        /// </summary>
+        /// <param name="read">Method to acquire next byte. If the parameter is TRUE, move the pointer to the next byte after the read.</param>
+        /// <returns></returns>
+        public long Decode(Func<bool, byte> read) {
+            return ZigZag.Decode(Underlying.Decode(read));
         }
 
         /// <summary>
@@ -57,7 +70,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="position">Position to start reading at. Updated with last read position after call.</param>
         /// <returns>Next VLQ.</returns>
         public long Decode(byte[] input, ref int position) {
-            return ZigZagDecode(UVarInt.Decode(input, ref position));
+            return ZigZag.Decode(Underlying.Decode(input, ref position));
         }
 
         /// <summary>
@@ -66,16 +79,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="input">Stream to read the VLQ from.</param>
         /// <returns>Next VLQ.</returns>
         public long Decode(Stream input) {
-            return ZigZagDecode(UVarInt.Decode(input));
-        }
-
-        /// <summary>
-        /// Read the next VLQ from a generic object.
-        /// </summary>
-        /// <param name="input">Object to read the VLQ from.</param>
-        /// <returns>Next VLQ.</returns>
-        public long Decode(IReadByte input) {
-            return ZigZagDecode(UVarInt.Decode(input));
+            return ZigZag.Decode(Underlying.Decode(input));
         }
 
         /// <summary>
@@ -84,17 +88,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="input">Byte array to read the VLQ from.</param>
         /// <returns>Next VLQ.</returns>
         public long Decode(byte[] input) {
-            return ZigZagDecode(UVarInt.Decode(input));
-        }
-
-
-        private ulong ZigZagEncode(long value) {
-            return (ulong)((value << 1) ^ (value >> 63));
-        }
-
-        private long ZigZagDecode(ulong value) {
-            var a = (long)value;
-            return (a >> 1) ^ (-(a & 1));
+            return ZigZag.Decode(Underlying.Decode(input));
         }
     }
 }

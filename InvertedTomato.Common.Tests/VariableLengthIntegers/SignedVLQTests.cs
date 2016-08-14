@@ -3,12 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]
-    public class VarIntTests {
-        VarInt VarInt;
+    public class SignedVLQTests {
+        SignedVLQ VarInt;
 
         [TestInitialize]
         public void Initialize() {
-            VarInt = new VarInt();
+            VarInt = new SignedVLQ();
         }
 
         [TestMethod]

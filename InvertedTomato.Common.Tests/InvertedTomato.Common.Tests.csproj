@@ -55,12 +55,12 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VariableLengthIntegers\UVarIntTests.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedVLQTests.cs" />
     <Compile Include="Utilities\DateUtilityTest.cs" />
     <Compile Include="Utilities\EmailAddressUtilityTest.cs" />
     <Compile Include="Utilities\GuidUtilityTest.cs" />
     <Compile Include="Utilities\IPEndPointUtilityTests.cs" />
-    <Compile Include="VariableLengthIntegers\VarIntTests.cs" />
+    <Compile Include="VariableLengthIntegers\SignedVLQTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">
