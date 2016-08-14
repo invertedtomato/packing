@@ -19,12 +19,6 @@ namespace InvertedTomato.VariableLengthIntegers {
             // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
             // #4 Let N equal the number of bits just prepended, minus one.
             // #5 Return to step 2 to prepend the encoding of the new N.
-        }
-
-        public void Encode(ulong value, byte[] output, ref int position, ref int offset) {
-            throw new NotImplementedException();
-
-
 
             /*
             var t = new BitArray(8192);
@@ -44,28 +38,103 @@ namespace InvertedTomato.VariableLengthIntegers {
             WriteBit(false);*/
         }
 
-        public void Encode(ulong value, Stream output, ref int offset) { throw new NotImplementedException(); }
+        public void Encode(ulong value, byte[] output, ref int position, ref int offset) {
+            var innerPosition = position;
 
-        public byte[] Encode(ulong value) { throw new NotImplementedException(); }
+            Encode(value, (b, move) => {
+                output[innerPosition] |= b;
+                if (move) {
+                    innerPosition++;
+                }
+            }, ref offset);
+
+            position = innerPosition;
+        }
+
+        public void Encode(ulong value, Stream output, ref int offset) {
+            Encode(value, (b, move) => {
+                var a = output.ReadByte();
+                output.Position--;
+                output.WriteByte((byte)(a | b));
+                if (!move) {
+                    output.Position--;
+                }
+            }, ref offset);
+        }
+
+        public byte[] Encode(ulong value) {
+            // Encode to buffer
+            var buffer = new byte[10];
+            var position = 0;
+            var offset = 0;
+
+            Encode(value, (b, move) => {
+                buffer[position] |= b;
+                if (move) {
+                    position++;
+                }
+            }, ref offset);
+
+            // Trim unneeded bytes
+            var output = new byte[position];
+            Buffer.BlockCopy(buffer, 0, output, 0, output.Length);
+            return output;
+        }
 
 
 
         public ulong Decode(Func<bool, byte> read, ref int offset) {
-            throw new NotImplementedException();
-        }
-
-        public ulong Decode(byte[] output, ref int position, ref int offset) {
-            throw new NotImplementedException();
-
             // #1 Start with a variable N, set to a value of 1.
             // #2 If the next bit is a "0", stop. The decoded number is N.
             // #3 If the next bit is a "1", then read it plus N more bits, and use that binary number as the new value of N.
             // #4 Go back to step 2.
 
+            throw new NotImplementedException();
         }
 
-        public ulong Decode(Stream input, ref int offset) { throw new NotImplementedException(); }
+        public ulong Decode(byte[] input, ref int position, ref int offset) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
 
-        public ulong Decode(byte[] input) { throw new NotImplementedException(); }
+            var innerPosition = position;
+            var value = Decode((move) => {
+                return input[move ? innerPosition++ : innerPosition];
+            }, ref offset);
+            position = innerPosition;
+
+            return value;
+        }
+
+        public ulong Decode(Stream input, ref int offset) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            return Decode((move) => {
+                var b = input.ReadByte();
+                if (b < 0) {
+                    throw new EndOfStreamException();
+                }
+                if (!move) {
+                    input.Position--;
+                }
+                return (byte)b;
+            }, ref offset);
+        }
+
+        public ulong Decode(byte[] input) {
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+
+            var position = 0;
+            var offset = 0;
+            var value = Decode((move) => {
+                return input[move ? position++ : position];
+            }, ref offset);
+
+            return value;
+        }
     }
 }
