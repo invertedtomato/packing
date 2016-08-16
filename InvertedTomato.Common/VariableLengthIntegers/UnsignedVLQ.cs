@@ -55,24 +55,24 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// Encode VLQ using lambda expression to retrieve next byte.
         /// </summary>
         /// <param name="value">Signed value to be encoded.</param>
-        /// <param name="write">Method to write byte. First parameter contains byte to be OR'd with the existing value. Second parameter indicate is a position move is required after the byte is writted.</param>
-        public void Encode(ulong value, Action<byte, bool> write) {
+        /// <param name="writeMove">Method to write byte and move pointer to the next byte.</param>
+        public void Encode(ulong value, Action<byte> writeMove) {
             // Add any full bytes to start to fulfill min-bytes requirements
             for (var i = 0; i < PrefixBytes; i++) {
-                write((byte)value, true);
+                writeMove((byte)value);
                 value >>= 8;
             }
 
 
             // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
             while (value > PAYLOAD_MASK) {
-                write((byte)(value & PAYLOAD_MASK), true);
+                writeMove((byte)(value & PAYLOAD_MASK));
                 value >>= 7;
                 value--;
             }
 
             // Output remaining bits, with the 'final' bit set
-            write((byte)(value | CONTINUITY_MASK), true);
+            writeMove((byte)(value | CONTINUITY_MASK));
         }
 
         /// <summary>
@@ -86,14 +86,11 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
-            var a = position;
-            Encode(value, (b, move) => {
-                output[a] |= b;
-                if (move) {
-                    a++;
-                }
+            var innerPosition = position;
+            Encode(value, (b) => {
+                output[innerPosition++] |= b;
             });
-            position = a;
+            position = innerPosition;
         }
 
         /// <summary>
@@ -106,17 +103,11 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("output");
             }
 
-            Encode(value, (b, move) => {
-                var a = output.ReadByte();
-                output.Position--;
-
-                output.WriteByte((byte)(a | b));
-                if (!move) {
-                    output.Position--;
-                }
+            Encode(value, (b) => {
+                output.WriteByte(b);
             });
         }
-        
+
         /// <summary>
         /// Encode a number into a byte array (low performance).
         /// </summary>
@@ -127,13 +118,10 @@ namespace InvertedTomato.VariableLengthIntegers {
             var buffer = new byte[10];
             var position = 0;
 
-            Encode(value, (b, move) => {
-                buffer[position] |= b;
-                if (move) {
-                    position++;
-                }
+            Encode(value, (b) => {
+                buffer[position++] = b;
             });
-            
+
             // Trim unneeded bytes
             var output = new byte[position];
             Buffer.BlockCopy(buffer, 0, output, 0, output.Length);
@@ -143,9 +131,9 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <summary>
         /// Decode VLQ using lambda expression to retrieve next byte.
         /// </summary>
-        /// <param name="read">Method to acquire next byte. If the parameter is TRUE, move the pointer to the next byte after the read.</param>
+        /// <param name="readMove">Method to acquire next byte and move pointer forward.</param>
         /// <returns></returns>
-        public ulong Decode(Func<bool, byte> read) {
+        public ulong Decode(Func<byte> readMove) {
             ulong value = 0;
             int currentByte;
             int bitOffset = 0;
@@ -153,7 +141,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             // Read any full bytes per min-bytes requirements
             for (var i = 0; i < PrefixBytes; i++) {
                 // Read next byte
-                currentByte = read(true);
+                currentByte = readMove();
 
                 // Add bits to value
                 value += (ulong)currentByte << bitOffset;
@@ -161,7 +149,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Read next byte
-            currentByte = read(true);
+            currentByte = readMove();
 
             // Add bits to value
             value += (ulong)((currentByte & PAYLOAD_MASK)) << bitOffset;
@@ -171,7 +159,7 @@ namespace InvertedTomato.VariableLengthIntegers {
                 bitOffset += 7;
 
                 // Read next byte
-                currentByte = read(true);
+                currentByte = readMove();
 
                 // Add bits to value
                 value += (ulong)((currentByte & PAYLOAD_MASK) + 1) << bitOffset;
@@ -192,8 +180,8 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             var innerPosition = position;
-            var value = Decode((move) => {
-                return input[move ? innerPosition++ : innerPosition];
+            var value = Decode(() => {
+                return input[innerPosition++];
             });
             position = innerPosition;
 
@@ -210,13 +198,10 @@ namespace InvertedTomato.VariableLengthIntegers {
                 throw new ArgumentNullException("input");
             }
 
-            return Decode((move) => {
+            return Decode(() => {
                 var b = input.ReadByte();
                 if (b < 0) {
                     throw new EndOfStreamException();
-                }
-                if (!move) {
-                    input.Position--;
                 }
                 return (byte)b;
             });
@@ -233,8 +218,8 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             var position = 0;
-            var value = Decode((move) => {
-                return input[move ? position++ : position];
+            var value = Decode(() => {
+                return input[position++];
             });
 
             return value;

@@ -22,7 +22,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         /// <param name="value">Signed value to be encoded.</param>
         /// <param name="write">Method to write byte. First parameter contains byte to be OR'd with the existing value. Second parameter indicate is a position move is required after the byte is writted.</param>
-        public void Encode(long value, Action<byte, bool> write) {
+        public void Encode(long value, Action<byte> write) {
             Underlying.Encode(ZigZag.Encode(value), write);
         }
 
@@ -59,7 +59,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         /// <param name="read">Method to acquire next byte. If the parameter is TRUE, move the pointer to the next byte after the read.</param>
         /// <returns></returns>
-        public long Decode(Func<bool, byte> read) {
+        public long Decode(Func<byte> read) {
             return ZigZag.Decode(Underlying.Decode(read));
         }
 

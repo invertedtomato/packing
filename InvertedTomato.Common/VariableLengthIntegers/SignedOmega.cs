@@ -18,8 +18,8 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         /// <param name="value">Signed value to be encoded.</param>
         /// <param name="write">Method to write byte. First parameter contains byte to be OR'd with the existing value. Second parameter indicate is a position move is required after the byte is writted.</param>
-        public void Encode(long value, Action<byte, bool> write, ref int offset) {
-            Underlying.Encode(ZigZag.Encode(value), write, ref offset);
+        public void Encode(long value, Func<byte> read, Action<byte> write, Action move, ref int offset) {
+            Underlying.Encode(ZigZag.Encode(value), read, write, move, ref offset);
         }
 
         /// <summary>
