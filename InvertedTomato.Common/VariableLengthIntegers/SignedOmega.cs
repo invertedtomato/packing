@@ -55,8 +55,8 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         /// <param name="read">Method to acquire next byte. If the parameter is TRUE, move the pointer to the next byte after the read.</param>
         /// <returns></returns>
-        public long Decode(Func<bool, byte> read, ref int offset) {
-            return ZigZag.Decode(Underlying.Decode(read, ref offset));
+        public long Decode(Func<byte> read, Action move, ref int offset) {
+            return ZigZag.Decode(Underlying.Decode(read, move, ref offset));
         }
 
         /// <summary>

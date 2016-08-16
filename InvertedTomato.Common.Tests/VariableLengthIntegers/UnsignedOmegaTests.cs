@@ -140,7 +140,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("11100000", 2),
-            }), BitConverter.ToString(Focus.Encode(ulong.MaxValue-1))); // We support one less than the full range, because we chose to include 0
+            }), BitConverter.ToString(Focus.Encode(ulong.MaxValue - 1))); // We support one less than the full range, because we chose to include 0
         }
 
         [TestMethod]
@@ -176,12 +176,21 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
 
             for (var input = uint.MinValue; input < uint.MaxValue / 10000; input++) {
                 var previousPosition = position;
+                var previousOffset = offset;
                 Focus.Encode(input, buffer, ref position, ref offset);
                 position = previousPosition;
+                offset = previousOffset;
                 var output = Focus.Decode(buffer, ref position, ref offset);
 
-                Assert.AreEqual(output, input);
+                Assert.AreEqual(input, output);
             }
+        }
+
+        [TestMethod]
+        public void Decode_14_Midstream() {
+            var position = 10;
+            var offset = 9;
+            Assert.AreEqual((ulong)14, Focus.Decode(new byte[] { 77, 69, 86, 93, 195, 151, 78, 222, 61, 124, 252, 0, 0 }, ref position, ref offset));
         }
 
         [TestMethod]
@@ -284,7 +293,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
 
         [TestMethod]
         public void Decode_Max() {
-            Assert.AreEqual(ulong.MaxValue-1, Focus.Decode(new byte[] { // We support one less than the full range, because we chose to include 0
+            Assert.AreEqual(ulong.MaxValue - 1, Focus.Decode(new byte[] { // We support one less than the full range, because we chose to include 0
                 Convert.ToByte("10101111", 2),
                 Convert.ToByte("11111111", 2),
                 Convert.ToByte("11111111", 2),
@@ -303,8 +312,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
             var position = 0;
             var offset = 0;
             var buffer = new byte[] {
-                Convert.ToByte("01101101", 2),
-                Convert.ToByte("00000001", 2),
+                Convert.ToByte("11011011", 2),
+                Convert.ToByte("00000000", 2),
             };
 
             Assert.AreEqual((ulong)2, Focus.Decode(buffer, ref position, ref offset));
