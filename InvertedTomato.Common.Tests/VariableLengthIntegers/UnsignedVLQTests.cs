@@ -27,7 +27,7 @@ namespace InvertedTomato.Common.Tests {
                 position = previousPosition;
                 var output = Min1.Decode(buffer, ref position);
 
-                Assert.AreEqual(output, input);
+                Assert.AreEqual(input, output);
             }
         }
 
@@ -42,7 +42,7 @@ namespace InvertedTomato.Common.Tests {
                 position = previousPosition;
                 var output = Min2.Decode(buffer, ref position);
 
-                Assert.AreEqual(output, input);
+                Assert.AreEqual(input, output);
             }
         }
 
@@ -57,7 +57,7 @@ namespace InvertedTomato.Common.Tests {
                 position = previousPosition;
                 var output = Min4.Decode(buffer, ref position);
 
-                Assert.AreEqual(output, input);
+                Assert.AreEqual(input, output);
             }
         }
 
