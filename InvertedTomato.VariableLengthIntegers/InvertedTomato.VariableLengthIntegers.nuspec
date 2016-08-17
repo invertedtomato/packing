@@ -12,7 +12,6 @@
     <summary>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encodings.</summary>
     <description>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encoding.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2016</copyright>
     <tags>Compression VLQ Elias Omega</tags>
   </metadata>
 </package>
