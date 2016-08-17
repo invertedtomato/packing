@@ -75,6 +75,35 @@ namespace InvertedTomato.VariableLengthIntegers {
         }
 
         /// <summary>
+        /// Calculate the length of an encoded value in bits.
+        /// </summary>
+        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int CalculateBitLength(bool allowZero, ulong value) {
+            var result = 1; // Termination bit
+
+            // Offset value to allow for 0s
+            if (allowZero) {
+                value++;
+            }
+
+            // #2 If N=1, stop; encoding is complete.
+            while (value > 1) {
+                // Calculate the length of value
+                var length = CountBits(value);
+
+                // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
+                result += length;
+
+                // #4 Let N equal the number of bits just prepended, minus one.
+                value = (ulong)length - 1;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
@@ -224,7 +253,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        private byte CountBits(ulong value) {
+        private static byte CountBits(ulong value) {
             byte bits = 0;
 
             do {

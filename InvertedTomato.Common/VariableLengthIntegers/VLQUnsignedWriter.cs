@@ -53,6 +53,32 @@ namespace InvertedTomato.VariableLengthIntegers {
         }
 
         /// <summary>
+        /// Calculate the length of an encoded value in bits.
+        /// </summary>
+        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large</param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int CalculateBitLength(int minBytes, ulong value) {
+            var result = 8; // Final byte
+
+            // Add any full bytes to start to fulfill min-bytes requirements
+            for (var i = 0; i < minBytes - 1; i++) {
+                result += 8;
+                value >>= 8;
+            }
+
+
+            // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
+            while (value > PAYLOAD_MASK) {
+                result += 8;
+                value >>= 7;
+                value--;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Mask to extract the data from a byte.
         /// </summary>
         const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
