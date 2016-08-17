@@ -24,6 +24,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers.Benchmark", "InvertedTomato.VariableLengthIntegers.Benchmark\InvertedTomato.VariableLengthIntegers.Benchmark.csproj", "{F7F53288-1FF9-4AA1-8D95-68ADF8877478}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
