@@ -11,7 +11,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         public void WriteRead_First1000() {
             for (long input = -500; input < 500; input++) {
                 var encoded = EliasOmegaSignedWriter.WriteAll(true, new List<long>() { input });
-                var output = EliasOmegaSignedReader.ReadAll(encoded);
+                var output = EliasOmegaSignedReader.ReadAll(true, encoded);
 
                 Assert.IsTrue(output.Count() >= 1);
                 Assert.AreEqual(input, output.First());
@@ -30,7 +30,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
             }
 
             var encoded = EliasOmegaSignedWriter.WriteAll(true, input);
-            var output = EliasOmegaSignedReader.ReadAll(encoded);
+            var output = EliasOmegaSignedReader.ReadAll(true, encoded);
 
             Assert.IsTrue(output.Count() >= -min + max + 1);
 
