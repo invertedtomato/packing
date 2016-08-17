@@ -19,7 +19,7 @@ namespace InvertedTomato.VariableLengthIntegers {
         }
 
         /// <summary>
-        /// Read all values in a byte array with options
+        /// Read all values in a byte array with options.
         /// </summary>
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="input"></param>

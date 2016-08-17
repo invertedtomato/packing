@@ -4,18 +4,38 @@ using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
-    /// Implementation of Elias Omega encoding for unsigned values. Optionally (and by default) zeros are permitted by passing TRUE in
-    /// the constructor. Keep in mind that doing this breaks standard.
+    /// Reader for Elias Omega universal coding for unsigned values. Using this coding scheme multiple values can be expressed in one byte, and there is no wastage to padding bits. 
     /// 
-    /// Example values with allowZeros enabled:
+    /// Following are some example codings:
+    /// 
+    ///      VALUE  ENCODED
+    ///          1  0_______
+    ///          2  100_____  
+    ///          3  110_____  
+    ///          4  101000__  
+    ///          5  101010__
+    ///          6  101110__  
+    ///          7  1110000_  
+    ///         15  1111110_  
+    ///         16  10100100 000_____ 
+    ///         32  10101100 0000____ 
+    ///        100  10110110 01000___ 
+    ///       1000  11100111 11101000 0_______ 
+    ///     10,000  11110110 01110001 00000___ 
+    ///    100,000  10100100 00110000 11010100 0000____ 
+    ///  1,000,000  10100100 11111101 00001001 0000000_
+    ///    
+    /// Normally under Elias zeros cannot be encoded. Passing TRUE into the constructor implements a value offset for all values so that this becomes possible. Following
+    /// are examples with AllowZeros enabled:
     /// 
     ///      VALUE  ENCODED
     ///          0  0_______
     ///          1  100_____  
     ///          2  110_____  
     ///          3  101000__  
-    ///          6  101110__  
-    ///          7  1110000_  
+    ///          4  101010__
+    ///          5  101110__  
+    ///          6  1110000_  
     ///         14  1111110_  
     ///         15  10100100 000_____ 
     ///         31  10101100 0000____ 
@@ -25,13 +45,23 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///     99,999  10100100 00110000 11010100 0000____ 
     ///    999,999  10100100 11111101 00001001 0000000_
     /// 
-    /// For more information on Elias Omega see https://en.wikipedia.org/wiki/Elias_omega_coding.
-    /// To see how Elias compares to other universal codes, see https://en.wikipedia.org/wiki/Elias_omega_coding
-    /// 
-    /// This implementation is loosely based on http://www.dupuis.me/node/39.
+    /// For more information on Elias Omega see https://en.wikipedia.org/wiki/Elias_omega_coding. To see how Elias compares to other universal codes, see
+    /// https://en.wikipedia.org/wiki/Elias_omega_coding .
     /// </summary>
     public class EliasOmegaUnsignedWriter : IUnsignedWriter, IDisposable {
+        /// <summary>
+        /// Write all given values.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(false, values); }
+
+        /// <summary>
+        /// Write all given values with options.
+        /// </summary>
+        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static byte[] WriteAll(bool allowZeros, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new EliasOmegaUnsignedWriter(stream, allowZeros)) {
@@ -44,8 +74,19 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
         }
 
+        /// <summary>
+        /// If disposed.
+        /// </summary>
         public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Underlying stream to be writing encoded values to.
+        /// </summary>
         private readonly Stream Output;
+
+        /// <summary>
+        /// If value offsetting is enabled so that zero can be supported.
+        /// </summary>
         private readonly bool AllowZeros;
 
         /// <summary>
@@ -58,13 +99,26 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         private int CurrrentPosition;
 
+        /// <summary>
+        /// Standard instantiation.
+        /// </summary>
+        /// <param name="output"></param>
         public EliasOmegaUnsignedWriter(Stream output) : this(output, false) { }
 
+        /// <summary>
+        /// Instantiate with options.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         public EliasOmegaUnsignedWriter(Stream output, bool allowZeros) {
             Output = output;
             AllowZeros = allowZeros;
         }
 
+        /// <summary>
+        /// Append value to stream.
+        /// </summary>
+        /// <param name="value"></param>
         public void Write(ulong value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
@@ -134,17 +188,10 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
         }
 
-        private byte CountBits(ulong value) {
-            byte bits = 0;
-
-            do {
-                bits++;
-                value >>= 1;
-            } while (value > 0);
-
-            return bits;
-        }
-
+        /// <summary>
+        /// Flush any unwritten bits and dispose.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (IsDisposed) {
                 return;
@@ -164,8 +211,28 @@ namespace InvertedTomato.VariableLengthIntegers {
             // Set large fields to null.
         }
 
+        /// <summary>
+        /// Flush any unwritten bits and dispose.
+        /// </summary>
+        /// <param name="disposing"></param>
         public void Dispose() {
             Dispose(true);
+        }
+
+        /// <summary>
+        /// Count the number of bits used in a given value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private byte CountBits(ulong value) {
+            byte bits = 0;
+
+            do {
+                bits++;
+                value >>= 1;
+            } while (value > 0);
+
+            return bits;
         }
     }
 }

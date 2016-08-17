@@ -4,14 +4,12 @@ using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
-    /// Utility to encode and decode unsigned numbers to the smallest possible number of raw bytes.
+    /// Writer for Variable-length Quantity unsigned numbers.
     /// 
-    /// The number is encoded into 7 bits per byte, with the most significant bit (the 'final' bit) indicating if
-    /// that byte is the last byte in the sequence.
+    /// Since VLQ isn't strictly a standard, this is the most optimal of the variants. Integers are encoded into 7 bits per byte, with the most significant bit
+    /// (the 'continuity' bit) indicating if the byte is the last byte in the sequence.
     /// 
-    /// Also uses the redundancy removal technique.
-    /// 
-    /// See https://hbfs.wordpress.com/2014/02/18/universal-coding-part-iii/ for details.
+    /// Also uses the redundancy removal technique described at https://hbfs.wordpress.com/2014/02/18/universal-coding-part-iii/ .
     /// 
     /// Examples:
     ///   0     encodes to 1000 0000
@@ -20,10 +18,28 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///   128   encodes to 0000 0000  1000 0000
     ///   16511 encodes to 0111 1111  1111 1111
     ///   16512 encodes to 0000 0000  0000 0000  1000 0000
+    /// 
+    /// Furthermore, this include an optimization where the minimum number of bytes (minBytes) can be specified. This means that minBytes-1 bytes use 8-bits per
+    /// byte rather than 7-bits. This can be used to further increase efficiency when it is knows that the values are going to be consistently large.
+    /// 
+    ///  e.g.  For values consistently over 127, use minBytes=2
+    ///  
+    /// For further information on VLQs, see the Wiki page at https://en.wikipedia.org/wiki/Variable-length_quantity .
     /// </summary>
     public class VLQUnsignedWriter : IUnsignedWriter {
+        /// <summary>
+        /// Write all given values.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(1, values); }
 
+        /// <summary>
+        /// Write all given values with options.
+        /// </summary>
+        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static byte[] WriteAll(int minBytes, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new VLQUnsignedWriter(stream, minBytes)) {
@@ -36,29 +52,42 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
         }
 
-
         /// <summary>
-        /// Mask to extract the data from a byte
+        /// Mask to extract the data from a byte.
         /// </summary>
         const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
 
         /// <summary>
-        /// Mask to extract the 'final' bit from a byte.
+        /// Mask to extract the 'continuity' bit from a byte.
         /// </summary>
         const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
-
+        /// <summary>
+        /// If disposed.
+        /// </summary>
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Minimum length (in bytes) of the output of each encoded number.
+        /// The number of full 8-bit bytes at the start of each value. Derived from MinBytes.
         /// </summary>
         private readonly int PrefixBytes;
 
+        /// <summary>
+        /// The stream to output encoded bytes to.
+        /// </summary>
         private readonly Stream Output;
 
+        /// <summary>
+        /// Standard instantiation.
+        /// </summary>
+        /// <param name="output"></param>
         public VLQUnsignedWriter(Stream output) : this(output, 1) { }
 
+        /// <summary>
+        /// Instantiate with options
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
         public VLQUnsignedWriter(Stream output, int minBytes) {
             if (null == output) {
                 throw new ArgumentNullException("output");
@@ -72,6 +101,10 @@ namespace InvertedTomato.VariableLengthIntegers {
             PrefixBytes = minBytes - 1;
         }
 
+        /// <summary>
+        /// Append value to stream.
+        /// </summary>
+        /// <param name="value"></param>
         public void Write(ulong value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
@@ -95,6 +128,10 @@ namespace InvertedTomato.VariableLengthIntegers {
             Output.WriteByte((byte)(value | CONTINUITY_MASK));
         }
 
+        /// <summary>
+        /// Flush any unwritten bits and dispose.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (IsDisposed) {
                 return;
@@ -105,6 +142,11 @@ namespace InvertedTomato.VariableLengthIntegers {
                 // Dispose managed state (managed objects).
             }
         }
+
+        /// <summary>
+        /// Flush any unwritten bits and dispose.
+        /// </summary>
+        /// <param name="disposing"></param>
         public void Dispose() {
             Dispose(true);
         }

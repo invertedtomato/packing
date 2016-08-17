@@ -3,7 +3,7 @@ using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
-    /// Writer for VLQ for signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
+    /// Writer for VLQ signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
     /// </summary>
     public class VLQSignedWriter : ISignedWriter {
         /// <summary>

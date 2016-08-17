@@ -4,7 +4,7 @@ using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
-    /// Reader for VLQ for signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
+    /// Reader for VLQ signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
     /// </summary>
     public class VLQSignedReader : ISignedReader {
         /// <summary>
