@@ -1,7 +1,7 @@
 ﻿namespace InvertedTomato.VariableLengthIntegers {
-    public interface IIntegerReader {
-        bool TryRead(out ulong value);
-        ulong Read();
+    public interface IIntegerReader<T> {
+        bool TryRead(out T value);
+        T Read();
 
         // static IEnumerable<ulong> Read(/* options */, byte[] input); 
     }

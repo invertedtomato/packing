@@ -77,8 +77,10 @@
     <Compile Include="Utilities\ServiceUtility.cs" />
     <Compile Include="VariableLengthIntegers\IIntegerReader.cs" />
     <Compile Include="VariableLengthIntegers\IIntegerWriter.cs" />
-    <Compile Include="VariableLengthIntegers\SignedOmega.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedOmega.cs" />
+    <Compile Include="VariableLengthIntegers\SignedOmegaReader.cs" />
+    <Compile Include="VariableLengthIntegers\SignedOmegaWriter.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedOmegaReader.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedOmegaWriter.cs" />
     <Compile Include="VariableLengthIntegers\UnsignedVLQ.cs" />
     <Compile Include="VariableLengthIntegers\SignedVLQ.cs" />
     <Compile Include="VariableLengthIntegers\ZigZag.cs" />
