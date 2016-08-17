@@ -1,6 +1,6 @@
 ﻿namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
-    /// Encode values using ProtoBuffer ZigZag encoding. https://developers.google.com/protocol-buffers/docs/encoding
+    /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm. https://developers.google.com/protocol-buffers/docs/encoding
     /// </summary>
     public static class ZigZag {
         public static ulong Encode(long value) {
