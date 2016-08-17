@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using InvertedTomato.Interfaces;
+using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
