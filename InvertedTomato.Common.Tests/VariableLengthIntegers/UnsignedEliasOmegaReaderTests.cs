@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]
-    public class UnsignedOmegaReaderTests {
+    public class UnsignedEliasOmegaReaderTests {
         private ulong TestRead(string input) {
-            return UnsignedOmegaReader.ReadAll(BinaryToByte(input)).First();
+            return UnsignedEliasOmegaReader.ReadAll(BinaryToByte(input)).First();
         }
 
         private byte[] BinaryToByte(string input) {
@@ -119,7 +119,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
 
         [TestMethod]
         public void Read_3_3_3() {
-            var result = UnsignedOmegaReader.ReadAll(BinaryToByte("11011011 00000000"));
+            var result = UnsignedEliasOmegaReader.ReadAll(BinaryToByte("11011011 00000000"));
             Assert.AreEqual(10, result.Count());
             Assert.AreEqual((ulong)3, result.ElementAt(0));
             Assert.AreEqual((ulong)3, result.ElementAt(1));
@@ -134,7 +134,7 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         }
         [TestMethod]
         public void Read_16_16_16() {
-            var result = UnsignedOmegaReader.ReadAll(BinaryToByte("10100100 00010100 10000010 10010000 00000000"));
+            var result = UnsignedEliasOmegaReader.ReadAll(BinaryToByte("10100100 00010100 10000010 10010000 00000000"));
             Assert.AreEqual(10, result.Count());
             Assert.AreEqual((ulong)16, result.ElementAt(0));
             Assert.AreEqual((ulong)16, result.ElementAt(1));

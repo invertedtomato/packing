@@ -30,11 +30,11 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// 
     /// This implementation is loosely based on http://www.dupuis.me/node/39.
     /// </summary>
-    public class UnsignedOmegaWriter : IIntegerWriter<ulong>, IDisposable {
+    public class UnsignedEliasOmegaWriter : IUnsignedWriter, IDisposable {
         public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(false, values); }
         public static byte[] WriteAll(bool allowZeros, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new UnsignedOmegaWriter(stream, allowZeros)) {
+                using (var writer = new UnsignedEliasOmegaWriter(stream, allowZeros)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -47,12 +47,20 @@ namespace InvertedTomato.VariableLengthIntegers {
         public bool IsDisposed { get; private set; }
         private readonly Stream Output;
         private readonly bool AllowZeros;
+
+        /// <summary>
+        /// The byte currently being worked on.
+        /// </summary>
         private byte CurrentByte;
-        private int CurrentOffset;
 
-        public UnsignedOmegaWriter(Stream output) : this(output, false) { }
+        /// <summary>
+        /// The position within the current byte for the next write.
+        /// </summary>
+        private int CurrrentPosition;
 
-        public UnsignedOmegaWriter(Stream output, bool allowZeros) {
+        public UnsignedEliasOmegaWriter(Stream output) : this(output, false) { }
+
+        public UnsignedEliasOmegaWriter(Stream output, bool allowZeros) {
             Output = output;
             AllowZeros = allowZeros;
         }
@@ -74,10 +82,10 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             // Prepare buffer
-            var buffer = new Stack<KeyValuePair<ulong, byte>>();
+            var groups = new Stack<KeyValuePair<ulong, byte>>();
 
             // #1 Place a "0" at the end of the code.
-            buffer.Push(new KeyValuePair<ulong, byte>(0, 1));
+            groups.Push(new KeyValuePair<ulong, byte>(0, 1));
 
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
@@ -85,39 +93,39 @@ namespace InvertedTomato.VariableLengthIntegers {
                 var length = CountBits(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
-                buffer.Push(new KeyValuePair<ulong, byte>(value, length));
+                groups.Push(new KeyValuePair<ulong, byte>(value, length));
 
                 // #4 Let N equal the number of bits just prepended, minus one.
                 value = (ulong)length - 1;
             }
 
             // Write buffer
-            foreach (var item in buffer) {
+            foreach (var item in groups) {
                 var bits = item.Value;
                 var group = item.Key;
 
                 while (bits > 0) {
                     // Calculate size of chunk
-                    var chunk = (byte)Math.Min(bits, 8 - CurrentOffset);
+                    var chunk = (byte)Math.Min(bits, 8 - CurrrentPosition);
 
                     // Add to byte
-                    if (CurrentOffset + bits > 8) {
+                    if (CurrrentPosition + bits > 8) {
                         CurrentByte |= (byte)(group >> (bits - chunk));
                     } else {
-                        CurrentByte |= (byte)(group << (8 - CurrentOffset - chunk));
+                        CurrentByte |= (byte)(group << (8 - CurrrentPosition - chunk));
                     }
 
                     // Update length available
                     bits -= chunk;
 
                     // Detect if byte is full
-                    CurrentOffset += chunk;
-                    if (CurrentOffset == 8) {
+                    CurrrentPosition += chunk;
+                    if (CurrrentPosition == 8) {
                         // Write byte
                         Output.WriteByte(CurrentByte);
 
                         // Reset offset
-                        CurrentOffset = 0;
+                        CurrrentPosition = 0;
 
                         // Clear byte
                         CurrentByte = 0;
@@ -144,7 +152,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             IsDisposed = true;
 
             // Write out final byte if partially used
-            if (CurrentOffset > 0) {
+            if (CurrrentPosition > 0) {
                 Output.WriteByte(CurrentByte);
             }
 

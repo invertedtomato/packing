@@ -30,7 +30,7 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// 
     /// This implementation is loosely based on http://www.dupuis.me/node/39.
     /// </summary>
-    public class UnsignedOmegaReader : IIntegerReader<ulong> {
+    public class UnsignedEliasOmegaReader : IUnsignedReader {
         public static IEnumerable<ulong> ReadAll(byte[] input) {
             return ReadAll(false, input);
         }
@@ -41,23 +41,26 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             using (var stream = new MemoryStream(input)) {
-                var reader = new UnsignedOmegaReader(stream, allowZeros);
+                using (var reader = new UnsignedEliasOmegaReader(stream, allowZeros)) {
 
-                ulong value;
-                while (reader.TryRead(out value)) {
-                    yield return value;
+                    ulong value;
+                    while (reader.TryRead(out value)) {
+                        yield return value;
+                    }
                 }
             }
         }
 
+
+        public bool IsDisposed { get; private set; }
         private readonly bool AllowZeros;
         private readonly Stream Input;
         private int CurrentByte;
         private int CurrentOffset = 8;
 
-        public UnsignedOmegaReader(Stream input) : this(input, false) { }
+        public UnsignedEliasOmegaReader(Stream input) : this(input, false) { }
 
-        public UnsignedOmegaReader(Stream input, bool allowZeros) {
+        public UnsignedEliasOmegaReader(Stream input, bool allowZeros) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
@@ -67,13 +70,12 @@ namespace InvertedTomato.VariableLengthIntegers {
         }
 
         public bool TryRead(out ulong value) {
-            // #1 Start with a variable N, set to a value of 1.
-            // #2 If the next bit is a "0", stop. The decoded number is N.
-            // #3 If the next bit is a "1", then read it plus N more bits, and use that binary number as the new value of N.
-            // #4 Go back to step 2.
+            if (IsDisposed) {
+                throw new ObjectDisposedException("this");
+            }
 
             // Load current byte
-            if (CurrentOffset == 8) {
+            if (CurrentOffset >= 8) {
                 if (!ReadByte()) {
                     value = 0;
                     return false;
@@ -113,7 +115,7 @@ namespace InvertedTomato.VariableLengthIntegers {
 
             // Increment offset for termination bit
             if (CurrentOffset++ == 8) {
-                Input.ReadByte();
+                ReadByte();
             }
 
             // Offset value to allow for 0s
@@ -143,6 +145,20 @@ namespace InvertedTomato.VariableLengthIntegers {
             CurrentOffset = 0;
 
             return true;
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (IsDisposed) {
+                return;
+            }
+            IsDisposed = true;
+
+            if (disposing) {
+                // Dispose managed state (managed objects).
+            }
+        }
+        public void Dispose() {
+            Dispose(true);
         }
     }
 }

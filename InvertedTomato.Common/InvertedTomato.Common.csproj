@@ -75,14 +75,18 @@
     <Compile Include="Utilities\IPAddressUtility.cs" />
     <Compile Include="Utilities\RandomUtility.cs" />
     <Compile Include="Utilities\ServiceUtility.cs" />
-    <Compile Include="VariableLengthIntegers\IIntegerReader.cs" />
-    <Compile Include="VariableLengthIntegers\IIntegerWriter.cs" />
-    <Compile Include="VariableLengthIntegers\SignedOmegaReader.cs" />
-    <Compile Include="VariableLengthIntegers\SignedOmegaWriter.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedOmegaReader.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedOmegaWriter.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedVLQ.cs" />
-    <Compile Include="VariableLengthIntegers\SignedVLQ.cs" />
+    <Compile Include="VariableLengthIntegers\ISignedReader.cs" />
+    <Compile Include="VariableLengthIntegers\ISignedWriter.cs" />
+    <Compile Include="VariableLengthIntegers\IUnsignedReader.cs" />
+    <Compile Include="VariableLengthIntegers\IUnsignedWriter.cs" />
+    <Compile Include="VariableLengthIntegers\SignedEliasOmegaReader.cs" />
+    <Compile Include="VariableLengthIntegers\SignedEliasOmegaWriter.cs" />
+    <Compile Include="VariableLengthIntegers\SignedVLQWriter.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedEliasOmegaReader.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedEliasOmegaWriter.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedVLQReader.cs" />
+    <Compile Include="VariableLengthIntegers\SignedVLQReader.cs" />
+    <Compile Include="VariableLengthIntegers\UnsignedVLQWriter.cs" />
     <Compile Include="VariableLengthIntegers\ZigZag.cs" />
   </ItemGroup>
   <ItemGroup>

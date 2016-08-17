@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]
-    public class UnsignedOmegaWriterTests {
+    public class UnsignedEliasOmegaWriterTests {
         private string TestWrite(params ulong[] values) {
-            var result = UnsignedOmegaWriter.WriteAll(values);
+            var result = UnsignedEliasOmegaWriter.WriteAll(values);
 
             return ByteToBinary(result);
         }
@@ -124,10 +124,10 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         }
 
         [TestMethod]
-        public void WriteRead_First10000() {
-            for (ulong input = 1; input < 10000; input++) {
-                var encoded = UnsignedOmegaWriter.WriteAll(new List<ulong>() { input });
-                var output = UnsignedOmegaReader.ReadAll(encoded);
+        public void WriteRead_First1000() {
+            for (ulong input = 1; input < 1000; input++) {
+                var encoded = UnsignedEliasOmegaWriter.WriteAll(new List<ulong>() { input });
+                var output = UnsignedEliasOmegaReader.ReadAll(encoded);
 
                 Assert.IsTrue(output.Count() > 0);
                 Assert.AreEqual(input, output.First());
@@ -135,8 +135,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         }
 
         [TestMethod]
-        public void WriteRead_First10000_2() {
-            ulong max = 10000;
+        public void WriteRead_First1000_Appending() {
+            ulong max = 1000;
 
             var input = new List<ulong>();
             ulong i;
@@ -144,8 +144,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 input.Add(i);
             }
 
-            var encoded = UnsignedOmegaWriter.WriteAll(input);
-            var output = UnsignedOmegaReader.ReadAll(encoded);
+            var encoded = UnsignedEliasOmegaWriter.WriteAll(input);
+            var output = UnsignedEliasOmegaReader.ReadAll(encoded);
 
             Assert.IsTrue((ulong)output.Count() >= max); // The padding zeros may cause us to get more values than we input
 
