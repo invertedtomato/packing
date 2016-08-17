@@ -33,9 +33,9 @@ namespace InvertedTomato.VariableLengthIntegers {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
-
-                    return stream.ToArray();
                 }
+
+                return stream.ToArray();
             }
         }
 

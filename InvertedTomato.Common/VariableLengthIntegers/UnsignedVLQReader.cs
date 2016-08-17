@@ -123,7 +123,7 @@ namespace InvertedTomato.VariableLengthIntegers {
 
                 // Read next byte
                 if (!ReadByte()) {
-                    throw new InvalidOperationException("Missing non-initial body byte.");
+                    throw new InvalidOperationException("Missing body byte.");
                 }
 
                 // Add bits to value

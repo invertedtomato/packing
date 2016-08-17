@@ -12,13 +12,11 @@ namespace InvertedTomato.VariableLengthIntegers {
         public static byte[] WriteAll(int minBytes, IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new SignedVLQWriter(stream, minBytes)) {
-
                     foreach (var value in values) {
                         writer.Write(value);
                     }
-
-                    return stream.ToArray();
                 }
+                return stream.ToArray();
             }
         }
 

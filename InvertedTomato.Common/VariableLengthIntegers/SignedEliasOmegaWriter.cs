@@ -9,13 +9,11 @@ namespace InvertedTomato.VariableLengthIntegers {
         public static byte[] WriteAll(bool allowZeros, IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new SignedEliasOmegaWriter(stream, allowZeros)) {
-
                     foreach (var value in values) {
                         writer.Write(value);
                     }
-
-                    return stream.ToArray();
                 }
+                return stream.ToArray();
             }
         }
 

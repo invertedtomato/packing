@@ -78,7 +78,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             if (CurrentOffset >= 8) {
                 if (!ReadByte()) {
                     value = 0;
-                    return false;
+                    return false; // Missing initial byte
                 }
             }
 
@@ -105,17 +105,17 @@ namespace InvertedTomato.VariableLengthIntegers {
                     length -= chunk;
 
                     // Increment offset, and load next byte if required
-                    if ((CurrentOffset += chunk) == 8) {
+                    if ((CurrentOffset += chunk) >= 8) {
                         if (!ReadByte()) {
-                            return false;
+                            throw new InvalidOperationException("Missing body byte.");
                         }
                     }
                 }
             }
 
             // Increment offset for termination bit
-            if (CurrentOffset++ == 8) {
-                ReadByte();
+            if (CurrentOffset++ >= 8) {
+                ReadByte(); // Can be missing final byte without issue
             }
 
             // Offset value to allow for 0s
