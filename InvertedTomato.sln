@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.Feather.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.Feather.TestLoad", "InvertedTomato.Feather.TestLoad\InvertedTomato.Feather.TestLoad.csproj", "{F489B547-7BBD-45A6-87B6-35BB7FB3B9E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers", "InvertedTomato.VariableLengthIntegers\InvertedTomato.VariableLengthIntegers.csproj", "{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers.Tests", "InvertedTomato.VariableLengthIntegers.Tests\InvertedTomato.VariableLengthIntegers.Tests.csproj", "{8BA8B009-9E2E-4658-80FA-A23724CED388}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{F489B547-7BBD-45A6-87B6-35BB7FB3B9E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F489B547-7BBD-45A6-87B6-35BB7FB3B9E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F489B547-7BBD-45A6-87B6-35BB7FB3B9E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BA8B009-9E2E-4658-80FA-A23724CED388}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BA8B009-9E2E-4658-80FA-A23724CED388}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BA8B009-9E2E-4658-80FA-A23724CED388}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BA8B009-9E2E-4658-80FA-A23724CED388}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
