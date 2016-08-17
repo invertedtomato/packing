@@ -55,16 +55,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VariableLengthIntegers\SignedEliasOmegaReaderTests.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedVLQWriterTests.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedEliasOmegaReaderTests.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedEliasOmegaWriterTests.cs" />
-    <Compile Include="VariableLengthIntegers\UnsignedVLQReaderTests.cs" />
+    <Compile Include="VariableLengthIntegers\EliasOmegaSignedReaderTests.cs" />
+    <Compile Include="VariableLengthIntegers\VLQUnsignedWriterTests.cs" />
+    <Compile Include="VariableLengthIntegers\EliasOmegaUnsignedReaderTests.cs" />
+    <Compile Include="VariableLengthIntegers\EliasOmegaUnsignedWriterTests.cs" />
+    <Compile Include="VariableLengthIntegers\VLQUnsignedReaderTests.cs" />
     <Compile Include="Utilities\DateUtilityTest.cs" />
     <Compile Include="Utilities\EmailAddressUtilityTest.cs" />
     <Compile Include="Utilities\GuidUtilityTest.cs" />
     <Compile Include="Utilities\IPEndPointUtilityTests.cs" />
-    <Compile Include="VariableLengthIntegers\SignedVLQReaderTests.cs" />
+    <Compile Include="VariableLengthIntegers\VLQSignedReaderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.Common\InvertedTomato.Common.csproj">

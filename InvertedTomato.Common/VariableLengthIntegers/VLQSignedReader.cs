@@ -7,7 +7,7 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// <summary>
     /// Utility to encode and decode signed numbers to the smallest possible number of raw bytes.
     /// </summary>
-    public class SignedVLQReader : ISignedReader {
+    public class VLQSignedReader : ISignedReader {
         public static IEnumerable<long> ReadAll(byte[] input) {
             return ReadAll(1, input);
         }
@@ -17,7 +17,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new SignedVLQReader(stream, minBytes)) {
+                using (var reader = new VLQSignedReader(stream, minBytes)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -28,13 +28,13 @@ namespace InvertedTomato.VariableLengthIntegers {
 
 
         public bool IsDisposed { get; private set; }
-        private readonly UnsignedVLQReader Underlying;
+        private readonly VLQUnsignedReader Underlying;
 
-        public SignedVLQReader(Stream input) {
-            Underlying = new UnsignedVLQReader(input);
+        public VLQSignedReader(Stream input) {
+            Underlying = new VLQUnsignedReader(input);
         }
-        public SignedVLQReader(Stream input, int minBytes) {
-            Underlying = new UnsignedVLQReader(input, minBytes);
+        public VLQSignedReader(Stream input, int minBytes) {
+            Underlying = new VLQUnsignedReader(input, minBytes);
         }
 
         public bool TryRead(out long value) {

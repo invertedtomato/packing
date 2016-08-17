@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace InvertedTomato.Common.Tests {
     [TestClass]
-    public class UnsignedVLQReaderTests {
+    public class VLQUnsignedReaderTests {
         private ulong TestRead(int minBytes, string input) {
-            return UnsignedVLQReader.ReadAll(minBytes, BinaryToByte(input)).First();
+            return VLQUnsignedReader.ReadAll(minBytes, BinaryToByte(input)).First();
         }
 
         private byte[] BinaryToByte(string input) {

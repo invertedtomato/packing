@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]
-    public class UnsignedVLQWriterTests {
+    public class VLQUnsignedWriterTests {
         private string TestWrite(int minBytes, params ulong[] values) {
-            var result = UnsignedVLQWriter.WriteAll(minBytes, values);
+            var result = VLQUnsignedWriter.WriteAll(minBytes, values);
 
             return ByteToBinary(result);
         }
@@ -100,8 +100,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         [TestMethod]
         public void WriteRead_Min1_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = UnsignedVLQWriter.WriteAll(1, new List<ulong>() { input });
-                var output = UnsignedVLQReader.ReadAll(1, encoded);
+                var encoded = VLQUnsignedWriter.WriteAll(1, new List<ulong>() { input });
+                var output = VLQUnsignedReader.ReadAll(1, encoded);
 
                 Assert.AreEqual(1, output.Count());
                 Assert.AreEqual(input, output.First());
@@ -117,8 +117,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 input.Add(i);
             }
 
-            var encoded = UnsignedVLQWriter.WriteAll(1, input);
-            var output = UnsignedVLQReader.ReadAll(1, encoded);
+            var encoded = VLQUnsignedWriter.WriteAll(1, input);
+            var output = VLQUnsignedReader.ReadAll(1, encoded);
 
             Assert.IsTrue((ulong)output.Count() == max);
 
@@ -130,8 +130,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         [TestMethod]
         public void WriteRead_Min2_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = UnsignedVLQWriter.WriteAll(2, new List<ulong>() { input });
-                var output = UnsignedVLQReader.ReadAll(2, encoded);
+                var encoded = VLQUnsignedWriter.WriteAll(2, new List<ulong>() { input });
+                var output = VLQUnsignedReader.ReadAll(2, encoded);
 
                 Assert.AreEqual(1, output.Count());
                 Assert.AreEqual(input, output.First());
@@ -147,8 +147,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 input.Add(i);
             }
 
-            var encoded = UnsignedVLQWriter.WriteAll(2, input);
-            var output = UnsignedVLQReader.ReadAll(2, encoded);
+            var encoded = VLQUnsignedWriter.WriteAll(2, input);
+            var output = VLQUnsignedReader.ReadAll(2, encoded);
 
             Assert.IsTrue((ulong)output.Count() == max);
 
@@ -160,8 +160,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         [TestMethod]
         public void WriteRead_Min4_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = UnsignedVLQWriter.WriteAll(4, new List<ulong>() { input });
-                var output = UnsignedVLQReader.ReadAll(4, encoded);
+                var encoded = VLQUnsignedWriter.WriteAll(4, new List<ulong>() { input });
+                var output = VLQUnsignedReader.ReadAll(4, encoded);
 
                 Assert.AreEqual(1, output.Count());
                 Assert.AreEqual(input, output.First());
@@ -177,8 +177,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 input.Add(i);
             }
 
-            var encoded = UnsignedVLQWriter.WriteAll(4, input);
-            var output = UnsignedVLQReader.ReadAll(4, encoded);
+            var encoded = VLQUnsignedWriter.WriteAll(4, input);
+            var output = VLQUnsignedReader.ReadAll(4, encoded);
 
             Assert.IsTrue((ulong)output.Count() == max);
 

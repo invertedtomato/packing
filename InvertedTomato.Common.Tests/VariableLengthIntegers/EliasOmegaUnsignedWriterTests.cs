@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
     [TestClass]
-    public class UnsignedEliasOmegaWriterTests {
+    public class EliasOmegaUnsignedWriterTests {
         private string TestWrite(params ulong[] values) {
-            var result = UnsignedEliasOmegaWriter.WriteAll(values);
+            var result = EliasOmegaUnsignedWriter.WriteAll(values);
 
             return ByteToBinary(result);
         }
@@ -126,8 +126,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
         [TestMethod]
         public void WriteRead_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = UnsignedEliasOmegaWriter.WriteAll(new List<ulong>() { input });
-                var output = UnsignedEliasOmegaReader.ReadAll(encoded);
+                var encoded = EliasOmegaUnsignedWriter.WriteAll(new List<ulong>() { input });
+                var output = EliasOmegaUnsignedReader.ReadAll(encoded);
 
                 Assert.IsTrue(output.Count() > 0);
                 Assert.AreEqual(input, output.First());
@@ -144,8 +144,8 @@ namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
                 input.Add(i);
             }
 
-            var encoded = UnsignedEliasOmegaWriter.WriteAll(input);
-            var output = UnsignedEliasOmegaReader.ReadAll(encoded);
+            var encoded = EliasOmegaUnsignedWriter.WriteAll(input);
+            var output = EliasOmegaUnsignedReader.ReadAll(encoded);
 
             Assert.IsTrue((ulong)output.Count() >= max); // The padding zeros may cause us to get more values than we input
 

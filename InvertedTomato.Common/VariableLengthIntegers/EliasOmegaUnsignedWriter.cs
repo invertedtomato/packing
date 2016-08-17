@@ -30,11 +30,11 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// 
     /// This implementation is loosely based on http://www.dupuis.me/node/39.
     /// </summary>
-    public class UnsignedEliasOmegaWriter : IUnsignedWriter, IDisposable {
+    public class EliasOmegaUnsignedWriter : IUnsignedWriter, IDisposable {
         public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(false, values); }
         public static byte[] WriteAll(bool allowZeros, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new UnsignedEliasOmegaWriter(stream, allowZeros)) {
+                using (var writer = new EliasOmegaUnsignedWriter(stream, allowZeros)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -58,9 +58,9 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         private int CurrrentPosition;
 
-        public UnsignedEliasOmegaWriter(Stream output) : this(output, false) { }
+        public EliasOmegaUnsignedWriter(Stream output) : this(output, false) { }
 
-        public UnsignedEliasOmegaWriter(Stream output, bool allowZeros) {
+        public EliasOmegaUnsignedWriter(Stream output, bool allowZeros) {
             Output = output;
             AllowZeros = allowZeros;
         }

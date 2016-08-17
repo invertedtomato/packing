@@ -24,12 +24,12 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///   16511 encodes to 0111 1111  1111 1111
     ///   16512 encodes to 0000 0000  0000 0000  1000 0000
     /// </summary>
-    public class UnsignedVLQWriter : IUnsignedWriter {
+    public class VLQUnsignedWriter : IUnsignedWriter {
         public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(1, values); }
 
         public static byte[] WriteAll(int minBytes, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new UnsignedVLQWriter(stream, minBytes)) {
+                using (var writer = new VLQUnsignedWriter(stream, minBytes)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -60,9 +60,9 @@ namespace InvertedTomato.VariableLengthIntegers {
 
         private readonly Stream Output;
 
-        public UnsignedVLQWriter(Stream output) : this(output, 1) { }
+        public VLQUnsignedWriter(Stream output) : this(output, 1) { }
 
-        public UnsignedVLQWriter(Stream output, int minBytes) {
+        public VLQUnsignedWriter(Stream output, int minBytes) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.VariableLengthIntegers {
-    public class SignedEliasOmegaReader : ISignedReader {
+    public class EliasOmegaSignedReader : ISignedReader {
         public static IEnumerable<long> ReadAll(byte[] input) {
             return ReadAll(false, input);
         }
@@ -14,7 +14,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new SignedEliasOmegaReader(stream, allowZeros)) {
+                using (var reader = new EliasOmegaSignedReader(stream, allowZeros)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -25,13 +25,13 @@ namespace InvertedTomato.VariableLengthIntegers {
 
 
         public bool IsDisposed { get; private set; }
-        private readonly UnsignedEliasOmegaReader Underlying;
+        private readonly EliasOmegaUnsignedReader Underlying;
 
-        public SignedEliasOmegaReader(Stream input) {
-            Underlying = new UnsignedEliasOmegaReader(input);
+        public EliasOmegaSignedReader(Stream input) {
+            Underlying = new EliasOmegaUnsignedReader(input);
         }
-        public SignedEliasOmegaReader(Stream input, bool allowZero) {
-            Underlying = new UnsignedEliasOmegaReader(input, allowZero);
+        public EliasOmegaSignedReader(Stream input, bool allowZero) {
+            Underlying = new EliasOmegaUnsignedReader(input, allowZero);
         }
 
         public bool TryRead(out long value) {

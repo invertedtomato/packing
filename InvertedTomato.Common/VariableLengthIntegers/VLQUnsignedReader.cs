@@ -22,7 +22,7 @@ namespace InvertedTomato.VariableLengthIntegers {
     ///   16511 encodes to 0111 1111  1111 1111
     ///   16512 encodes to 0000 0000  0000 0000  1000 0000
     /// </summary>
-    public class UnsignedVLQReader : IUnsignedReader {
+    public class VLQUnsignedReader : IUnsignedReader {
         public static IEnumerable<ulong> ReadAll(byte[] input) {
             return ReadAll(0, input);
         }
@@ -32,7 +32,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new UnsignedVLQReader(stream, minBytes)) {
+                using (var reader = new VLQUnsignedReader(stream, minBytes)) {
                     ulong value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -65,9 +65,9 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// </summary>
         private int CurrentByte;
 
-        public UnsignedVLQReader(Stream input) : this(input, 1) { }
+        public VLQUnsignedReader(Stream input) : this(input, 1) { }
 
-        public UnsignedVLQReader(Stream input, int minBytes = 1) {
+        public VLQUnsignedReader(Stream input, int minBytes = 1) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }

@@ -30,7 +30,7 @@ namespace InvertedTomato.VariableLengthIntegers {
     /// 
     /// This implementation is loosely based on http://www.dupuis.me/node/39.
     /// </summary>
-    public class UnsignedEliasOmegaReader : IUnsignedReader {
+    public class EliasOmegaUnsignedReader : IUnsignedReader {
         public static IEnumerable<ulong> ReadAll(byte[] input) {
             return ReadAll(false, input);
         }
@@ -41,7 +41,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new UnsignedEliasOmegaReader(stream, allowZeros)) {
+                using (var reader = new EliasOmegaUnsignedReader(stream, allowZeros)) {
 
                     ulong value;
                     while (reader.TryRead(out value)) {
@@ -58,9 +58,9 @@ namespace InvertedTomato.VariableLengthIntegers {
         private int CurrentByte;
         private int CurrentOffset = 8;
 
-        public UnsignedEliasOmegaReader(Stream input) : this(input, false) { }
+        public EliasOmegaUnsignedReader(Stream input) : this(input, false) { }
 
-        public UnsignedEliasOmegaReader(Stream input, bool allowZeros) {
+        public EliasOmegaUnsignedReader(Stream input, bool allowZeros) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
