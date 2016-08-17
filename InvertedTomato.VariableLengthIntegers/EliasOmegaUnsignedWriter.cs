@@ -91,7 +91,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
                 // Calculate the length of value
-                var length = CountBits(value);
+                var length = Bits.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
                 result += length;
@@ -173,7 +173,7 @@ namespace InvertedTomato.VariableLengthIntegers {
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
                 // Calculate the length of value
-                var length = CountBits(value);
+                var length = Bits.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
                 groups.Push(new KeyValuePair<ulong, byte>(value, length));
@@ -246,22 +246,6 @@ namespace InvertedTomato.VariableLengthIntegers {
         /// <param name="disposing"></param>
         public void Dispose() {
             Dispose(true);
-        }
-
-        /// <summary>
-        /// Count the number of bits used in a given value.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private static byte CountBits(ulong value) {
-            byte bits = 0;
-
-            do {
-                bits++;
-                value >>= 1;
-            } while (value > 0);
-
-            return bits;
         }
     }
 }

@@ -41,6 +41,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bits.cs" />
     <Compile Include="EliasOmegaSignedReader.cs" />
     <Compile Include="EliasOmegaSignedWriter.cs" />
     <Compile Include="EliasOmegaUnsignedReader.cs" />
