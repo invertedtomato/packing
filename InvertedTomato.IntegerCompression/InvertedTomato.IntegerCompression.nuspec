@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>InvertedTomato.VariableLengthIntegers</id>
-    <title>InvertedTomato.VariableLengthIntegers</title>
+    <id>InvertedTomato.IntegerCompression</id>
+    <title>InvertedTomato.IntegerCompression</title>
     <version>$version$</version>
     <authors>InvertedTomato</authors>
     <owners>InvertedTomato</owners>
-    <licenseUrl>https://github.com/invertedtomato/variable-length-integers/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/invertedtomato/variable-length-integers</projectUrl>
+    <licenseUrl>https://github.com/invertedtomato/integer-compression/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/invertedtomato/integer-compression</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encodings.</summary>
     <description>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encoding.</description>
     <releaseNotes></releaseNotes>
-    <tags>Compression VLQ Elias Omega</tags>
+    <tags>Compression VLQ Elias Omega Integer Numbers</tags>
   </metadata>
 </package>

@@ -45,7 +45,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InvertedTomato.VariableLengthIntegers\InvertedTomato.IntegerCompression.csproj">
+    <ProjectReference Include="..\InvertedTomato.IntegerCompression\InvertedTomato.IntegerCompression.csproj">
       <Project>{0f6cce15-a4c5-4c22-bd26-330b8f38ece6}</Project>
       <Name>InvertedTomato.IntegerCompression</Name>
     </ProjectReference>
