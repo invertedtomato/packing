@@ -1,11 +1,11 @@
-# InvertedTomato.IntegerCompression
+# Integer Compression
 
 ## TLDR
 Here's how to compress 24 bytes of data down to 3 using VLQ:
 ```C#
 using (var stream = new MemoryStream()) {
     // Make a writer to encode values onto your stream
-    using (var writer = new VLQUnsignedWriter(stream)) { // Using VLQ, but there's other algorithms that might work better for your value set
+    using (var writer = new VLQUnsignedWriter(stream)) { // VLQ is just one algorithm
         // Write 1st value
         writer.Write(1); // 8 bytes in memory
 
@@ -44,7 +44,7 @@ In almost all cases those numbers can be stored in a much lower number of bytes.
 **possible to store three integers in a single byte**.
 
 ## Readers and Writers
-The basics are simple. Wrap an underlying stream in a writer, and write your values in.
+Here's how to store those numbers small. It's really simple - wrap an underlying stream in a writer, and write your values in:
 
 ```C#
 using (var writer = new VLQUnsignedWriter(stream)) {
@@ -71,12 +71,16 @@ Each has different characteristics, and none is "the best". It just depends what
 trying to achieve.
 
 ### Variable Length Quantities (VLQ)
- - **Family:** none
+
  - **Random access:** no *(can't jump ahead)*
  - **Lossy:** no *(doesn't approximate)*
  - **Universal:** yes *(can handle any number)*
  - **Supported values:**  0 to 18,446,744,073,709,551,615
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Variable-length_quantity)
+ - **Writer:** `VLQUnsignedWriter`, `VLQSignedWriter`
+ - **Reader:** `VLQUnsignedReader`, `VLQSignedReader`
+ - **Options:** 
+   - Specify minimum number of bytes
 
 It seems VLQ was originally invented by the designers of MIDI (you know, the old-school
 MP3). The algorithm is really retro, there's stacks of variations of it's spec and
@@ -101,6 +105,10 @@ it to be compatible with other implementations.
  - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
  - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
+ - **Writer:** `EliasOmegaUnsignedWriter`, `EliasOmegaSignedWriter`
+ - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
+ - **Options:** 
+   - Allow zeros to be included
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. If I knew my number set was going to be small, I'd use *Elias Gamma*
@@ -121,6 +129,10 @@ Notes:
  - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
  - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
+ - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
+ - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
+ - **Options:** 
+   - Allow zeros to be included
 
 This is the best algorithm for when you're expecting consistently tiny numbers, but 
 need to handle the occasional larger value. It beats all other algorithms for size
@@ -140,7 +152,12 @@ Notes:
  - **Universal:** no *(can only handle a predefined range of numbers)*
  - **Supported values:**  0 to 18,446,744,073,709,551,615
  - **Details:** N/A
-
+ - **Writer:** `FlexiFixedUnsignedWriter`, `FlexiFixedSignedWriter`
+ - **Reader:** `FlexiFixedUnsignedReader`, `FlexiFixedSignedReader`
+ - **Options:** 
+   - Minimum value
+   - Maximum value
+   - Step between values
 
 
 ### Fibonacci
@@ -154,7 +171,10 @@ Notes:
  - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
  - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
-
+ - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
+ - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
+ - **Options:** 
+   - Allow zeros to be included
 
   
 ## Signed and Unsigned
@@ -187,3 +207,10 @@ If you converted them to deltas you could instead store:
  - 4
 
 This sequence uses a stack less bytes!
+
+## Comparing algorithms
+In order to make an accurate assessment of an algorithm for your purpose, some
+algorithms have a static method `CalculateBitLength` that allows you to know
+how many bits a given value would consume when encoded. I recommend getting a set
+of your data and running it through the `CalculateBitLength` methods of a few
+algorithms to see which one is best.
