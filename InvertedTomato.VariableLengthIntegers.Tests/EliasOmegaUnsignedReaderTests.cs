@@ -1,9 +1,9 @@
-﻿using InvertedTomato.VariableLengthIntegers;
+﻿using InvertedTomato.IntegerCompression;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaUnsignedReaderTests {
         private ulong TestRead(string input) {

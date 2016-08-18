@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     /// <summary>
     /// Writer for Elias Omega universal coding adapted for signed values. Values are translated to unsigned values using ProtoBuffers ZigZag algorithm.
     /// 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     public interface IUnsignedWriter : IDisposable {
         void Write(ulong value);
 

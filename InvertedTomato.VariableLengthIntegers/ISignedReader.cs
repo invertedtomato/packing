@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     public interface ISignedReader : IDisposable {
         bool TryRead(out long value);
         long Read();

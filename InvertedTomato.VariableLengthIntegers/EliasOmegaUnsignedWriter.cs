@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     /// <summary>
     /// Reader for Elias Omega universal coding for unsigned values. Using this coding scheme multiple values can be expressed in one byte, and there is no wastage to padding bits. 
     /// 

@@ -6,8 +6,8 @@
     <ProjectGuid>{8BA8B009-9E2E-4658-80FA-A23724CED388}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InvertedTomato.VariableLengthIntegers.Tests</RootNamespace>
-    <AssemblyName>InvertedTomato.VariableLengthIntegers.Tests</AssemblyName>
+    <RootNamespace>InvertedTomato.IntegerCompression.Tests</RootNamespace>
+    <AssemblyName>InvertedTomato.IntegerCompression.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -59,9 +59,9 @@
     <Compile Include="VLQUnsignedWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InvertedTomato.VariableLengthIntegers\InvertedTomato.VariableLengthIntegers.csproj">
+    <ProjectReference Include="..\InvertedTomato.VariableLengthIntegers\InvertedTomato.IntegerCompression.csproj">
       <Project>{0f6cce15-a4c5-4c22-bd26-330b8f38ece6}</Project>
-      <Name>InvertedTomato.VariableLengthIntegers</Name>
+      <Name>InvertedTomato.IntegerCompression</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

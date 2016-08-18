@@ -1,4 +1,4 @@
-﻿namespace InvertedTomato.VariableLengthIntegers {
+﻿namespace InvertedTomato.IntegerCompression {
     public static class Bits {
         public static byte CountUsed(ulong value) {
             byte bits = 0;

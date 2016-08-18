@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     /// <summary>
     /// Reader for Variable-length Quantity unsigned numbers.
     /// 

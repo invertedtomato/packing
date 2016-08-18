@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.VariableLengthIntegers;
+using InvertedTomato.IntegerCompression;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaUnsignedWriterTests {
         private string TestWrite(params ulong[] values) {

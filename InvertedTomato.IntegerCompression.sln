@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers", "InvertedTomato.VariableLengthIntegers\InvertedTomato.VariableLengthIntegers.csproj", "{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.IntegerCompression", "InvertedTomato.VariableLengthIntegers\InvertedTomato.IntegerCompression.csproj", "{0F6CCE15-A4C5-4C22-BD26-330B8F38ECE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers.Tests", "InvertedTomato.VariableLengthIntegers.Tests\InvertedTomato.VariableLengthIntegers.Tests.csproj", "{8BA8B009-9E2E-4658-80FA-A23724CED388}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.IntegerCompression.Tests", "InvertedTomato.VariableLengthIntegers.Tests\InvertedTomato.IntegerCompression.Tests.csproj", "{8BA8B009-9E2E-4658-80FA-A23724CED388}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.VariableLengthIntegers.Benchmark", "InvertedTomato.VariableLengthIntegers.Benchmark\InvertedTomato.VariableLengthIntegers.Benchmark.csproj", "{F7F53288-1FF9-4AA1-8D95-68ADF8877478}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvertedTomato.IntegerCompression.Benchmark", "InvertedTomato.VariableLengthIntegers.Benchmark\InvertedTomato.IntegerCompression.Benchmark.csproj", "{F7F53288-1FF9-4AA1-8D95-68ADF8877478}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-﻿namespace InvertedTomato.VariableLengthIntegers {
+﻿namespace InvertedTomato.IntegerCompression {
     /// <summary>
     /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm. https://developers.google.com/protocol-buffers/docs/encoding
     /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvertedTomato.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression {
     public interface IUnsignedReader : IDisposable {
         bool TryRead(out ulong value);
         ulong Read();

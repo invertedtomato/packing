@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.VariableLengthIntegers;
+using InvertedTomato.IntegerCompression;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InvertedTomato.Common.Tests.VariableLengthIntegers {
+namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaSignedReaderTests {
         [TestMethod]

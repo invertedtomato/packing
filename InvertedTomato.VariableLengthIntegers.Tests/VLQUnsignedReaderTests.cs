@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.VariableLengthIntegers;
+using InvertedTomato.IntegerCompression;
 using System.Linq;
 
-namespace InvertedTomato.Common.Tests {
+namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class VLQUnsignedReaderTests {
         private ulong TestRead(int minBytes, string input) {

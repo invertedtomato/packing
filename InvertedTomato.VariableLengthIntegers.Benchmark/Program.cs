@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace InvertedTomato.VariableLengthIntegers.Benchmark {
+namespace InvertedTomato.IntegerCompression.Benchmark {
     class Program {
         static void Main(string[] args) {
             using (var writer = new StreamWriter("output.csv", false)) {
