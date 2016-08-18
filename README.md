@@ -214,3 +214,6 @@ algorithms have a static method `CalculateBitLength` that allows you to know
 how many bits a given value would consume when encoded. I recommend getting a set
 of your data and running it through the `CalculateBitLength` methods of a few
 algorithms to see which one is best.
+
+## NuGet
+The [latest build is always on NuGet](https://www.nuget.org/packages/InvertedTomato.IntegerCompression/).
