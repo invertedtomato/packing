@@ -219,6 +219,10 @@ If you converted them to deltas you could instead store:
 
 This sequence uses a stack less bytes!
 
+Naturally this isn't suitable for all contexts. If the receiver has the potential to 
+loose state (eg. UDP transport) you'll have to include a recovery mechanism (eg keyframes),
+otherwise those deltas become meaningless.
+
 ## Comparing algorithms
 In order to make an accurate assessment of an algorithm for your purpose, some
 algorithms have a static method `CalculateBitLength` that allows you to know
