@@ -94,9 +94,12 @@ be huge) then this is my algorithm of choice. It's also very light on CPU, so if
 important to you this might be your choice anyway.
 
 Notes:
- - This implementation includes the "redundancy removal" variation. So don't expect
-it to be compatible with other implementations.
- - The constructor lets you specify a minimum number of bytes. This lets you increase efficiency if you are expecting large numbers (set minBytes=2 if your numbers are always >127. Set minBytes=3 if your numbers are always >65,535, Set minBytes=4 if your numbers are always >16,777,215)
+ - This implementation includes the "redundancy removal" variation. So don't expect it to be 
+   compatible with other implementations.
+ - The constructor lets you specify a minimum number of bytes. This lets you increase efficiency 
+   if you are expecting large numbers (set minBytes=2 if your numbers are always >127. Set 
+   minBytes=3 if your numbers are always >65,535, Set minBytes=4 if your numbers are 
+   always >16,777,215)
  - By the by, I hate the name "Variable Length Quantities".
 
 ### Elias Omega
@@ -117,8 +120,12 @@ wouldn't use it. If I knew my number set was going to be small, I'd use *Elias G
 instead. If I knew my number set was large, I'd use *VLQ* instead. Sorry Omega :-/.
 
 Notes:
- - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the efficiency slightly, so only use it if you need it.
- - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying to use it realtime with a huge set of data.
+ - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the 
+   efficiency slightly, so only use it if you need it.
+ - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying 
+   to use it real-time with a huge set of data.
+ - I speculate that Omega will be the most efficient algorithm for numbers greater than 1x10^22 - 
+   but .NET doesn't have native support that high.
 
 ### Elias Gamma
 
@@ -141,8 +148,10 @@ need to handle the occasional larger value. It beats all other algorithms for si
 on numbers <=16.
 
 Notes:
- - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the efficiency slightly, so only use it if you need it.
- - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying to use it realtime with a huge set of data.
+ - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the
+   efficiency slightly, so only use it if you need it.
+ - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying 
+   to use it real-time with a huge set of data.
 
 ### FlexiFixed
 
