@@ -1,5 +1,4 @@
-﻿using InvertedTomato.IntegerCompression;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
@@ -7,7 +6,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaUnsignedReaderTests {
         private ulong TestRead(string input) {
-            return EliasOmegaUnsignedReader.ReadAll(BinaryToByte(input)).First();
+            return EliasOmegaUnsignedReader.ReadAll(1, BinaryToByte(input)).First();
         }
 
         private byte[] BinaryToByte(string input) {
@@ -119,7 +118,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
 
         [TestMethod]
         public void Read_3_3_3() {
-            var result = EliasOmegaUnsignedReader.ReadAll(BinaryToByte("11011011 00000000"));
+            var result = EliasOmegaUnsignedReader.ReadAll(1, BinaryToByte("11011011 00000000"));
             Assert.AreEqual(10, result.Count());
             Assert.AreEqual((ulong)3, result.ElementAt(0));
             Assert.AreEqual((ulong)3, result.ElementAt(1));
@@ -134,7 +133,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
         }
         [TestMethod]
         public void Read_16_16_16() {
-            var result = EliasOmegaUnsignedReader.ReadAll(BinaryToByte("10100100 00010100 10000010 10010000 00000000"));
+            var result = EliasOmegaUnsignedReader.ReadAll(1, BinaryToByte("10100100 00010100 10000010 10010000 00000000"));
             Assert.AreEqual(10, result.Count());
             Assert.AreEqual((ulong)16, result.ElementAt(0));
             Assert.AreEqual((ulong)16, result.ElementAt(1));

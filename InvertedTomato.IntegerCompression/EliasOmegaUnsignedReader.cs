@@ -4,49 +4,7 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for Elias Omega universal coding for unsigned values. Using this coding scheme multiple values can be expressed in one byte, and there is no wastage to padding bits. 
-    /// 
-    /// Following are some example codings:
-    /// 
-    ///      VALUE  ENCODED
-    ///          1  0_______
-    ///          2  100_____  
-    ///          3  110_____  
-    ///          4  101000__  
-    ///          5  101010__
-    ///          6  101110__  
-    ///          7  1110000_  
-    ///         15  1111110_  
-    ///         16  10100100 000_____ 
-    ///         32  10101100 0000____ 
-    ///        100  10110110 01000___ 
-    ///       1000  11100111 11101000 0_______ 
-    ///     10,000  11110110 01110001 00000___ 
-    ///    100,000  10100100 00110000 11010100 0000____ 
-    ///  1,000,000  10100100 11111101 00001001 0000000_
-    ///    
-    /// Normally under Elias zeros cannot be encoded. Passing TRUE into the constructor implements a value offset for all values so that this becomes possible. Following
-    /// are examples with AllowZeros enabled:
-    /// 
-    ///      VALUE  ENCODED
-    ///          0  0_______
-    ///          1  100_____  
-    ///          2  110_____  
-    ///          3  101000__  
-    ///          4  101010__
-    ///          5  101110__  
-    ///          6  1110000_  
-    ///         14  1111110_  
-    ///         15  10100100 000_____ 
-    ///         31  10101100 0000____ 
-    ///         99  10110110 01000___ 
-    ///        999  11100111 11101000 0_______ 
-    ///      9,999  11110110 01110001 00000___ 
-    ///     99,999  10100100 00110000 11010100 0000____ 
-    ///    999,999  10100100 11111101 00001001 0000000_
-    /// 
-    /// For more information on Elias Omega see https://en.wikipedia.org/wiki/Elias_omega_coding. To see how Elias compares to other universal codes, see
-    /// https://en.wikipedia.org/wiki/Elias_omega_coding .
+    /// Reader for Elias Omega universal coding for unsigned values.
     /// </summary>
     public class EliasOmegaUnsignedReader : IUnsignedReader {
         /// <summary>
@@ -55,22 +13,22 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<ulong> ReadAll(byte[] input) {
-            return ReadAll(false, input);
+            return ReadAll(0, input);
         }
 
         /// <summary>
         /// Read all values in a byte array with options.
         /// </summary>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(bool allowZeros, byte[] input) {
+        public static IEnumerable<ulong> ReadAll(ulong minValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new EliasOmegaUnsignedReader(stream, allowZeros)) {
+                using (var reader = new EliasOmegaUnsignedReader(stream, minValue)) {
 
                     ulong value;
                     while (reader.TryRead(out value)) {
@@ -86,9 +44,9 @@ namespace InvertedTomato.IntegerCompression {
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// If value offsetting is enabled so that zero can be supported.
+        /// The minimum value supported in this instance.
         /// </summary>
-        private readonly bool AllowZeros;
+        private readonly ulong MinValue;
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -109,20 +67,20 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public EliasOmegaUnsignedReader(Stream input) : this(input, false) { }
+        public EliasOmegaUnsignedReader(Stream input) : this(input, 0) { }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
-        public EliasOmegaUnsignedReader(Stream input, bool allowZeros) {
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        public EliasOmegaUnsignedReader(Stream input, ulong minValue) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             Input = input;
-            AllowZeros = allowZeros;
+            MinValue = minValue;
         }
 
         /// <summary>
@@ -179,10 +137,8 @@ namespace InvertedTomato.IntegerCompression {
                 ReadByte(); // Can be missing final byte without issue
             }
 
-            // Offset value to allow for 0s
-            if (AllowZeros) {
-                value--;
-            }
+            // Offset for min value
+            value = value - 1 + MinValue;
 
             return true;
         }

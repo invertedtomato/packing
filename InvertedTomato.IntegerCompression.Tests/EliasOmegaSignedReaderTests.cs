@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.IntegerCompression;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,8 +8,8 @@ namespace InvertedTomato.IntegerCompression.Tests {
         [TestMethod]
         public void WriteRead_First1000() {
             for (long input = -500; input < 500; input++) {
-                var encoded = EliasOmegaSignedWriter.WriteAll(true, new List<long>() { input });
-                var output = EliasOmegaSignedReader.ReadAll(true, encoded);
+                var encoded = EliasOmegaSignedWriter.WriteAll(new List<long>() { input });
+                var output = EliasOmegaSignedReader.ReadAll(encoded);
 
                 Assert.IsTrue(output.Count() >= 1);
                 Assert.AreEqual(input, output.First());
@@ -29,8 +27,8 @@ namespace InvertedTomato.IntegerCompression.Tests {
                 input.Add(i);
             }
 
-            var encoded = EliasOmegaSignedWriter.WriteAll(true, input);
-            var output = EliasOmegaSignedReader.ReadAll(true, encoded);
+            var encoded = EliasOmegaSignedWriter.WriteAll(input);
+            var output = EliasOmegaSignedReader.ReadAll(encoded);
 
             Assert.IsTrue(output.Count() >= -min + max + 1);
 

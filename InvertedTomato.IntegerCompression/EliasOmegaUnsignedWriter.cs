@@ -4,49 +4,7 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for Elias Omega universal coding for unsigned values. Using this coding scheme multiple values can be expressed in one byte, and there is no wastage to padding bits. 
-    /// 
-    /// Following are some example codings:
-    /// 
-    ///      VALUE  ENCODED
-    ///          1  0_______
-    ///          2  100_____  
-    ///          3  110_____  
-    ///          4  101000__  
-    ///          5  101010__
-    ///          6  101110__  
-    ///          7  1110000_  
-    ///         15  1111110_  
-    ///         16  10100100 000_____ 
-    ///         32  10101100 0000____ 
-    ///        100  10110110 01000___ 
-    ///       1000  11100111 11101000 0_______ 
-    ///     10,000  11110110 01110001 00000___ 
-    ///    100,000  10100100 00110000 11010100 0000____ 
-    ///  1,000,000  10100100 11111101 00001001 0000000_
-    ///    
-    /// Normally under Elias zeros cannot be encoded. Passing TRUE into the constructor implements a value offset for all values so that this becomes possible. Following
-    /// are examples with AllowZeros enabled:
-    /// 
-    ///      VALUE  ENCODED
-    ///          0  0_______
-    ///          1  100_____  
-    ///          2  110_____  
-    ///          3  101000__  
-    ///          4  101010__
-    ///          5  101110__  
-    ///          6  1110000_  
-    ///         14  1111110_  
-    ///         15  10100100 000_____ 
-    ///         31  10101100 0000____ 
-    ///         99  10110110 01000___ 
-    ///        999  11100111 11101000 0_______ 
-    ///      9,999  11110110 01110001 00000___ 
-    ///     99,999  10100100 00110000 11010100 0000____ 
-    ///    999,999  10100100 11111101 00001001 0000000_
-    /// 
-    /// For more information on Elias Omega see https://en.wikipedia.org/wiki/Elias_omega_coding. To see how Elias compares to other universal codes, see
-    /// https://en.wikipedia.org/wiki/Elias_omega_coding .
+    /// Reader for Elias Omega universal coding for unsigned values.
     /// </summary>
     public class EliasOmegaUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
@@ -54,17 +12,17 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(false, values); }
+        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(0, values); }
 
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(bool allowZeros, IEnumerable<ulong> values) {
+        public static byte[] WriteAll(ulong minValue, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new EliasOmegaUnsignedWriter(stream, allowZeros)) {
+                using (var writer = new EliasOmegaUnsignedWriter(stream, minValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -114,9 +72,9 @@ namespace InvertedTomato.IntegerCompression {
         private readonly Stream Output;
 
         /// <summary>
-        /// If value offsetting is enabled so that zero can be supported.
+        /// The minimum value supported in this instance.
         /// </summary>
-        private readonly bool AllowZeros;
+        private readonly ulong MinValue;
 
         /// <summary>
         /// The byte currently being worked on.
@@ -132,16 +90,16 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public EliasOmegaUnsignedWriter(Stream output) : this(output, false) { }
+        public EliasOmegaUnsignedWriter(Stream output) : this(output, 0) { }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
         /// <param name="output"></param>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
-        public EliasOmegaUnsignedWriter(Stream output, bool allowZeros) {
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        public EliasOmegaUnsignedWriter(Stream output, ulong minValue) {
             Output = output;
-            AllowZeros = allowZeros;
+            MinValue = minValue;
         }
 
         /// <summary>
@@ -154,15 +112,12 @@ namespace InvertedTomato.IntegerCompression {
             }
 
             // Offset value to allow for 0s
-            if (AllowZeros) {
-                if (value > ulong.MaxValue - 1) {
-                    throw new ArgumentOutOfRangeException("Value must be less than ulong.MaxValue-1 when AllowZeros is enabled in constructor.");
-                }
-
-                value++;
-            } else if (value == 0) {
-                throw new ArgumentOutOfRangeException("Zeros are not permitted without AllowZeros enabled in constructor.");
+            if (value < MinValue) {
+                throw new ArgumentOutOfRangeException(value + " (value) is lower than " + MinValue + " (min value).", "value");
             }
+
+            // Offset min value
+            value = value - MinValue + 1;
 
             // Prepare buffer
             var groups = new Stack<KeyValuePair<ulong, byte>>();
@@ -235,9 +190,6 @@ namespace InvertedTomato.IntegerCompression {
             if (disposing) {
                 // Dispose managed state (managed objects).
             }
-
-            // Free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // Set large fields to null.
         }
 
         /// <summary>

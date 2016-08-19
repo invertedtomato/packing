@@ -15,22 +15,22 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<long> ReadAll(byte[] input) {
-            return ReadAll(false, input);
+            return ReadAll(0, input);
         }
 
         /// <summary>
         /// Read all values in a byte array with options.
         /// </summary>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<long> ReadAll(bool allowZeros, byte[] input) {
+        public static IEnumerable<long> ReadAll(ulong minValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new EliasOmegaSignedReader(stream, allowZeros)) {
+                using (var reader = new EliasOmegaSignedReader(stream, minValue)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -61,9 +61,9 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate passing options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="allowZero">(non-standard) Support zeros by automatically offsetting all values by one.</param>
-        public EliasOmegaSignedReader(Stream input, bool allowZero) {
-            Underlying = new EliasOmegaUnsignedReader(input, allowZero);
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        public EliasOmegaSignedReader(Stream input, ulong minValue) {
+            Underlying = new EliasOmegaUnsignedReader(input, minValue);
         }
 
         /// <summary>

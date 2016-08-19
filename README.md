@@ -107,21 +107,18 @@ Notes:
  - **Random access:** no (can't jump ahead)
  - **Lossy:** no (doesn't approximate)
  - **Universal:** yes (can handle any number)
- - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
- - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
+ - **Supported values:** all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
  - **Writer:** `EliasOmegaUnsignedWriter`, `EliasOmegaSignedWriter`
  - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
  - **Options:** 
-   - Allow zeros to be included
+   - Allows setting of minimum expected value
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. If I knew my number set was going to be small, I'd use *Elias Gamma*
 instead. If I knew my number set was large, I'd use *VLQ* instead. Sorry Omega :-/.
 
 Notes:
- - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the 
-   efficiency slightly, so only use it if you need it.
  - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying 
    to use it real-time with a huge set of data.
  - I speculate that Omega will be the most efficient algorithm for numbers greater than 1x10^22 - 
@@ -135,21 +132,18 @@ Notes:
  - **Random access:** no (can't jump ahead)
  - **Lossy:** no (doesn't approximate)
  - **Universal:** yes *(can handle any number)*
- - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
- - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
+ - **Supported values:**  all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
  - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
  - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
  - **Options:** 
-   - Allow zeros to be included
+   - Allows setting of minimum expected value
 
 This is the best algorithm for when you're expecting consistently tiny numbers, but 
 need to handle the occasional larger value. It beats all other algorithms for size
 on numbers <=16.
 
 Notes:
- - If you want zeros, you need to pass allowZeros=TRUE in the constructor. It decreases the
-   efficiency slightly, so only use it if you need it.
  - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying 
    to use it real-time with a huge set of data.
 
@@ -179,25 +173,18 @@ Notes:
  - **Random access:** yes *(can jump ahead)*
  - **Lossy:** no *(doesn't approximate)*
  - **Universal:** yes *(can handle any number)*
- - **Supported values *(standard)*:**  1 to 18,446,744,073,709,551,615
- - **Supported values *(with zeros)*:** 0 to 18,446,744,073,709,551,614
+ - **Supported values:** all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
  - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
  - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
  - **Options:** 
-   - Allow zeros to be included
+   - Minimum value
 
   
 ## Signed and Unsigned
 If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** readers and 
 writers. That way you'll get the best compression. Obviously fall back to **signed**
 readers and writers if you must.
-
-## Warning about zeros
-Not all algorithms support zeros natively. It's a compression thing. But we've included
-work-around support for those algorithms. All you need to do is pass in AllowZeros=TRUE
-on the constructors. It'll make the algorithm a tiny bit less efficient, but hey, you
-need zeros.
 
 ## Use small numbers
 Even with compression, smaller numbers use less space. So take a moment to consider what

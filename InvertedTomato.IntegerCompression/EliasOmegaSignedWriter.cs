@@ -13,17 +13,17 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(false, values); }
+        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(0, values); }
 
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(bool allowZeros, IEnumerable<long> values) {
+        public static byte[] WriteAll(ulong minValue, IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new EliasOmegaSignedWriter(stream, allowZeros)) {
+                using (var writer = new EliasOmegaSignedWriter(stream, minValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -54,9 +54,9 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="allowZero">(non-standard) Support zeros by automatically offsetting all values by one.</param>
-        public EliasOmegaSignedWriter(Stream input, bool allowZero) {
-            Underlying = new EliasOmegaUnsignedWriter(input, allowZero);
+        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        public EliasOmegaSignedWriter(Stream input, ulong minValue) {
+            Underlying = new EliasOmegaUnsignedWriter(input, minValue);
         }
 
         /// <summary>

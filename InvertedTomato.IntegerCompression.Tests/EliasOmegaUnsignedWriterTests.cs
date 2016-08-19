@@ -8,7 +8,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaUnsignedWriterTests {
         private string TestWrite(params ulong[] values) {
-            var result = EliasOmegaUnsignedWriter.WriteAll(values);
+            var result = EliasOmegaUnsignedWriter.WriteAll(1, values);
 
             return ByteToBinary(result);
         }
@@ -126,8 +126,8 @@ namespace InvertedTomato.IntegerCompression.Tests {
         [TestMethod]
         public void WriteRead_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = EliasOmegaUnsignedWriter.WriteAll(new List<ulong>() { input });
-                var output = EliasOmegaUnsignedReader.ReadAll(encoded);
+                var encoded = EliasOmegaUnsignedWriter.WriteAll(1, new List<ulong>() { input });
+                var output = EliasOmegaUnsignedReader.ReadAll(1, encoded);
 
                 Assert.IsTrue(output.Count() > 0);
                 Assert.AreEqual(input, output.First());
@@ -144,13 +144,13 @@ namespace InvertedTomato.IntegerCompression.Tests {
                 input.Add(i);
             }
 
-            var encoded = EliasOmegaUnsignedWriter.WriteAll(input);
-            var output = EliasOmegaUnsignedReader.ReadAll(encoded);
+            var encoded = EliasOmegaUnsignedWriter.WriteAll(1, input);
+            var output = EliasOmegaUnsignedReader.ReadAll(1, encoded);
 
             Assert.IsTrue((ulong)output.Count() >= max); // The padding zeros may cause us to get more values than we input
 
             for (i = 1; i <= max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)i-1));
+                Assert.AreEqual(i, output.ElementAt((int)i - 1));
             }
         }
     }
