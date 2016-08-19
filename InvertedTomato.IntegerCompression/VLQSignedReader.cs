@@ -19,16 +19,16 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Read all values into a byte array with options.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<long> ReadAll(int minBytes, byte[] input) {
+        public static IEnumerable<long> ReadAll(ulong expectedMinValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new VLQSignedReader(stream, minBytes)) {
+                using (var reader = new VLQSignedReader(stream, expectedMinValue)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -59,9 +59,9 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
-        public VLQSignedReader(Stream input, int minBytes) {
-            Underlying = new VLQUnsignedReader(input, minBytes);
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
+        public VLQSignedReader(Stream input, ulong expectedMinValue) {
+            Underlying = new VLQUnsignedReader(input, expectedMinValue);
         }
 
         /// <summary>

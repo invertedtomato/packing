@@ -82,7 +82,7 @@ trying to achieve.
  - **Writer:** `VLQUnsignedWriter`, `VLQSignedWriter`
  - **Reader:** `VLQUnsignedReader`, `VLQSignedReader`
  - **Options:** 
-   - Specify minimum number of bytes
+   - Specify minimum expected value
 
 It seems VLQ was originally invented by the designers of MIDI (you know, the old-school
 MP3). The algorithm is really retro, there's stacks of variations of it's spec and
@@ -96,10 +96,8 @@ important to you this might be your choice anyway.
 Notes:
  - This implementation includes the "redundancy removal" variation. So don't expect it to be 
    compatible with other implementations.
- - The constructor lets you specify a minimum number of bytes. This lets you increase efficiency 
-   if you are expecting large numbers (set minBytes=2 if your numbers are always >127. Set 
-   minBytes=3 if your numbers are always >65,535, Set minBytes=4 if your numbers are 
-   always >16,777,215)
+ - The constructor lets you specify a minimum expected value. This optimizes the underlying 
+   algorithm for values larger than this. Keep in mind that smaller values come at a penalty!
  - By the by, I hate the name "Variable Length Quantities".
 
 ### Elias Omega

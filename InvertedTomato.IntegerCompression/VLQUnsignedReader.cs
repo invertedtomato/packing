@@ -39,16 +39,16 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Read all values in a byte array with options.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(int minBytes, byte[] input) {
+        public static IEnumerable<ulong> ReadAll(ulong expectedMinValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new VLQUnsignedReader(stream, minBytes)) {
+                using (var reader = new VLQUnsignedReader(stream, expectedMinValue)) {
                     ulong value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -91,24 +91,27 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public VLQUnsignedReader(Stream input) : this(input, 1) { }
+        public VLQUnsignedReader(Stream input) : this(input, 0) { }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
-        public VLQUnsignedReader(Stream input, int minBytes = 1) {
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
+        public VLQUnsignedReader(Stream input, ulong expectedMinValue) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-            if (minBytes < 1 || minBytes > 8) {
-                throw new ArgumentOutOfRangeException("Must be between 1 and 8.", "minBytes");
-            }
+           
 
             // Store
             Input = input;
-            PrefixBytes = minBytes - 1;
+
+            // Calculate number of prefix bytes for max efficiency
+            while(expectedMinValue > byte.MaxValue) {
+                PrefixBytes++;
+                expectedMinValue /= byte.MaxValue;
+            }
         }
 
         /// <summary>

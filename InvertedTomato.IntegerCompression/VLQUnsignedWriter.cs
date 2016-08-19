@@ -32,17 +32,17 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(1, values); }
+        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(0, values); }
 
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(int minBytes, IEnumerable<ulong> values) {
+        public static byte[] WriteAll(ulong expectedMinValue, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new VLQUnsignedWriter(stream, minBytes)) {
+                using (var writer = new VLQUnsignedWriter(stream, expectedMinValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -113,18 +113,20 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options
         /// </summary>
         /// <param name="output"></param>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
-        public VLQUnsignedWriter(Stream output, int minBytes) {
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
+        public VLQUnsignedWriter(Stream output, ulong expectedMinValue) {
             if (null == output) {
                 throw new ArgumentNullException("output");
-            }
-            if (minBytes < 1 || minBytes > 8) {
-                throw new ArgumentOutOfRangeException("Must be between 1 and 8.", "minBytes");
             }
 
             // Store
             Output = output;
-            PrefixBytes = minBytes - 1;
+
+            // Calculate number of prefix bytes for max efficiency
+            while (expectedMinValue > byte.MaxValue) {
+                PrefixBytes++;
+                expectedMinValue /= byte.MaxValue;
+            }
         }
 
         /// <summary>

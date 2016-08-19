@@ -11,17 +11,17 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(1, values); }
+        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(0, values); }
 
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(int minBytes, IEnumerable<long> values) {
+        public static byte[] WriteAll(ulong expectedMinValue, IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new VLQSignedWriter(stream, minBytes)) {
+                using (var writer = new VLQSignedWriter(stream, expectedMinValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -52,9 +52,9 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large.</param>
-        public VLQSignedWriter(Stream input, int minBytes) {
-            Underlying = new VLQUnsignedWriter(input, minBytes);
+        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
+        public VLQSignedWriter(Stream input, ulong expectedMinValue) {
+            Underlying = new VLQUnsignedWriter(input, expectedMinValue);
         }
 
         /// <summary>

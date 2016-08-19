@@ -7,8 +7,8 @@ using System.Collections.Generic;
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class VLQUnsignedWriterTests {
-        private string TestWrite(int minBytes, params ulong[] values) {
-            var result = VLQUnsignedWriter.WriteAll(minBytes, values);
+        private string TestWrite(ulong expectedMinValue, params ulong[] values) {
+            var result = VLQUnsignedWriter.WriteAll(expectedMinValue, values);
 
             return ByteToBinary(result);
         }
@@ -24,77 +24,77 @@ namespace InvertedTomato.IntegerCompression.Tests {
 
         [TestMethod]
         public void Write_Min1_Min() {
-            Assert.AreEqual("10000000", TestWrite(1, 0));
+            Assert.AreEqual("10000000", TestWrite(0, 0));
         }
         [TestMethod]
         public void Write_Min1_1() {
-            Assert.AreEqual("10000001", TestWrite(1, 1));
+            Assert.AreEqual("10000001", TestWrite(0, 1));
         }
         [TestMethod]
         public void Write_Min1_127() {
-            Assert.AreEqual("11111111", TestWrite(1, 127));
+            Assert.AreEqual("11111111", TestWrite(0, 127));
         }
         [TestMethod]
         public void Write_Min1_128() {
-            Assert.AreEqual("00000000 10000000", TestWrite(1, 128));
+            Assert.AreEqual("00000000 10000000", TestWrite(0, 128));
         }
         [TestMethod]
         public void Write_Min1_129() {
-            Assert.AreEqual("00000001 10000000", TestWrite(1, 129));
+            Assert.AreEqual("00000001 10000000", TestWrite(0, 129));
         }
         [TestMethod]
         public void Write_Min1_16511() {
-            Assert.AreEqual("01111111 11111111", TestWrite(1, 16511));
+            Assert.AreEqual("01111111 11111111", TestWrite(0, 16511));
         }
         [TestMethod]
         public void Write_Min1_16512() {
-            Assert.AreEqual("00000000 00000000 10000000", TestWrite(1, 16512));
+            Assert.AreEqual("00000000 00000000 10000000", TestWrite(0, 16512));
         }
         [TestMethod]
         public void Write_Min1_2113663() {
-            Assert.AreEqual("01111111 01111111 11111111", TestWrite(1, 2113663));
+            Assert.AreEqual("01111111 01111111 11111111", TestWrite(0, 2113663));
         }
         [TestMethod]
         public void Write_Min1_2113664() {
-            Assert.AreEqual("00000000 00000000 00000000 10000000", TestWrite(1, 2113664));
+            Assert.AreEqual("00000000 00000000 00000000 10000000", TestWrite(0, 2113664));
         }
         [TestMethod]
         public void Write_Min1_Max() {
-            Assert.AreEqual("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", TestWrite(1, ulong.MaxValue));
+            Assert.AreEqual("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", TestWrite(0, ulong.MaxValue));
         }
 
         [TestMethod]
         public void Write_Min2_1() {
-            Assert.AreEqual("00000001 10000000", TestWrite(2, 1));
+            Assert.AreEqual("00000001 10000000", TestWrite(256, 1));
         }
         [TestMethod]
         public void Write_Min2_255() {
-            Assert.AreEqual("11111111 10000000", TestWrite(2, 255));
+            Assert.AreEqual("11111111 10000000", TestWrite(256, 255));
         }
         [TestMethod]
         public void Write_Min2_256() {
-            Assert.AreEqual("00000000 10000001", TestWrite(2, 256));
+            Assert.AreEqual("00000000 10000001", TestWrite(256, 256));
         }
         [TestMethod]
         public void Write_Min2_32767() {
-            Assert.AreEqual("11111111 11111111", TestWrite(2, 32767));
+            Assert.AreEqual("11111111 11111111", TestWrite(256, 32767));
         }
         [TestMethod]
         public void Write_Min2_32768() {
-            Assert.AreEqual("00000000 00000000 10000000", TestWrite(2, 32768));
+            Assert.AreEqual("00000000 00000000 10000000", TestWrite(256, 32768));
         }
 
         [TestMethod]
         public void Write_Min4_1() {
-            Assert.AreEqual("00000001 00000000 00000000 10000000", TestWrite(4, 1));
+            Assert.AreEqual("00000001 00000000 00000000 10000000", TestWrite(16777216, 1));
         }
         [TestMethod]
         public void Write_Min4_255() {
-            Assert.AreEqual("11111111 00000000 00000000 10000000", TestWrite(4, 255));
+            Assert.AreEqual("11111111 00000000 00000000 10000000", TestWrite(16777216, 255));
         }
         [TestMethod]
         public void Write_Min4_256() {
-            Assert.AreEqual("00000000 00000001 00000000 10000000", TestWrite(4, 256));
+            Assert.AreEqual("00000000 00000001 00000000 10000000", TestWrite(16777216, 256));
         }
 
         [TestMethod]
