@@ -70,6 +70,8 @@ algorithms to choose from. VLQ is a great all-rounder algorithm, but consider th
 Each has different characteristics, and none is "the best". It just depends what you're
 trying to achieve.
 
+![alt text](https://raw.githubusercontent.com/invertedtomato/integer-compression/master/images/comparison-1.png "Algorithm comparison")
+
 ### Variable Length Quantities (VLQ)
 
  - **Random access:** no *(can't jump ahead)*
