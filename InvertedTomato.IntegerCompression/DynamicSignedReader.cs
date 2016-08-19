@@ -4,31 +4,31 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for Elias Omega universal coding adapted for signed values.
+    /// Reader for dynamic length signed integers.
     /// </summary>
-    public class EliasOmegaSignedReader : ISignedReader {
+    public class DynamicSignedReader : ISignedReader {
         /// <summary>
         /// Read all values in a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<long> ReadAll(byte[] input) {
-            return ReadAll(0, input);
+            return ReadAll(ulong.MaxValue, input);
         }
 
         /// <summary>
-        /// Read all values in a byte array with options.
+        /// Read all values into a byte array with options.
         /// </summary>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<long> ReadAll(ulong minValue, byte[] input) {
+        public static IEnumerable<long> ReadAll(ulong maxValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new EliasOmegaSignedReader(stream, minValue)) {
+                using (var reader = new DynamicSignedReader(stream, maxValue)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -38,30 +38,30 @@ namespace InvertedTomato.IntegerCompression {
         }
 
         /// <summary>
-        /// If it's disposed.
+        /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// The underlying unsigned reader.
+        /// Underlying unsigned reader.
         /// </summary>
-        private readonly EliasOmegaUnsignedReader Underlying;
+        private readonly DynamicUnsignedReader Underlying;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public EliasOmegaSignedReader(Stream input) {
-            Underlying = new EliasOmegaUnsignedReader(input);
+        public DynamicSignedReader(Stream input) {
+            Underlying = new DynamicUnsignedReader(input);
         }
 
         /// <summary>
-        /// Instantiate passing options.
+        /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        public EliasOmegaSignedReader(Stream input, ulong minValue) {
-            Underlying = new EliasOmegaUnsignedReader(input, minValue);
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
+        public DynamicSignedReader(Stream input, ulong maxValue) {
+            Underlying = new DynamicUnsignedReader(input, maxValue);
         }
 
         /// <summary>

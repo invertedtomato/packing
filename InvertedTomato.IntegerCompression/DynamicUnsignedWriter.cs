@@ -4,9 +4,9 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Writer for Variable-length Quantity (VLQ) unsigned numbers.
+    /// Writer for dynamic length unsigned integers.
     /// </summary>
-    public class VLQUnsignedWriter : IUnsignedWriter {
+    public class DynamicUnsignedWriter : IUnsignedWriter {
         /// <summary>
         /// Write all given values.
         /// </summary>
@@ -17,12 +17,12 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(ulong expectedMinValue, IEnumerable<ulong> values) {
+        public static byte[] WriteAll(ulong maxValue, IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new VLQUnsignedWriter(stream, expectedMinValue)) {
+                using (var writer = new DynamicUnsignedWriter(stream, maxValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -35,38 +35,12 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Calculate the length of an encoded value in bits.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large</param>
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(int minBytes, ulong value) {
-            var result = 8; // Final byte
-
-            // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < minBytes - 1; i++) {
-                result += 8;
-                value >>= 8;
-            }
-
-
-            // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > PAYLOAD_MASK) {
-                result += 8;
-                value >>= 7;
-                value--;
-            }
-
-            return result;
+        public static int CalculateBitLength(ulong maxValue, ulong value) {
+            throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Mask to extract the data from a byte.
-        /// </summary>
-        const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
-
-        /// <summary>
-        /// Mask to extract the 'continuity' bit from a byte.
-        /// </summary>
-        const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
         /// <summary>
         /// If disposed.
@@ -87,14 +61,14 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public VLQUnsignedWriter(Stream output) : this(output, 1) { }
+        public DynamicUnsignedWriter(Stream output) : this(output, ulong.MaxValue) { }
 
         /// <summary>
         /// Instantiate with options
         /// </summary>
         /// <param name="output"></param>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        public VLQUnsignedWriter(Stream output, ulong expectedMinValue) {
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
+        public DynamicUnsignedWriter(Stream output, ulong maxValue) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
@@ -102,11 +76,8 @@ namespace InvertedTomato.IntegerCompression {
             // Store
             Output = output;
 
-            // Calculate number of prefix bytes for max efficiency
-            while (expectedMinValue > byte.MaxValue) {
-                PrefixBytes++;
-                expectedMinValue /= byte.MaxValue;
-            }
+            // TODO: calculate number of length bits
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -118,22 +89,7 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < PrefixBytes; i++) {
-                Output.WriteByte((byte)value);
-                value >>= 8;
-            }
-
-
-            // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > PAYLOAD_MASK) {
-                Output.WriteByte((byte)(value & PAYLOAD_MASK));
-                value >>= 7;
-                value--;
-            }
-
-            // Output remaining bits, with the 'final' bit set
-            Output.WriteByte((byte)(value | CONTINUITY_MASK));
+            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -3,25 +3,25 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Writer for Elias Omega universal coding adapted for signed values.
+    /// Writer for dynamic length signed integers.
     /// </summary>
-    public class EliasOmegaSignedWriter : ISignedWriter {
+    public class DynamicSignedWriter : ISignedWriter {
         /// <summary>
         /// Write all given values.
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(0, values); }
+        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(ulong.MaxValue, values); }
 
         /// <summary>
         /// Write all given values with options.
         /// </summary>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(ulong minValue, IEnumerable<long> values) {
+        public static byte[] WriteAll(ulong maxValue, IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new EliasOmegaSignedWriter(stream, minValue)) {
+                using (var writer = new DynamicSignedWriter(stream, maxValue)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -36,25 +36,25 @@ namespace InvertedTomato.IntegerCompression {
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// The underlying unsigned writer.
+        /// Underlying unsigned writer.
         /// </summary>
-        private readonly EliasOmegaUnsignedWriter Underlying;
+        private readonly DynamicUnsignedWriter Underlying;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public EliasOmegaSignedWriter(Stream output) {
-            Underlying = new EliasOmegaUnsignedWriter(output);
+        public DynamicSignedWriter(Stream output) {
+            Underlying = new DynamicUnsignedWriter(output);
         }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        public EliasOmegaSignedWriter(Stream input, ulong minValue) {
-            Underlying = new EliasOmegaUnsignedWriter(input, minValue);
+        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
+        public DynamicSignedWriter(Stream input, ulong maxValue) {
+            Underlying = new DynamicUnsignedWriter(input, maxValue);
         }
 
         /// <summary>
