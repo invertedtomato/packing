@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression.Benchmark {
