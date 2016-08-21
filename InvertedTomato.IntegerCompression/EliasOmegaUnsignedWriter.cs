@@ -148,9 +148,9 @@ namespace InvertedTomato.IntegerCompression {
 
                     // Add to byte
                     if (CurrentPosition + bits > 8) {
-                        CurrentByte |= (byte)(group >> (bits - chunk));
+                        CurrentByte |= (byte)(group >> bits - chunk);
                     } else {
-                        CurrentByte |= (byte)(group << (8 - CurrentPosition - chunk));
+                        CurrentByte |= (byte)(group << 8 - CurrentPosition - chunk);
                     }
 
                     // Update length available
