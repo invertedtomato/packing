@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression.Benchmark {
@@ -13,7 +14,7 @@ namespace InvertedTomato.IntegerCompression.Benchmark {
                     writer.Write(",");
                     writer.Write(VLQUnsignedWriter.CalculateBitLength(0, i));
                     writer.Write(",");
-                    writer.Write(EliasOmegaUnsignedWriter.CalculateBitLength(false, i));
+                    writer.Write(EliasOmegaUnsignedWriter.CalculateBitLength( i));
                     writer.Write(",");
                     writer.Write(GuessEliasGammaLength(i));
                     writer.Write(",");
