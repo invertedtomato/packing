@@ -109,8 +109,6 @@ Notes:
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
  - **Writer:** `EliasOmegaUnsignedWriter`, `EliasOmegaSignedWriter`
  - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
- - **Options:** 
-   - Allows setting of minimum expected value
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. If I knew my number set was going to be small, I'd use *Elias Gamma*
@@ -134,8 +132,6 @@ Notes:
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
  - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
  - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
- - **Options:** 
-   - Allows setting of minimum expected value
 
 This is the best algorithm for when you're expecting consistently tiny numbers, but 
 need to handle the occasional larger value. It beats all other algorithms for size

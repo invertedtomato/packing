@@ -8,7 +8,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class EliasOmegaUnsignedWriterTests {
         private string TestWrite(params ulong[] values) {
-            var result = EliasOmegaUnsignedWriter.WriteAll(1, values);
+            var result = EliasOmegaUnsignedWriter.WriteAll(values);
 
             return ByteToBinary(result);
         }
@@ -23,111 +23,111 @@ namespace InvertedTomato.IntegerCompression.Tests {
         }
 
         [TestMethod]
+        public void Write_0() {
+            Assert.AreEqual("00000000", TestWrite(0));
+        }
+        [TestMethod]
         public void Write_1() {
-            Assert.AreEqual("00000000", TestWrite(1));
+            Assert.AreEqual("10000000", TestWrite(1));
         }
         [TestMethod]
         public void Write_2() {
-            Assert.AreEqual("10000000", TestWrite(2));
+            Assert.AreEqual("11000000", TestWrite(2));
         }
         [TestMethod]
         public void Write_3() {
-            Assert.AreEqual("11000000", TestWrite(3));
+            Assert.AreEqual("10100000", TestWrite(3));
         }
         [TestMethod]
         public void Write_4() {
-            Assert.AreEqual("10100000", TestWrite(4));
+            Assert.AreEqual("10101000", TestWrite(4));
         }
         [TestMethod]
         public void Write_5() {
-            Assert.AreEqual("10101000", TestWrite(5));
+            Assert.AreEqual("10110000", TestWrite(5));
         }
         [TestMethod]
         public void Write_6() {
-            Assert.AreEqual("10110000", TestWrite(6));
+            Assert.AreEqual("10111000", TestWrite(6));
         }
         [TestMethod]
         public void Write_7() {
-            Assert.AreEqual("10111000", TestWrite(7));
+            Assert.AreEqual("11100000", TestWrite(7));
         }
         [TestMethod]
         public void Write_8() {
-            Assert.AreEqual("11100000", TestWrite(8));
+            Assert.AreEqual("11100100", TestWrite(8));
         }
         [TestMethod]
         public void Write_9() {
-            Assert.AreEqual("11100100", TestWrite(9));
+            Assert.AreEqual("11101000", TestWrite(9));
         }
         [TestMethod]
         public void Write_10() {
-            Assert.AreEqual("11101000", TestWrite(10));
+            Assert.AreEqual("11101100", TestWrite(10));
         }
         [TestMethod]
         public void Write_11() {
-            Assert.AreEqual("11101100", TestWrite(11));
+            Assert.AreEqual("11110000", TestWrite(11));
         }
         [TestMethod]
         public void Write_12() {
-            Assert.AreEqual("11110000", TestWrite(12));
+            Assert.AreEqual("11110100", TestWrite(12));
         }
         [TestMethod]
         public void Write_13() {
-            Assert.AreEqual("11110100", TestWrite(13));
+            Assert.AreEqual("11111000", TestWrite(13));
         }
         [TestMethod]
         public void Write_14() {
-            Assert.AreEqual("11111000", TestWrite(14));
+            Assert.AreEqual("11111100", TestWrite(14));
         }
         [TestMethod]
         public void Write_15() {
-            Assert.AreEqual("11111100", TestWrite(15));
+            Assert.AreEqual("10100100 00000000", TestWrite(15));
         }
         [TestMethod]
         public void Write_16() {
-            Assert.AreEqual("10100100 00000000", TestWrite(16));
+            Assert.AreEqual("10100100 01000000", TestWrite(16));
         }
         [TestMethod]
-        public void Write_17() {
-            Assert.AreEqual("10100100 01000000", TestWrite(17));
+        public void Write_99() {
+            Assert.AreEqual("10110110 01000000", TestWrite(99));
         }
         [TestMethod]
-        public void Write_100() {
-            Assert.AreEqual("10110110 01000000", TestWrite(100));
+        public void Write_999() {
+            Assert.AreEqual("11100111 11101000 00000000", TestWrite(999));
         }
         [TestMethod]
-        public void Write_1000() {
-            Assert.AreEqual("11100111 11101000 00000000", TestWrite(1000));
+        public void Write_9999() {
+            Assert.AreEqual("11110110 01110001 00000000", TestWrite(9999));
         }
         [TestMethod]
-        public void Write_10000() {
-            Assert.AreEqual("11110110 01110001 00000000", TestWrite(10000));
+        public void Write_99999() {
+            Assert.AreEqual("10100100 00110000 11010100 00000000", TestWrite(99999));
         }
         [TestMethod]
-        public void Write_100000() {
-            Assert.AreEqual("10100100 00110000 11010100 00000000", TestWrite(100000));
-        }
-        [TestMethod]
-        public void Write_1000000() {
-            Assert.AreEqual("10100100 11111101 00001001 00000000", TestWrite(1000000));
+        public void Write_999999() {
+            Assert.AreEqual("10100100 11111101 00001001 00000000", TestWrite(999999));
         }
         [TestMethod]
         public void Write_Max() {
-            Assert.AreEqual("10101111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11100000", TestWrite(ulong.MaxValue));
+            Assert.AreEqual("10101111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11100000", TestWrite(ulong.MaxValue - 1));
         }
         [TestMethod]
-        public void Write_3_3_3() {
-            Assert.AreEqual("11011011 00000000", TestWrite(3, 3, 3));
+        public void Write_2_2_2() {
+            Assert.AreEqual("11011011 00000000", TestWrite(2, 2, 2));
         }
         [TestMethod]
-        public void Write_16_16_16() {
-            Assert.AreEqual("10100100 00010100 10000010 10010000 00000000", TestWrite(16, 16, 16));
+        public void Write_15_15_15() {
+            Assert.AreEqual("10100100 00010100 10000010 10010000 00000000", TestWrite(15, 15, 15));
         }
 
         [TestMethod]
         public void WriteRead_First1000() {
             for (ulong input = 1; input < 1000; input++) {
-                var encoded = EliasOmegaUnsignedWriter.WriteAll(1, new List<ulong>() { input });
-                var output = EliasOmegaUnsignedReader.ReadAll(1, encoded);
+                var encoded = EliasOmegaUnsignedWriter.WriteAll(new List<ulong>() { input });
+                var output = EliasOmegaUnsignedReader.ReadAll(encoded);
 
                 Assert.IsTrue(output.Count() > 0);
                 Assert.AreEqual(input, output.First());
@@ -144,8 +144,8 @@ namespace InvertedTomato.IntegerCompression.Tests {
                 input.Add(i);
             }
 
-            var encoded = EliasOmegaUnsignedWriter.WriteAll(1, input);
-            var output = EliasOmegaUnsignedReader.ReadAll(1, encoded);
+            var encoded = EliasOmegaUnsignedWriter.WriteAll(input);
+            var output = EliasOmegaUnsignedReader.ReadAll(encoded);
 
             Assert.IsTrue((ulong)output.Count() >= max); // The padding zeros may cause us to get more values than we input
 

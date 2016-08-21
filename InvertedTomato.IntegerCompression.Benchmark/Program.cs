@@ -20,7 +20,7 @@ namespace InvertedTomato.IntegerCompression.Benchmark {
                     writer.Write(",");
                     writer.Write((float)VLQUnsignedWriter.CalculateBitLength(4, i) / (float)8);
                     writer.Write(",");
-                    writer.Write((float)EliasOmegaUnsignedWriter.CalculateBitLength(false, i) / (float)8);
+                    writer.Write((float)EliasOmegaUnsignedWriter.CalculateBitLength(i) / (float)8);
                     writer.Write(",");
                     writer.Write((float)GuessEliasGammaLength(i) / (float)8);
                     writer.WriteLine();

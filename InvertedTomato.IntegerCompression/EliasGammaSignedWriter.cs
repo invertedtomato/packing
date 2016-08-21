@@ -3,9 +3,9 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Writer for Elias Omega universal coding adapted for signed values.
+    /// Writer for Elias Gamma universal coding adapted for signed values.
     /// </summary>
-    public class EliasOmegaSignedWriter : ISignedWriter {
+    public class EliasGammaSignedWriter : ISignedWriter {
         /// <summary>
         /// Write all given values.
         /// </summary>
@@ -13,7 +13,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <returns></returns>
         public static byte[] WriteAll(IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new EliasOmegaSignedWriter(stream)) {
+                using (var writer = new EliasGammaSignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -30,14 +30,14 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// The underlying unsigned writer.
         /// </summary>
-        private readonly EliasOmegaUnsignedWriter Underlying;
+        private readonly EliasGammaUnsignedWriter Underlying;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public EliasOmegaSignedWriter(Stream output) {
-            Underlying = new EliasOmegaUnsignedWriter(output);
+        public EliasGammaSignedWriter(Stream output) {
+            Underlying = new EliasGammaUnsignedWriter(output);
         }
 
         /// <summary>
