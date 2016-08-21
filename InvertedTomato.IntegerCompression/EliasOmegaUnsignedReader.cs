@@ -13,22 +13,12 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<ulong> ReadAll(byte[] input) {
-            return ReadAll(0, input);
-        }
-
-        /// <summary>
-        /// Read all values in a byte array with options.
-        /// </summary>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(ulong minValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new EliasOmegaUnsignedReader(stream, minValue)) {
+                using (var reader = new EliasOmegaUnsignedReader(stream)) {
 
                     ulong value;
                     while (reader.TryRead(out value)) {
@@ -42,11 +32,6 @@ namespace InvertedTomato.IntegerCompression {
         /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
-
-        /// <summary>
-        /// The minimum value supported in this instance.
-        /// </summary>
-        private readonly ulong MinValue;
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -67,20 +52,12 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public EliasOmegaUnsignedReader(Stream input) : this(input, 0) { }
-
-        /// <summary>
-        /// Instantiate with options.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        public EliasOmegaUnsignedReader(Stream input, ulong minValue) {
+        public EliasOmegaUnsignedReader(Stream input) { 
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             Input = input;
-            MinValue = minValue;
         }
 
         /// <summary>
@@ -118,7 +95,7 @@ namespace InvertedTomato.IntegerCompression {
                     mask <<= 8 - chunk;
                     mask >>= CurrentOffset;
                     value <<= chunk;
-                    value += (ulong)(CurrentByte & mask) >> (8 - chunk - CurrentOffset);
+                    value += (ulong)(CurrentByte & mask) >> 8 - chunk - CurrentOffset;
 
                     // Update length available
                     length -= chunk;
@@ -138,7 +115,7 @@ namespace InvertedTomato.IntegerCompression {
             }
 
             // Offset for min value
-            value = value - 1 + MinValue;
+            value = value - 1;
 
             return true;
         }

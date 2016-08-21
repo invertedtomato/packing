@@ -4,9 +4,9 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for Elias Omega universal coding adapted for signed values.
+    /// Reader for Elias Gamma universal coding adapted for signed values.
     /// </summary>
-    public class EliasOmegaSignedReader : ISignedReader {
+    public class EliasGammaSignedReader : ISignedReader {
         /// <summary>
         /// Read all values in a byte array.
         /// </summary>
@@ -18,7 +18,7 @@ namespace InvertedTomato.IntegerCompression {
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new EliasOmegaSignedReader(stream)) {
+                using (var reader = new EliasGammaSignedReader(stream)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -35,14 +35,14 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// The underlying unsigned reader.
         /// </summary>
-        private readonly EliasOmegaUnsignedReader Underlying;
+        private readonly EliasGammaUnsignedReader Underlying;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public EliasOmegaSignedReader(Stream input) {
-            Underlying = new EliasOmegaUnsignedReader(input);
+        public EliasGammaSignedReader(Stream input) {
+            Underlying = new EliasGammaUnsignedReader(input);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -12,17 +13,9 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(0, values); }
-
-        /// <summary>
-        /// Write all given values with options.
-        /// </summary>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public static byte[] WriteAll(ulong minValue, IEnumerable<ulong> values) {
+        public static byte[] WriteAll(IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new EliasOmegaUnsignedWriter(stream, minValue)) {
+                using (var writer = new EliasOmegaUnsignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -38,13 +31,11 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(bool allowZero, ulong value) {
+        public static int CalculateBitLength(ulong value) {
             var result = 1; // Termination bit
 
             // Offset value to allow for 0s
-            if (allowZero) {
-                value++;
-            }
+            value++;
 
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
@@ -72,11 +63,6 @@ namespace InvertedTomato.IntegerCompression {
         private readonly Stream Output;
 
         /// <summary>
-        /// The minimum value supported in this instance.
-        /// </summary>
-        private readonly ulong MinValue;
-
-        /// <summary>
         /// The byte currently being worked on.
         /// </summary>
         private byte CurrentByte;
@@ -84,22 +70,14 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// The position within the current byte for the next write.
         /// </summary>
-        private int CurrrentPosition;
+        private int CurrentPosition;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public EliasOmegaUnsignedWriter(Stream output) : this(output, 0) { }
-
-        /// <summary>
-        /// Instantiate with options.
-        /// </summary>
-        /// <param name="output"></param>
-        /// <param name="minValue">Minimum value to support. To match standard use 1.</param>
-        public EliasOmegaUnsignedWriter(Stream output, ulong minValue) {
+        public EliasOmegaUnsignedWriter(Stream output) {
             Output = output;
-            MinValue = minValue;
         }
 
         /// <summary>
@@ -111,13 +89,8 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            // Offset value to allow for 0s
-            if (value < MinValue) {
-                throw new ArgumentOutOfRangeException(value + " (value) is lower than " + MinValue + " (min value).", "value");
-            }
-
             // Offset min value
-            value = value - MinValue + 1;
+            value++;
 
             // Prepare buffer
             var groups = new Stack<KeyValuePair<ulong, byte>>();
@@ -144,26 +117,26 @@ namespace InvertedTomato.IntegerCompression {
 
                 while (bits > 0) {
                     // Calculate size of chunk
-                    var chunk = (byte)Math.Min(bits, 8 - CurrrentPosition);
+                    var chunk = (byte)Math.Min(bits, 8 - CurrentPosition);
 
                     // Add to byte
-                    if (CurrrentPosition + bits > 8) {
-                        CurrentByte |= (byte)(group >> (bits - chunk));
+                    if (CurrentPosition + bits > 8) {
+                        CurrentByte |= (byte)(group >> bits - chunk);
                     } else {
-                        CurrentByte |= (byte)(group << (8 - CurrrentPosition - chunk));
+                        CurrentByte |= (byte)(group << 8 - CurrentPosition - chunk);
                     }
 
                     // Update length available
                     bits -= chunk;
 
                     // Detect if byte is full
-                    CurrrentPosition += chunk;
-                    if (CurrrentPosition == 8) {
+                    CurrentPosition += chunk;
+                    if (CurrentPosition == 8) {
                         // Write byte
                         Output.WriteByte(CurrentByte);
 
                         // Reset offset
-                        CurrrentPosition = 0;
+                        CurrentPosition = 0;
 
                         // Clear byte
                         CurrentByte = 0;
@@ -183,7 +156,7 @@ namespace InvertedTomato.IntegerCompression {
             IsDisposed = true;
 
             // Write out final byte if partially used
-            if (CurrrentPosition > 0) {
+            if (CurrentPosition > 0) {
                 Output.WriteByte(CurrentByte);
             }
 

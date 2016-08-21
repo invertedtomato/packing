@@ -50,8 +50,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EliasGammaSignedReaderTests.cs" />
     <Compile Include="EliasOmegaSignedReaderTests.cs" />
+    <Compile Include="EliasGammaUnsignedReaderTests.cs" />
     <Compile Include="EliasOmegaUnsignedReaderTests.cs" />
+    <Compile Include="EliasGammaUnsignedWriterTests.cs" />
     <Compile Include="EliasOmegaUnsignedWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VLQSignedReaderTests.cs" />

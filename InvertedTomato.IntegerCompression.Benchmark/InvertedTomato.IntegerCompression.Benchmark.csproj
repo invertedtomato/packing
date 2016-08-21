@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="InvertedTomato.Common, Version=1.0.6078.12255, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\InvertedTomato.Common.1.0.6078.12255\lib\net45\InvertedTomato.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InvertedTomato.IntegerCompression\InvertedTomato.IntegerCompression.csproj">

@@ -109,8 +109,6 @@ Notes:
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
  - **Writer:** `EliasOmegaUnsignedWriter`, `EliasOmegaSignedWriter`
  - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
- - **Options:** 
-   - Allows setting of minimum expected value
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. If I knew my number set was going to be small, I'd use *Elias Gamma*
@@ -123,9 +121,6 @@ Notes:
    but .NET doesn't have native support that high.
 
 ### Elias Gamma
-
-***Coming soon. This algorithm isn't yet fully implemented.***
-
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** no (can't jump ahead)
  - **Lossy:** no (doesn't approximate)
@@ -134,8 +129,6 @@ Notes:
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
  - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
  - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
- - **Options:** 
-   - Allows setting of minimum expected value
 
 This is the best algorithm for when you're expecting consistently tiny numbers, but 
 need to handle the occasional larger value. It beats all other algorithms for size
@@ -184,7 +177,18 @@ If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** rea
 writers. That way you'll get the best compression. Obviously fall back to **signed**
 readers and writers if you must.
 
-## Use small numbers
+## Comparing algorithms
+In order to make an accurate assessment of an algorithm for your purpose, some
+algorithms have a static method `CalculateBitLength` that allows you to know
+how many bits a given value would consume when encoded. I recommend getting a set
+of your data and running it through the `CalculateBitLength` methods of a few
+algorithms to see which one is best.
+
+## Even better compression
+There are a few techniques you can use to further increase the compression of your integers.
+Following is a summary of each
+
+### Use deltas
 Even with compression, smaller numbers use less space. So take a moment to consider what
 you can do to keep your numbers small. One common technique is to store the difference
 between numbers instead of the numbers themselves. Consider if you wanted to store the
@@ -208,12 +212,22 @@ Naturally this isn't suitable for all contexts. If the receiver has the potentia
 loose state (eg. UDP transport) you'll have to include a recovery mechanism (eg keyframes),
 otherwise those deltas become meaningless.
 
-## Comparing algorithms
-In order to make an accurate assessment of an algorithm for your purpose, some
-algorithms have a static method `CalculateBitLength` that allows you to know
-how many bits a given value would consume when encoded. I recommend getting a set
-of your data and running it through the `CalculateBitLength` methods of a few
-algorithms to see which one is best.
+### Make lossy
+Sometimes it's okay to loose data in compression. Let's say that you're compressing a
+list of distances in meters, however you only really care about the distance rounded
+to the nearest 100 meters. You can save a heap of data by dividing your value by
+100 before compressing it, and multiplying it by 100 after.
+
+### Use a false floor
+Sometimes all of your values are always going to be above zero. Let's say that you're 
+storing the number of cars going over a busy bridge each hour. If it's safe to assume
+there will never be 0 cars you could save some data by subtracting one from your
+value before compression and adding one after decompression.
+
+This may seem like a trivial optimization, however with most algorithms it will save
+you one or two bits per number. If you have several million numbers that really 
+adds up.
 
 ## NuGet
 The [latest build is always on NuGet](https://www.nuget.org/packages/InvertedTomato.IntegerCompression/).
+
