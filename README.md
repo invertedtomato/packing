@@ -121,9 +121,6 @@ Notes:
    but .NET doesn't have native support that high.
 
 ### Elias Gamma
-
-***Coming soon. This algorithm isn't yet fully implemented.***
-
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** no (can't jump ahead)
  - **Lossy:** no (doesn't approximate)

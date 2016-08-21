@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,7 +20,6 @@ namespace InvertedTomato.IntegerCompression {
 
             using (var stream = new MemoryStream(input)) {
                 using (var reader = new EliasGammaUnsignedReader(stream)) {
-
                     ulong value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -36,17 +36,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// The underlying stream to be reading from.
         /// </summary>
-        private readonly Stream Input;
-
-        /// <summary>
-        /// The current byte being worked with.
-        /// </summary>
-        private int CurrentByte;
-
-        /// <summary>
-        /// The bit offset in the current byte.
-        /// </summary>
-        private int CurrentOffset = 8;
+        private readonly BitReader Input;
 
         /// <summary>
         /// Standard instantiation.
@@ -57,7 +47,7 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ArgumentNullException("input");
             }
 
-            Input = input;
+            Input = new BitReader(input);
         }
 
         /// <summary>
@@ -70,7 +60,38 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            throw new NotImplementedException();
+            value = 0;
+
+            // Read length
+            byte length = 1;
+            while(true) {
+                
+                bool a;
+                if(!Input.TryPeakBit(out a)) {
+                    return false;
+                }
+
+                if (a) {
+                    break;
+                }else { 
+                    length++;
+                    ulong b;
+                    if (!Input.TryRead(out b,1)) {
+                        return false;
+                    }
+                }
+            };
+
+
+            // Read value
+            if (!Input.TryRead(out value, length)) {
+                value = 0;
+                return false;
+            }
+
+            // Remove offset from value
+            value--;
+            return true;
         }
 
         /// <summary>
@@ -84,23 +105,6 @@ namespace InvertedTomato.IntegerCompression {
                 throw new EndOfStreamException();
             }
             return value;
-        }
-
-        /// <summary>
-        /// Read a byte from the input stream.
-        /// </summary>
-        /// <returns>TRUE if successful.</returns>
-        private bool ReadByte() {
-            // Get next byte
-            CurrentByte = Input.ReadByte();
-            if (CurrentByte < 0) {
-                return false;
-            }
-
-            // Reset offset
-            CurrentOffset = 0;
-
-            return true;
         }
 
         /// <summary>

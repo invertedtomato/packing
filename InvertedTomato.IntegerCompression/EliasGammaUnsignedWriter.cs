@@ -32,7 +32,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="value"></param>
         /// <returns></returns>
         public static int CalculateBitLength(ulong value) {
-            throw new NotImplementedException(); // TODO
+            return Bits.CountUsed(value) * 2 - 1;
         }
 
         /// <summary>
@@ -43,24 +43,14 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Underlying stream to be writing encoded values to.
         /// </summary>
-        private readonly Stream Output;
-
-        /// <summary>
-        /// The byte currently being worked on.
-        /// </summary>
-        private byte CurrentByte;
-
-        /// <summary>
-        /// The position within the current byte for the next write.
-        /// </summary>
-        private int CurrentPosition;
+        private readonly BitWriter Output;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
         public EliasGammaUnsignedWriter(Stream output) {
-            Output = output;
+            Output = new BitWriter(output);
         }
 
         /// <summary>
@@ -72,7 +62,17 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            throw new NotImplementedException();
+            // Offset value to allow zeros
+            value++;
+
+            // Calculate length
+            var length = Bits.CountUsed(value);
+
+            // Write unary zeros
+            Output.Write(0, (byte)(length - 1));
+
+            // Write value
+            Output.Write(value, length);
         }
 
         /// <summary>
@@ -85,13 +85,9 @@ namespace InvertedTomato.IntegerCompression {
             }
             IsDisposed = true;
 
-            // Write out final byte if partially used
-            if (CurrentPosition > 0) {
-                Output.WriteByte(CurrentByte);
-            }
-
             if (disposing) {
-                // Dispose managed state (managed objects).
+                // Dispose managed state (managed objects)
+                Output.DisposeIfNotNull();
             }
         }
 

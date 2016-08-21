@@ -22,14 +22,10 @@ namespace InvertedTomato.IntegerCompression.Benchmark {
                     writer.Write(",");
                     writer.Write((float)EliasOmegaUnsignedWriter.CalculateBitLength(i) / (float)8);
                     writer.Write(",");
-                    writer.Write((float)GuessEliasGammaLength(i) / (float)8);
+                    writer.Write((float)EliasGammaUnsignedWriter.CalculateBitLength(i) / (float)8);
                     writer.WriteLine();
                 }
             }
-        }
-
-        private static int GuessEliasGammaLength(ulong value) {
-            return Bits.CountUsed(value) * 2 - 1;
         }
     }
 }
