@@ -84,7 +84,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// The position within the current byte for the next write.
         /// </summary>
-        private int CurrrentPosition;
+        private int CurrentPosition;
 
         /// <summary>
         /// Standard instantiation.
@@ -144,26 +144,26 @@ namespace InvertedTomato.IntegerCompression {
 
                 while (bits > 0) {
                     // Calculate size of chunk
-                    var chunk = (byte)Math.Min(bits, 8 - CurrrentPosition);
+                    var chunk = (byte)Math.Min(bits, 8 - CurrentPosition);
 
                     // Add to byte
-                    if (CurrrentPosition + bits > 8) {
+                    if (CurrentPosition + bits > 8) {
                         CurrentByte |= (byte)(group >> (bits - chunk));
                     } else {
-                        CurrentByte |= (byte)(group << (8 - CurrrentPosition - chunk));
+                        CurrentByte |= (byte)(group << (8 - CurrentPosition - chunk));
                     }
 
                     // Update length available
                     bits -= chunk;
 
                     // Detect if byte is full
-                    CurrrentPosition += chunk;
-                    if (CurrrentPosition == 8) {
+                    CurrentPosition += chunk;
+                    if (CurrentPosition == 8) {
                         // Write byte
                         Output.WriteByte(CurrentByte);
 
                         // Reset offset
-                        CurrrentPosition = 0;
+                        CurrentPosition = 0;
 
                         // Clear byte
                         CurrentByte = 0;
@@ -183,7 +183,7 @@ namespace InvertedTomato.IntegerCompression {
             IsDisposed = true;
 
             // Write out final byte if partially used
-            if (CurrrentPosition > 0) {
+            if (CurrentPosition > 0) {
                 Output.WriteByte(CurrentByte);
             }
 
