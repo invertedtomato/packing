@@ -118,7 +118,7 @@ namespace InvertedTomato.IntegerCompression {
                     mask <<= 8 - chunk;
                     mask >>= CurrentOffset;
                     value <<= chunk;
-                    value += (ulong)(CurrentByte & mask) >> (8 - chunk - CurrentOffset);
+                    value += (ulong)(CurrentByte & mask) >> 8 - chunk - CurrentOffset;
 
                     // Update length available
                     length -= chunk;
