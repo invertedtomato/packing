@@ -12,17 +12,9 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(0, values); }
-
-        /// <summary>
-        /// Write all given values with options.
-        /// </summary>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public static byte[] WriteAll(ulong expectedMinValue, IEnumerable<long> values) {
+        public static byte[] WriteAll(IEnumerable<long> values) { 
             using (var stream = new MemoryStream()) {
-                using (var writer = new VLQSignedWriter(stream, expectedMinValue)) {
+                using (var writer = new VLQSignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }

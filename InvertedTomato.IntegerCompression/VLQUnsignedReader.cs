@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -13,22 +14,12 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<ulong> ReadAll(byte[] input) {
-            return ReadAll(0, input);
-        }
-
-        /// <summary>
-        /// Read all values in a byte array with options.
-        /// </summary>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(ulong expectedMinValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new VLQUnsignedReader(stream, expectedMinValue)) {
+                using (var reader = new VLQUnsignedReader(stream)) {
                     ulong value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -38,60 +29,39 @@ namespace InvertedTomato.IntegerCompression {
         }
 
         /// <summary>
-        /// Mask to extract the data from a byte.
-        /// </summary>
-        const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
-
-        /// <summary>
-        /// Mask to extract the 'continuity' bit from a byte.
-        /// </summary>
-        const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
-
-        /// <summary>
         /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
-        /// <summary>
-        /// The number of full 8-bit bytes at the start of each value. Derived from MinBytes.
-        /// </summary>
-        private readonly int PrefixBytes;
+        private readonly byte PacketSize;
 
         /// <summary>
         /// The underlying stream to be reading from.
         /// </summary>
-        private readonly Stream Input;
-
-        /// <summary>
-        /// The current byte being worked with.
-        /// </summary>
-        private int CurrentByte;
+        private readonly BitReader Input;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public VLQUnsignedReader(Stream input) : this(input, 0) { }
+        public VLQUnsignedReader(Stream input) : this(input, 7) { }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        public VLQUnsignedReader(Stream input, ulong expectedMinValue) {
+        /// <param name="packetSize">The number of bits to include in each packet.</param>
+        public VLQUnsignedReader(Stream input, int packetSize) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-           
+            if (packetSize < 1 || packetSize > 32) {
+                throw new ArgumentOutOfRangeException("PacketSize must be 1<=x<=32 not " + packetSize + ".", "packetSize");
+            }
 
             // Store
-            Input = input;
-
-            // Calculate number of prefix bytes for max efficiency
-            while(expectedMinValue > byte.MaxValue) {
-                PrefixBytes++;
-                expectedMinValue /= byte.MaxValue;
-            }
+            Input = new BitReader(input);
+            PacketSize = (byte)packetSize;
         }
 
         /// <summary>
@@ -109,46 +79,28 @@ namespace InvertedTomato.IntegerCompression {
 
             // Set value to 0
             value = 0;
-            
-            // Read any full bytes per min-bytes requirements
-            for (var i = 0; i < PrefixBytes; i++) {
-                // Read next byte
-                if (!ReadByte()) {
-                    if (i > 0) {
-                        throw new InvalidOperationException("Missing initial byte (" + i + ").");
-                    }
+
+            ulong continuity;
+            do {
+                // Read if this is the final packet
+                if (!Input.TryRead(out continuity, 1)) {
                     return false;
                 }
 
-                // Add bits to value
-                value += (ulong)CurrentByte << outputPosition;
-                outputPosition += 8;
-            }
-
-            // Read next byte
-            if (!ReadByte()) {
-                if (PrefixBytes > 0) {
-                    throw new InvalidOperationException("Missing initial body byte.");
+                // Read payload
+                ulong chunk;
+                if (!Input.TryRead(out chunk, PacketSize)) {
+                    throw new InvalidOperationException("Missing some/all payload bits.");
                 }
-                return false;
-            }
 
-            // Add bits to value
-            value += (ulong)((CurrentByte & PAYLOAD_MASK)) << outputPosition;
-
-            while ((CurrentByte & CONTINUITY_MASK) == 0) {
+                // Add payload to value
+                value += chunk  + 1 << outputPosition;
+                
                 // Update target offset
-                outputPosition += 7;
+                outputPosition += PacketSize;
+            } while (continuity == 0);
 
-                // Read next byte
-                if (!ReadByte()) {
-                    throw new InvalidOperationException("Missing body byte.");
-                }
-
-                // Add bits to value
-                value += (ulong)((CurrentByte & PAYLOAD_MASK) + 1) << outputPosition;
-            }
-
+            value--;
             return true;
         }
 
@@ -163,20 +115,6 @@ namespace InvertedTomato.IntegerCompression {
                 throw new EndOfStreamException();
             }
             return value;
-        }
-
-        /// <summary>
-        /// Read a byte from the input stream.
-        /// </summary>
-        /// <returns>TRUE if successful.</returns>
-        private bool ReadByte() {
-            // Get next byte
-            CurrentByte = Input.ReadByte();
-            if (CurrentByte < 0) {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

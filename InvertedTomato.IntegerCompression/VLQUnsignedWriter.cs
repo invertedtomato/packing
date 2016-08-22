@@ -12,17 +12,9 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<ulong> values) { return WriteAll(0, values); }
-
-        /// <summary>
-        /// Write all given values with options.
-        /// </summary>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public static byte[] WriteAll(ulong expectedMinValue, IEnumerable<ulong> values) {
+        public static byte[] WriteAll(IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new VLQUnsignedWriter(stream, expectedMinValue)) {
+                using (var writer = new VLQUnsignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -93,8 +85,8 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options
         /// </summary>
         /// <param name="output"></param>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        public VLQUnsignedWriter(Stream output, ulong expectedMinValue) {
+        /// <param name="packetSize">The number of bits to include in each packet.</param>
+        public VLQUnsignedWriter(Stream output, ulong packetSize) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
@@ -103,9 +95,9 @@ namespace InvertedTomato.IntegerCompression {
             Output = output;
 
             // Calculate number of prefix bytes for max efficiency
-            while (expectedMinValue > byte.MaxValue) {
+            while (packetSize > byte.MaxValue) {
                 PrefixBytes++;
-                expectedMinValue /= byte.MaxValue;
+                packetSize /= byte.MaxValue;
             }
         }
 

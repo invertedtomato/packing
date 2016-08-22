@@ -35,8 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="InvertedTomato.Common, Version=1.0.6078.21709, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\InvertedTomato.Common.1.0.6078.21709\lib\net45\InvertedTomato.Common.dll</HintPath>
+    <Reference Include="InvertedTomato.Common, Version=1.0.6078.23901, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\InvertedTomato.Common.1.0.6078.23901\lib\net45\InvertedTomato.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

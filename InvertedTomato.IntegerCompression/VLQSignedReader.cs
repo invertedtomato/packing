@@ -13,22 +13,12 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<long> ReadAll(byte[] input) {
-            return ReadAll(1, input);
-        }
-
-        /// <summary>
-        /// Read all values into a byte array with options.
-        /// </summary>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<long> ReadAll(ulong expectedMinValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new VLQSignedReader(stream, expectedMinValue)) {
+                using (var reader = new VLQSignedReader(stream)) {
                     long value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -59,9 +49,9 @@ namespace InvertedTomato.IntegerCompression {
         /// Instantiate with options.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        public VLQSignedReader(Stream input, ulong expectedMinValue) {
-            Underlying = new VLQUnsignedReader(input, expectedMinValue);
+        /// <param name="packetSize">The number of bits to include in each packet.</param>
+        public VLQSignedReader(Stream input, int packetSize) {
+            Underlying = new VLQUnsignedReader(input, packetSize);
         }
 
         /// <summary>
