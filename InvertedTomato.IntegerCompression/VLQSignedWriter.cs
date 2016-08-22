@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
@@ -45,6 +46,10 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="output"></param>
         public VLQSignedWriter(Stream output) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+
             Underlying = new VLQUnsignedWriter(output);
         }
 

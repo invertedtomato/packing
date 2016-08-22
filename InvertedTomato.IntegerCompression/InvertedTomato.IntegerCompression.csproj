@@ -48,9 +48,13 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ThompsonAlphaSignedReader.cs" />
     <Compile Include="EliasGammaSignedReader.cs" />
+    <Compile Include="ThompsonAlphaSignedWriter.cs" />
     <Compile Include="EliasGammaSignedWriter.cs" />
+    <Compile Include="ThompsonAlphaUnsignedReader.cs" />
     <Compile Include="EliasGammaUnsignedReader.cs" />
+    <Compile Include="ThompsonAlphaUnsignedWriter.cs" />
     <Compile Include="EliasGammaUnsignedWriter.cs" />
     <Compile Include="EliasOmegaSignedReader.cs" />
     <Compile Include="EliasOmegaSignedWriter.cs" />

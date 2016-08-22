@@ -50,6 +50,10 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="output"></param>
         public EliasGammaUnsignedWriter(Stream output) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+
             Output = new BitWriter(output);
         }
 

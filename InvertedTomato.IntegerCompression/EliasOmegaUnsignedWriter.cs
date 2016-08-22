@@ -77,6 +77,10 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="output"></param>
         public EliasOmegaUnsignedWriter(Stream output) {
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+
             Output = output;
         }
 

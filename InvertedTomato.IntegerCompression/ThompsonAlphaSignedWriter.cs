@@ -3,25 +3,17 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Writer for dynamic length signed integers.
+    /// Writer for Thompson-Alpha for signed values.
     /// </summary>
-    public class DynamicSignedWriter : ISignedWriter {
+    public class ThompsonAlphaSignedWriter : ISignedWriter {
         /// <summary>
         /// Write all given values.
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { return WriteAll(ulong.MaxValue, values); }
-
-        /// <summary>
-        /// Write all given values with options.
-        /// </summary>
-        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public static byte[] WriteAll(ulong maxValue, IEnumerable<long> values) {
+        public static byte[] WriteAll(IEnumerable<long> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new DynamicSignedWriter(stream, maxValue)) {
+                using (var writer = new ThompsonAlphaSignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -36,25 +28,24 @@ namespace InvertedTomato.IntegerCompression {
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Underlying unsigned writer.
+        /// The underlying unsigned writer.
         /// </summary>
-        private readonly DynamicUnsignedWriter Underlying;
+        private readonly ThompsonAlphaUnsignedWriter Underlying;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public DynamicSignedWriter(Stream output) {
-            Underlying = new DynamicUnsignedWriter(output);
+        public ThompsonAlphaSignedWriter(Stream output) {
+            Underlying = new ThompsonAlphaUnsignedWriter(output);
         }
 
         /// <summary>
-        /// Instantiate with options.
+        /// Instantiate with options
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
-        public DynamicSignedWriter(Stream input, ulong maxValue) {
-            Underlying = new DynamicUnsignedWriter(input, maxValue);
+        /// <param name="output"></param>
+        public ThompsonAlphaSignedWriter(Stream output, int lengthBits) {
+            Underlying = new ThompsonAlphaUnsignedWriter(output, lengthBits);
         }
 
         /// <summary>

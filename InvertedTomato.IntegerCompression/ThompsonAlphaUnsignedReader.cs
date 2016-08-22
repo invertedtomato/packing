@@ -1,34 +1,25 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for dynamic length unsigned integers.
+    /// Writer for Thompson-Alpha for unsigned values.
     /// </summary>
-    public class DynamicUnsignedReader : IUnsignedReader {
+    public class ThompsonAlphaUnsignedReader : IUnsignedReader {
         /// <summary>
         /// Read all values in a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         public static IEnumerable<ulong> ReadAll(byte[] input) {
-            return ReadAll(ulong.MaxValue, input);
-        }
-
-        /// <summary>
-        /// Read all values in a byte array with options.
-        /// </summary>
-        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(ulong maxValue, byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
-                using (var reader = new DynamicUnsignedReader(stream, maxValue)) {
+                using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
                     ulong value;
                     while (reader.TryRead(out value)) {
                         yield return value;
@@ -37,50 +28,38 @@ namespace InvertedTomato.IntegerCompression {
             }
         }
 
-
-
         /// <summary>
         /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// The number of bits used to store length.
-        /// </summary>
-        private readonly int LengthBits;
-
-        /// <summary>
         /// The underlying stream to be reading from.
         /// </summary>
-        private readonly Stream Input;
+        private readonly BitReader Input;
 
-        /// <summary>
-        /// The current byte being worked with.
-        /// </summary>
-        private int CurrentByte;
+        private readonly byte LengthBits;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public DynamicUnsignedReader(Stream input) : this(input, ulong.MaxValue) { }
+        public ThompsonAlphaUnsignedReader(Stream input) : this(input, 6) { }
 
         /// <summary>
-        /// Instantiate with options.
+        /// Instantiation with options
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="maxValue">The maximum supported value. To match standard use ulong.MaxValue.</param>
-        public DynamicUnsignedReader(Stream input, ulong maxValue) {
+        public ThompsonAlphaUnsignedReader(Stream input, int lengthBits) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
+            if (lengthBits < 1 || lengthBits > 6) {
+                throw new ArgumentOutOfRangeException("Must be between 1 and 6, not " + lengthBits + ".", "lengthBits");
+            }
 
-
-            // Store
-            Input = input;
-
-            // TODO: calculate number of bits for length field
-            throw new NotImplementedException();
+            Input = new BitReader(input);
+            LengthBits = (byte)lengthBits;
         }
 
         /// <summary>
@@ -93,8 +72,26 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            // TODO
-            throw new NotImplementedException();
+            value = 0;
+
+            // Read length
+            ulong length;
+            if (!Input.TryRead(out length, LengthBits)) {
+                return false;
+            }
+
+            // Read body
+            if (!Input.TryRead(out value, (byte)length)) {
+                return false;
+            }
+
+            // Recover implied MSB
+            value |= (ulong)1 << (byte)length;
+
+            // Remove offset to allow zeros
+            value--;
+
+            return true;
         }
 
         /// <summary>
@@ -108,20 +105,6 @@ namespace InvertedTomato.IntegerCompression {
                 throw new EndOfStreamException();
             }
             return value;
-        }
-
-        /// <summary>
-        /// Read a byte from the input stream.
-        /// </summary>
-        /// <returns>TRUE if successful.</returns>
-        private bool ReadByte() {
-            // Get next byte
-            CurrentByte = Input.ReadByte();
-            if (CurrentByte < 0) {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

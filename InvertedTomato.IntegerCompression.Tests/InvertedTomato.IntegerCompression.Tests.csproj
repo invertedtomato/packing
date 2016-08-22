@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="InvertedTomato.Common, Version=1.0.6078.14274, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\InvertedTomato.Common.1.0.6078.14274\lib\net45\InvertedTomato.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -50,7 +54,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ThompsonAlphaSignedReaderTests.cs" />
     <Compile Include="EliasGammaSignedReaderTests.cs" />
+    <Compile Include="ThompsonAlphaUnsignedReaderTests.cs" />
+    <Compile Include="ThompsonAlphaUnsignedWriterTests.cs" />
     <Compile Include="EliasOmegaSignedReaderTests.cs" />
     <Compile Include="EliasGammaUnsignedReaderTests.cs" />
     <Compile Include="EliasOmegaUnsignedReaderTests.cs" />
@@ -66,6 +73,9 @@
       <Project>{0f6cce15-a4c5-4c22-bd26-330b8f38ece6}</Project>
       <Name>InvertedTomato.IntegerCompression</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
