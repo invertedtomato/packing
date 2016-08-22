@@ -54,9 +54,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="FibonacciSignedReaderTests.cs" />
     <Compile Include="ThompsonAlphaSignedReaderTests.cs" />
     <Compile Include="EliasGammaSignedReaderTests.cs" />
+    <Compile Include="FibonacciUnsignedReaderTests.cs" />
     <Compile Include="ThompsonAlphaUnsignedReaderTests.cs" />
+    <Compile Include="FibonacciUnsignedWriterTests.cs" />
     <Compile Include="ThompsonAlphaUnsignedWriterTests.cs" />
     <Compile Include="EliasOmegaSignedReaderTests.cs" />
     <Compile Include="EliasGammaUnsignedReaderTests.cs" />

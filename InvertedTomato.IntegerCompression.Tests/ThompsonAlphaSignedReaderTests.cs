@@ -18,8 +18,8 @@ namespace InvertedTomato.IntegerCompression.Tests {
 
         [TestMethod]
         public void WriteRead_First1000_Appending() {
-            long min = -2;
-            long max = 2;
+            long min = -500;
+            long max = 500;
 
             var input = new List<long>();
             long i;

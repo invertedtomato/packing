@@ -48,12 +48,17 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fibonacci.cs" />
+    <Compile Include="FibonacciSignedReader.cs" />
     <Compile Include="ThompsonAlphaSignedReader.cs" />
     <Compile Include="EliasGammaSignedReader.cs" />
+    <Compile Include="FibonacciSignedWriter.cs" />
     <Compile Include="ThompsonAlphaSignedWriter.cs" />
     <Compile Include="EliasGammaSignedWriter.cs" />
+    <Compile Include="FibonacciUnsignedReader.cs" />
     <Compile Include="ThompsonAlphaUnsignedReader.cs" />
     <Compile Include="EliasGammaUnsignedReader.cs" />
+    <Compile Include="FibonacciUnsignedWriter.cs" />
     <Compile Include="ThompsonAlphaUnsignedWriter.cs" />
     <Compile Include="EliasGammaUnsignedWriter.cs" />
     <Compile Include="EliasOmegaSignedReader.cs" />

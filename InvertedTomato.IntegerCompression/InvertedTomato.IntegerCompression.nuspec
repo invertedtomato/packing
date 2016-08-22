@@ -9,9 +9,9 @@
     <licenseUrl>https://github.com/invertedtomato/integer-compression/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/invertedtomato/integer-compression</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encodings.</summary>
-    <description>Library for encoding integers in the minimal number of bits. Includes VLQ and Elias Omega encoding.</description>
+    <summary>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma and others.</summary>
+    <description>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma and others.</description>
     <releaseNotes></releaseNotes>
-    <tags>Compression VLQ Elias Omega Integer Numbers</tags>
+    <tags>Compression VLQ Elias Omega Gamma Integer Numbers</tags>
   </metadata>
 </package>

@@ -146,14 +146,10 @@ Notes:
    - Length bits
 
 ### Fibonacci
-
-***Coming soon. This algorithm isn't yet fully implemented.***
-
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** yes *(can jump ahead)*
  - **Lossy:** no *(doesn't approximate)*
  - **Universal:** yes *(can handle any number)*
- - **Supported values:** all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
  - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
  - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`

@@ -5,29 +5,9 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Writer for Thompson-Alpha for unsigned values.
+    /// Writer for Fibonacci for unsigned values.
     /// </summary>
-    public class ThompsonAlphaUnsignedReader : IUnsignedReader {
-        /// <summary>
-        /// Read all values in a byte array.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(byte[] input) {
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-
-            using (var stream = new MemoryStream(input)) {
-                using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
-                    ulong value;
-                    while (reader.TryRead(out value)) {
-                        yield return value;
-                    }
-                }
-            }
-        }
-
+    public class FibonacciUnsignedReader : IUnsignedReader {
         /// <summary>
         /// If disposed.
         /// </summary>
@@ -39,31 +19,15 @@ namespace InvertedTomato.IntegerCompression {
         private readonly BitReader Input;
 
         /// <summary>
-        /// Number of prefix bits used to store length.
-        /// </summary>
-        private readonly byte LengthBits;
-
-        /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public ThompsonAlphaUnsignedReader(Stream input) : this(input, 6) { }
-
-        /// <summary>
-        /// Instantiation with options
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="lengthBits">Number of prefix bits used to store length.</param>
-        public ThompsonAlphaUnsignedReader(Stream input, int lengthBits) {
+        public FibonacciUnsignedReader(Stream input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-            if (lengthBits < 1 || lengthBits > 6) {
-                throw new ArgumentOutOfRangeException("Must be between 1 and 6, not " + lengthBits + ".", "lengthBits");
-            }
 
             Input = new BitReader(input);
-            LengthBits = (byte)lengthBits;
         }
 
         /// <summary>
@@ -76,23 +40,37 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
+            // Set default value
             value = 0;
-
-            // Read length
-            ulong length;
-            if (!Input.TryRead(out length, LengthBits)) {
+            
+            // Read first bit
+            ulong bit;
+            if (!Input.TryRead(out bit, 1)) {
                 return false;
             }
 
-            // Read body
-            if (!Input.TryRead(out value, (byte)length)) {
-                throw new InvalidOperationException("Missing payload bits.");
+            for (var i = 0; i < Fibonacci.Values.Length; i++) {
+                // If true
+                bool hit = false;
+                if (bit > 0) {
+                    value += Fibonacci.Values[i];
+                    hit = true;
+                }
+
+                // Read next bit
+                if (!Input.TryRead(out bit, 1)) {
+                    throw new InvalidOperationException("Missing payload bits.");
+                }
+
+                // If double 1 bit, it's the end
+                if (hit && bit > 0) {
+                    break;
+                } else if (i == Fibonacci.Values.Length) {
+                    throw new InvalidOperationException("Haven't encountered final bit.");
+                }
             }
 
-            // Recover implied MSB
-            value |= (ulong)1 << (byte)length;
-
-            // Remove offset to allow zeros
+            // Remove zero offset
             value--;
 
             return true;

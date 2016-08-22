@@ -5,9 +5,9 @@ using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
     /// <summary>
-    /// Reader for Thompson-Alpha for unsigned values.
+    /// Reader for Fibonacci for unsigned values.
     /// </summary>
-    public class ThompsonAlphaUnsignedWriter : IUnsignedWriter, IDisposable {
+    public class FibonacciUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         /// Write all given values.
         /// </summary>
@@ -15,7 +15,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <returns></returns>
         public static byte[] WriteAll(IEnumerable<ulong> values) {
             using (var stream = new MemoryStream()) {
-                using (var writer = new ThompsonAlphaUnsignedWriter(stream)) {
+                using (var writer = new FibonacciUnsignedWriter(stream)) {
                     foreach (var value in values) {
                         writer.Write(value);
                     }
@@ -28,26 +28,10 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Calculate the length of an encoded value in bits.
         /// </summary>
-        /// <param name="lengthBits">Number of prefix bits used to store length.</param>
         /// <param name="value"></param>
         /// <returns></returns>
         public static int? CalculateBitLength(int lengthBits, ulong value) {
-            // Offset to allow for zero
-            value++;
-
-            // Calculate length
-            var length = Bits.CountUsed(value);
-
-            // Remove implied MSB
-            length--;
-
-            // Abort if it doesn't fit
-            if (Bits.CountUsed(length) > lengthBits) {
-                return null;
-            }
-
-            // Return size
-            return lengthBits + length;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -61,31 +45,16 @@ namespace InvertedTomato.IntegerCompression {
         private readonly BitWriter Output;
 
         /// <summary>
-        /// Number of prefix bits used to store length.
-        /// </summary>
-        private readonly byte LengthBits;
-
-        /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public ThompsonAlphaUnsignedWriter(Stream output) : this(output, 6) { }
-
-        /// <summary>
-        /// Instantiate with options.
-        /// </summary>
-        /// <param name="output"></param>
-        /// <param name="lengthBits">Number of prefix bits used to store length.</param>
-        public ThompsonAlphaUnsignedWriter(Stream output, int lengthBits) {
+        public FibonacciUnsignedWriter(Stream output) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
-            if (lengthBits < 1 || lengthBits > 6) {
-                throw new ArgumentOutOfRangeException("Must be between 1 and 6, not " + lengthBits + ".", "lengthBits");
-            }
 
+            // Store
             Output = new BitWriter(output);
-            LengthBits = (byte)lengthBits;
         }
 
         /// <summary>
@@ -97,25 +66,32 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            // Offset value to allow zeros
+            // Offset for zero
             value++;
 
-            // Count length
-            var length = Bits.CountUsed(value);
+            // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
 
-            // Check not too large
-            if (length > (LengthBits + 2) * 8) {
-                throw new ArgumentOutOfRangeException("Value is greater than maximum of " + (ulong.MaxValue >> 64 - LengthBits - 1) + ". Increase length bits to support larger numbers.");
+            Stack<bool> buffer = null;
+            for (var i = Fibonacci.Values.Length - 1; i >= 0; i--) {
+                // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
+                // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached. if (value <= Fibonacci[i]) {
+                if (value >= Fibonacci.Values[i]) {
+                    if (null == buffer) {
+                        buffer = new Stack<bool>();
+                    }
+                    buffer.Push(true);
+                    value -= Fibonacci.Values[i];
+                } else if (null != buffer) {
+                    buffer.Push(false);
+                }
             }
 
-            // Clip MSB, it's redundant
-            length--;
+            foreach (var item in buffer) {
+                Output.Write(item ? (ulong)1 : 0, 1);
+            }
 
-            // Write length
-            Output.Write(length, LengthBits);
-
-            // Write number
-            Output.Write(value, length);
+            // #4 Place an additional 1 after the rightmost digit in the code word.
+            Output.Write(1, 1);
         }
 
         /// <summary>
