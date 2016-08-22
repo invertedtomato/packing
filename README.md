@@ -75,7 +75,6 @@ trying to achieve.
 ### Variable Length Quantities (VLQ)
 
  - **Random access:** no *(can't jump ahead)*
- - **Lossy:** no *(doesn't approximate)*
  - **Universal:** yes *(can handle any number)*
  - **Supported values:**  0 to 18,446,744,073,709,551,615
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Variable-length_quantity)
@@ -100,10 +99,9 @@ Notes:
    algorithm for values larger than this. Keep in mind that smaller values come at a penalty!
  - By the by, I hate the name "Variable Length Quantities".
 
-### Elias Omega
+### Elias-Omega
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** no (can't jump ahead)
- - **Lossy:** no (doesn't approximate)
  - **Universal:** yes (can handle any number)
  - **Supported values:** all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
@@ -120,10 +118,9 @@ Notes:
  - I speculate that Omega will be the most efficient algorithm for numbers greater than 1x10^22 - 
    but .NET doesn't have native support that high.
 
-### Elias Gamma
+### Elias-Gamma
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** no (can't jump ahead)
- - **Lossy:** no (doesn't approximate)
  - **Universal:** yes *(can handle any number)*
  - **Supported values:**  all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
@@ -138,23 +135,15 @@ Notes:
  - Uses a fair bit more RAM/CPU than VLQ, but it's still modest. Think twice if you're trying 
    to use it real-time with a huge set of data.
 
-### FlexiFixed
-
-***Coming soon. This algorithm isn't yet fully implemented.***
-
+### Thompson-Alpha
  - **Family:** none
- - **Random access:** yes *(can jump ahead)*
- - **Lossy:** optional
+ - **Random access:** no
  - **Universal:** no *(can only handle a predefined range of numbers)*
- - **Supported values:**  0 to 18,446,744,073,709,551,615
  - **Details:** N/A
- - **Writer:** `FlexiFixedUnsignedWriter`, `FlexiFixedSignedWriter`
- - **Reader:** `FlexiFixedUnsignedReader`, `FlexiFixedSignedReader`
+ - **Writer:** `ThompsonAlphaUnsignedWriter`, `ThompsonAlphaSignedWriter`
+ - **Reader:** `ThompsonAlphaUnsignedReader`, `ThompsonAlphaSignedReader`
  - **Options:** 
-   - Minimum value
-   - Maximum value
-   - Step between values
-
+   - Length bits
 
 ### Fibonacci
 
@@ -169,7 +158,6 @@ Notes:
  - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
  - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
  - **Options:** 
-   - Minimum value
 
   
 ## Signed and Unsigned
