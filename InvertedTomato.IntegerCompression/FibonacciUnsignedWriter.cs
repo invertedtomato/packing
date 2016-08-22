@@ -30,8 +30,17 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int? CalculateBitLength(int lengthBits, ulong value) {
-            throw new NotImplementedException();
+        public static int? CalculateBitLength(ulong value) {
+            // Offset for zero
+            value++;
+
+            for (var i = Fibonacci.Values.Length - 1; i >= 0; i--) {
+                if (value >= Fibonacci.Values[i]) {
+                    return i + 1;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
