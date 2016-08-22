@@ -31,10 +31,23 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(int lengthBits, ulong value) {
+        public static int? CalculateBitLength(int lengthBits, ulong value) {
+            // Offset to allow for zero
             value++;
 
-            return lengthBits - 1 + Bits.CountUsed(value);
+            // Calculate length
+            var length = Bits.CountUsed(value);
+
+            // Remove implied MSB
+            length--;
+
+            // Abort if it doesn't fit
+            if (Bits.CountUsed(length) > lengthBits) {
+                return null;
+            }
+
+            // Return size
+            return lengthBits + length;
         }
 
         /// <summary>
@@ -83,7 +96,7 @@ namespace InvertedTomato.IntegerCompression {
 
             // Offset value to allow zeros
             value++;
-            
+
             // Count length
             var length = Bits.CountUsed(value);
 
@@ -94,7 +107,7 @@ namespace InvertedTomato.IntegerCompression {
 
             // Clip MSB, it's redundant
             length--;
-            
+
             // Write length
             Output.Write(length, LengthBits);
 

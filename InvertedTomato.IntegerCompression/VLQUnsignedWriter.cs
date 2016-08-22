@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -27,78 +28,47 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Calculate the length of an encoded value in bits.
         /// </summary>
-        /// <param name="minBytes">(non-standard) The minimum number of bytes to use when encoding. Increases efficiency when encoding consistently large</param>
+        /// <param name="packetSize">The number of bits to include in each packet.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(int minBytes, ulong value) {
-            var result = 8; // Final byte
+        public static int CalculateBitLength(int packetSize, ulong value) {
+            var packets = (int)Math.Ceiling((float)Bits.CountUsed(value) / (float)packetSize);
 
-            // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < minBytes - 1; i++) {
-                result += 8;
-                value >>= 8;
-            }
-
-
-            // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > PAYLOAD_MASK) {
-                result += 8;
-                value >>= 7;
-                value--;
-            }
-
-            return result;
+            return packets * (packetSize + 1);
         }
-
-        /// <summary>
-        /// Mask to extract the data from a byte.
-        /// </summary>
-        const int PAYLOAD_MASK = 0x7F; // 0111 1111  - this is an int32 to save later casting
-
-        /// <summary>
-        /// Mask to extract the 'continuity' bit from a byte.
-        /// </summary>
-        const int CONTINUITY_MASK = 0x80; // 1000 0000  - this is an int32 to save later casting
 
         /// <summary>
         /// If disposed.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
-        /// <summary>
-        /// The number of full 8-bit bytes at the start of each value. Derived from MinBytes.
-        /// </summary>
-        private readonly int PrefixBytes;
+
+        private readonly byte PacketSize;
 
         /// <summary>
         /// The stream to output encoded bytes to.
         /// </summary>
-        private readonly Stream Output;
+        private readonly BitWriter Output;
 
         /// <summary>
         /// Standard instantiation.
         /// </summary>
         /// <param name="output"></param>
-        public VLQUnsignedWriter(Stream output) : this(output, 1) { }
+        public VLQUnsignedWriter(Stream output) : this(output, 7) { }
 
         /// <summary>
         /// Instantiate with options
         /// </summary>
         /// <param name="output"></param>
         /// <param name="packetSize">The number of bits to include in each packet.</param>
-        public VLQUnsignedWriter(Stream output, ulong packetSize) {
+        public VLQUnsignedWriter(Stream output, int packetSize) {
             if (null == output) {
                 throw new ArgumentNullException("output");
             }
 
             // Store
-            Output = output;
-
-            // Calculate number of prefix bytes for max efficiency
-            while (packetSize > byte.MaxValue) {
-                PrefixBytes++;
-                packetSize /= byte.MaxValue;
-            }
+            Output = new BitWriter(output);
+            PacketSize = (byte)packetSize;
         }
 
         /// <summary>
@@ -110,22 +80,27 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ObjectDisposedException("this");
             }
 
-            // Add any full bytes to start to fulfill min-bytes requirements
-            for (var i = 0; i < PrefixBytes; i++) {
-                Output.WriteByte((byte)value);
-                value >>= 8;
-            }
+            // Calculate size of non-final packet
+            var min = ulong.MaxValue >> 64 - PacketSize;
 
+            // Iterate through input, taking X bits of data each time, aborting when less than X bits left
+            while (value > min) {
+                // Write continuity header - more packets following
+                Output.Write(0, 1);
 
-            // Iterate through input, taking 7 bits of data each time, aborting when less than 7 bits left
-            while (value > PAYLOAD_MASK) {
-                Output.WriteByte((byte)(value & PAYLOAD_MASK));
-                value >>= 7;
+                // Write payload
+                Output.Write(value, PacketSize);
+
+                // Offset value for next cycle
+                value >>= PacketSize;
                 value--;
             }
 
-            // Output remaining bits, with the 'final' bit set
-            Output.WriteByte((byte)(value | CONTINUITY_MASK));
+            // Write continuity header - no packets following
+            Output.Write(1, 1);
+
+            // Write final payload
+            Output.Write(value, PacketSize);
         }
 
         /// <summary>

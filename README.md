@@ -81,7 +81,7 @@ trying to achieve.
  - **Writer:** `VLQUnsignedWriter`, `VLQSignedWriter`
  - **Reader:** `VLQUnsignedReader`, `VLQSignedReader`
  - **Options:** 
-   - Specify minimum expected value
+   - Packet size
 
 It seems VLQ was originally invented by the designers of MIDI (you know, the old-school
 MP3). The algorithm is really retro, there's stacks of variations of it's spec and

@@ -38,20 +38,16 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="output"></param>
         public VLQSignedWriter(Stream output) {
-            if (null == output) {
-                throw new ArgumentNullException("output");
-            }
-
             Underlying = new VLQUnsignedWriter(output);
         }
 
         /// <summary>
         /// Instantiate with options.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="expectedMinValue">The expected minimum value to optimize encoded values for. To match standard use 0.</param>
-        public VLQSignedWriter(Stream input, ulong expectedMinValue) {
-            Underlying = new VLQUnsignedWriter(input, expectedMinValue);
+        /// <param name="output"></param>
+        /// <param name="packetSize">The number of bits to include in each packet.</param>
+        public VLQSignedWriter(Stream output, int packetSize) {
+            Underlying = new VLQUnsignedWriter(output, packetSize);
         }
 
         /// <summary>

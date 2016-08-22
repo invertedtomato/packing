@@ -31,7 +31,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(ulong value) {
+        public static int? CalculateBitLength(ulong value) {
             var result = 1; // Termination bit
 
             // Offset value to allow for 0s

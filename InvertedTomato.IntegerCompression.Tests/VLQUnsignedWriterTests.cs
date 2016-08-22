@@ -8,22 +8,11 @@ namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class VLQUnsignedWriterTests {
         private string Write(params ulong[] values) {
-            var result = VLQUnsignedWriter.WriteAll(values);
-
-            return ByteToBinary(result);
+            return VLQUnsignedWriter.WriteAll(values).ToBinaryString();
         }
-
-        private string ByteToBinary(byte[] input) {
-            var text = "";
-            foreach (var b in input) {
-                text += Convert.ToString(b, 2).PadLeft(8, '0') + " ";
-            }
-
-            return text.Trim();
-        }
-
+        
         [TestMethod]
-        public void Write_Min() {
+        public void Write_0() {
             Assert.AreEqual("10000000", Write(0));
         }
         [TestMethod]
