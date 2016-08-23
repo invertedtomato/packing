@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>InvertedTomato.IntegerCompression</id>
+    <title>InvertedTomato.Compression.Integers</title>
+    <version>$version$</version>
+    <authors>InvertedTomato</authors>
+    <owners>InvertedTomato</owners>
+    <licenseUrl>https://github.com/invertedtomato/integer-compression/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/invertedtomato/integer-compression</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma, Fibonacci and others.</summary>
+    <description>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma, Fibonacci and others.</description>
+    <releaseNotes></releaseNotes>
+    <tags>Compression VLQ Elias Omega Gamma Fibonacci Integer Numbers</tags>
+  </metadata>
+</package>
