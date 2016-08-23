@@ -75,9 +75,9 @@
     <Compile Include="VLQUnsignedWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InvertedTomato.Compression.Integers\InvertedTomato.Compression.Integers.csproj">
+    <ProjectReference Include="..\Library\Library.csproj">
       <Project>{0f6cce15-a4c5-4c22-bd26-330b8f38ece6}</Project>
-      <Name>InvertedTomato.Compression.Integers</Name>
+      <Name>Library</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

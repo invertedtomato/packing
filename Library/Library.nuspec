@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>InvertedTomato.IntegerCompression</id>
-    <title>InvertedTomato.Compression.Integers</title>
+    <title>InvertedTomato.IntegerCompression</title>
     <version>$version$</version>
     <authors>InvertedTomato</authors>
     <owners>InvertedTomato</owners>
