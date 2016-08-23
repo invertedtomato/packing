@@ -39,7 +39,7 @@ namespace InvertedTomato.Compression.Integers {
             length--;
 
             // Abort if it doesn't fit
-            if (Bits.CountUsed(length) > lengthBits) {
+            if (Bits.CountUsed((ulong)length) > lengthBits) {
                 return null;
             }
 
@@ -60,7 +60,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Number of prefix bits used to store length.
         /// </summary>
-        private readonly byte LengthBits;
+        private readonly int LengthBits;
 
         /// <summary>
         /// Standard instantiation.
@@ -82,7 +82,7 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             Output = new BitWriter(output);
-            LengthBits = (byte)lengthBits;
+            LengthBits = lengthBits;
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace InvertedTomato.Compression.Integers {
             length--;
 
             // Write length
-            Output.Write(length, LengthBits);
+            Output.Write((ulong)length, LengthBits);
 
             // Write number
             Output.Write(value, length);

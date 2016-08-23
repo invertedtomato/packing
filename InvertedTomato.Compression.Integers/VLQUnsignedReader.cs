@@ -32,7 +32,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Number of bits to include in each packet.
         /// </summary>
-        private readonly byte PacketSize;
+        private readonly int PacketSize;
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -60,7 +60,7 @@ namespace InvertedTomato.Compression.Integers {
 
             // Store
             Input = new BitReader(input);
-            PacketSize = (byte)packetSize;
+            PacketSize = packetSize;
         }
 
         /// <summary>

@@ -76,24 +76,23 @@ namespace InvertedTomato.Compression.Integers {
             value++;
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
-
-            Stack<bool> buffer = null;
+            Stack<ulong> buffer = null;
             for (var i = Fibonacci.Values.Length - 1; i >= 0; i--) {
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
-                // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached. if (value <= Fibonacci[i]) {
+                // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
                 if (value >= Fibonacci.Values[i]) {
                     if (null == buffer) {
-                        buffer = new Stack<bool>();
+                        buffer = new Stack<ulong>();
                     }
-                    buffer.Push(true);
+                    buffer.Push(1);
                     value -= Fibonacci.Values[i];
                 } else if (null != buffer) {
-                    buffer.Push(false);
+                    buffer.Push(0);
                 }
             }
 
             foreach (var item in buffer) {
-                Output.Write(item ? (ulong)1 : 0, 1);
+                Output.Write(item, 1);
             }
 
             // #4 Place an additional 1 after the rightmost digit in the code word.

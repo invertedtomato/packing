@@ -41,7 +41,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Number of bits to include in each packet.
         /// </summary>
-        private readonly byte PacketSize;
+        private readonly int PacketSize;
 
         /// <summary>
         /// The stream to output encoded bytes to.
@@ -66,7 +66,7 @@ namespace InvertedTomato.Compression.Integers {
 
             // Store
             Output = new BitWriter(output);
-            PacketSize = (byte)packetSize;
+            PacketSize = packetSize;
         }
 
         /// <summary>

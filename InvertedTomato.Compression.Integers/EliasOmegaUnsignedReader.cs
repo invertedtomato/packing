@@ -61,7 +61,7 @@ namespace InvertedTomato.Compression.Integers {
             // #2 If the next bit is a "0", stop. The decoded number is N.
             while (Input.PeakBit()) {
                 // #3 If the next bit is a "1", then read it plus N more bits, and use that binary number as the new value of N.
-                value = Input.Read((byte)(value + 1));
+                value = Input.Read((int)value + 1);
             }
 
             // Burn last bit from input

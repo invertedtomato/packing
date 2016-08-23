@@ -37,7 +37,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Number of prefix bits used to store length.
         /// </summary>
-        private readonly byte LengthBits;
+        private readonly int LengthBits;
 
         /// <summary>
         /// Standard instantiation.
@@ -59,7 +59,7 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             Input = new BitReader(input);
-            LengthBits = (byte)lengthBits;
+            LengthBits = lengthBits;
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             // Read length
-            var length = (byte)Input.Read(LengthBits);
+            var length = (int)Input.Read(LengthBits);
                         
             // Read body
             var value = Input.Read(length);

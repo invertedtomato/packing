@@ -72,7 +72,7 @@ namespace InvertedTomato.Compression.Integers {
             var length = Bits.CountUsed(value);
 
             // Write unary zeros
-            Output.Write(0, (byte)(length - 1));
+            Output.Write(0, length - 1);
 
             // Write value
             Output.Write(value, length);

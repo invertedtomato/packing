@@ -84,10 +84,10 @@ namespace InvertedTomato.Compression.Integers {
             value++;
 
             // Prepare buffer
-            var groups = new Stack<KeyValuePair<ulong, byte>>();
+            var groups = new Stack<KeyValuePair<ulong, int>>();
 
             // #1 Place a "0" at the end of the code.
-            groups.Push(new KeyValuePair<ulong, byte>(0, 1));
+            groups.Push(new KeyValuePair<ulong, int>(0, 1));
 
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
@@ -95,7 +95,7 @@ namespace InvertedTomato.Compression.Integers {
                 var length = Bits.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
-                groups.Push(new KeyValuePair<ulong, byte>(value, length));
+                groups.Push(new KeyValuePair<ulong, int>(value, length));
 
                 // #4 Let N equal the number of bits just prepended, minus one.
                 value = (ulong)length - 1;
