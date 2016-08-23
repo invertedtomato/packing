@@ -1,11 +1,11 @@
 # Integer Compression
 
 ## TLDR
-Here's how to compress 24 bytes of data down to 3 using VLQ:
+Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
 ```C#
 using (var stream = new MemoryStream()) {
     // Make a writer to encode values onto your stream
-    using (var writer = new VLQUnsignedWriter(stream)) { // VLQ is just one algorithm
+    using (var writer = new FibonacciUnsignedWriter(stream)) { // Fibonacci is just one algorithm
         // Write 1st value
         writer.Write(1); // 8 bytes in memory
 
@@ -15,14 +15,14 @@ using (var stream = new MemoryStream()) {
         // Write 3rd value
         writer.Write(3); // 8 bytes in memory
     }
-                
+
     Console.WriteLine("Compressed data is " + stream.Length + " bytes");
-    // Output: Compressed data is 3 bytes
+    // Output: Compressed data is 2 bytes
 
     stream.Position = 0;
 
-    // Make a reader to decode vallues from your stream
-    using (var reader = new VLQUnsignedReader(stream)) {
+    // Make a reader to decode values from your stream
+    using (var reader = new FibonacciUnsignedReader(stream)) {
         Console.WriteLine(reader.Read());
         // Output: 1
         Console.WriteLine(reader.Read());
@@ -72,6 +72,32 @@ trying to achieve.
 
 ![alt text](https://raw.githubusercontent.com/invertedtomato/integer-compression/master/images/comparison-1.png "Algorithm comparison")
 
+### Fibonacci *(best for integers <8,000)*
+ - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
+ - **Random access:** yes *(can jump ahead)*
+ - **Lossy:** no *(doesn't approximate)*
+ - **Universal:** yes *(can handle any number)*
+ - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
+ - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
+ - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
+ - **Options:** 
+
+This is a very interesting algorithm - it encodes the numbers against a Fibonacci sequence. It's the best algorithm in the pack for numbers up to 8,000, It 
+degrades after that point - but not horrendously so. This is my personal favorite algo.
+
+### Thompson-Alpha *(best for integers >8,000)*
+ - **Family:** none
+ - **Random access:** no
+ - **Universal:** no *(can only handle a predefined range of numbers)*
+ - **Details:** N/A
+ - **Writer:** `ThompsonAlphaUnsignedWriter`, `ThompsonAlphaSignedWriter`
+ - **Reader:** `ThompsonAlphaUnsignedReader`, `ThompsonAlphaSignedReader`
+ - **Options:** 
+   - Length bits
+
+I couldn't find an algorithm which performed well for large integers (>8,000), so this is my own. In it's default configuration it has a flat 6-bits
+of overhead for each integer, no matter it's size. That makes it excellent if your numbers have a large distribution.
+
 ### Variable Length Quantities (VLQ)
  - **Random access:** no *(can't jump ahead)*
  - **Universal:** yes *(can handle any number)*
@@ -83,7 +109,8 @@ trying to achieve.
 
 It seems VLQ was originally invented by the designers of MIDI (you know, the old-school
 MP3). The algorithm is really retro, there's stacks of variations of it's spec and
-it smells a little musty, but it's awesome! It produces pretty good results.
+it smells a little musty, but it's awesome! It produces pretty good results for all numbers
+with a very low CPU overhead.
 
 ### Elias-Omega
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -95,8 +122,8 @@ it smells a little musty, but it's awesome! It produces pretty good results.
  - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
-wouldn't use it. If I knew my number set was going to be small, I'd use *Elias Gamma*
-instead. If I knew my number set was large, I'd use *Thompson-Alpha* instead. Sorry Omega :-/.
+wouldn't use it. It does well for tiny integers (under 8), but just doesn't cut the 
+mustard after that. Sorry Omega :-/.
 
 ### Elias-Gamma
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -107,10 +134,10 @@ instead. If I knew my number set was large, I'd use *Thompson-Alpha* instead. So
  - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
  - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
 
-Like Elias-Omega, this is a very interesting algorithm. However it's only really useful for small integers (less than 16). And
-even then I'd suggest using *Fibonacci* instead.
+Like Elias-Omega, this is a very interesting algorithm. However it's only really useful for small integers (less than 8). For bigger numbers
+it performs *terribly*.
 
-### Elias-Gamma
+### Elias-Delta
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
  - **Random access:** no (can't jump ahead)
  - **Universal:** yes *(can handle any number)*
@@ -118,34 +145,11 @@ even then I'd suggest using *Fibonacci* instead.
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_delta_coding)
  - **Writer:** `EliasDeltaUnsignedWriter`, `EliasDeltaSignedWriter`
  - **Reader:** `EliasDeltaUnsignedReader`, `EliasDeltaSignedReader`
- - 
-### Thompson-Alpha
- - **Family:** none
- - **Random access:** no
- - **Universal:** no *(can only handle a predefined range of numbers)*
- - **Details:** N/A
- - **Writer:** `ThompsonAlphaUnsignedWriter`, `ThompsonAlphaSignedWriter`
- - **Reader:** `ThompsonAlphaUnsignedReader`, `ThompsonAlphaSignedReader`
- - **Options:** 
-   - Length bits
 
-This is my own creation, I was unhappy with the results of all of the standard algorithms for large numbers. This is the best
-algorithm in the pack for numbers consistently over around 128. Numbers have a fixed overhead (by default 6 bits). So it doesn't
-matter how big the number is, the overhead will always be the same.
+I have a lot of respect for this algorithm. It's an all-rounder, doing well on small numbers and large alike. If you knew you 
+were mostly going to have small numbers, but you'd have a lot of larger ones as well, this would be my choice. The algorithm is a little
+complex, so you might be cautious if you have extreme CPU limitations.
 
-### Fibonacci
- - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
- - **Random access:** yes *(can jump ahead)*
- - **Lossy:** no *(doesn't approximate)*
- - **Universal:** yes *(can handle any number)*
- - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
- - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
- - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
- - **Options:** 
-
-This is a very interesting algo. It encodes the numbers against a Fibonacci sequence. It's the best algorithm in the pack for numbers up to around 8,000 and then
-pretty good for numbers that are larger. This is my personal recommendation if your numbers are typically lower than 8,000.
-  
 ## Comparing algorithms
 In order to make an accurate assessment of an algorithm for your purpose, some
 algorithms have a static method `CalculateBitLength` that allows you to know
@@ -153,7 +157,7 @@ how many bits a given value would consume when encoded. I recommend getting a se
 of your data and running it through the `CalculateBitLength` methods of a few
 algorithms to see which one is best.
 
-## Signed and Unsigned
+## Signed and unsigned
 If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** readers and 
 writers. That way you'll get the best compression. Obviously fall back to **signed**
 readers and writers if you must.
