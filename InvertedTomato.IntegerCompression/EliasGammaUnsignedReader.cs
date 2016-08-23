@@ -58,11 +58,15 @@ namespace InvertedTomato.IntegerCompression {
             // Read length
             byte length = 1;
             while (true) {
+                // If the next bit is a 1, abort
                 if (Input.PeakBit()) {
                     break;
                 }
 
+                // Note that length is one bit longer
                 length++;
+
+                // Remove 0 from input
                 Input.Read(1);
             };
 
@@ -87,7 +91,8 @@ namespace InvertedTomato.IntegerCompression {
             IsDisposed = true;
 
             if (disposing) {
-                // Dispose managed state (managed objects).
+                // Dispose managed state (managed objects)
+                Input.DisposeIfNotNull();
             }
         }
 

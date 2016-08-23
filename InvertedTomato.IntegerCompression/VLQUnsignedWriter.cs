@@ -111,7 +111,8 @@ namespace InvertedTomato.IntegerCompression {
             IsDisposed = true;
 
             if (disposing) {
-                // Dispose managed state (managed objects).
+                // Dispose managed state (managed objects)
+                Output.DisposeIfNotNull();
             }
         }
 

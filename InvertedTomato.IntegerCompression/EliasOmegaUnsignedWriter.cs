@@ -57,17 +57,7 @@ namespace InvertedTomato.IntegerCompression {
         /// <summary>
         /// Underlying stream to be writing encoded values to.
         /// </summary>
-        private readonly Stream Output;
-
-        /// <summary>
-        /// The byte currently being worked on.
-        /// </summary>
-        private byte CurrentByte;
-
-        /// <summary>
-        /// The position within the current byte for the next write.
-        /// </summary>
-        private int CurrentPosition;
+        private readonly BitWriter Output;
 
         /// <summary>
         /// Standard instantiation.
@@ -78,7 +68,7 @@ namespace InvertedTomato.IntegerCompression {
                 throw new ArgumentNullException("output");
             }
 
-            Output = output;
+            Output = new BitWriter(output);
         }
 
         /// <summary>
@@ -116,33 +106,7 @@ namespace InvertedTomato.IntegerCompression {
                 var bits = item.Value;
                 var group = item.Key;
 
-                while (bits > 0) {
-                    // Calculate size of chunk
-                    var chunk = (byte)Math.Min(bits, 8 - CurrentPosition);
-
-                    // Add to byte
-                    if (CurrentPosition + bits > 8) {
-                        CurrentByte |= (byte)(group >> bits - chunk);
-                    } else {
-                        CurrentByte |= (byte)(group << 8 - CurrentPosition - chunk);
-                    }
-
-                    // Update length available
-                    bits -= chunk;
-
-                    // Detect if byte is full
-                    CurrentPosition += chunk;
-                    if (CurrentPosition == 8) {
-                        // Write byte
-                        Output.WriteByte(CurrentByte);
-
-                        // Reset offset
-                        CurrentPosition = 0;
-
-                        // Clear byte
-                        CurrentByte = 0;
-                    }
-                }
+                Output.Write(group, bits);
             }
         }
 
@@ -156,13 +120,9 @@ namespace InvertedTomato.IntegerCompression {
             }
             IsDisposed = true;
 
-            // Write out final byte if partially used
-            if (CurrentPosition > 0) {
-                Output.WriteByte(CurrentByte);
-            }
-
             if (disposing) {
-                // Dispose managed state (managed objects).
+                // Dispose managed state (managed objects)
+                Output.DisposeIfNotNull();
             }
         }
 
