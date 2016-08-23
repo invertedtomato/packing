@@ -55,7 +55,28 @@ namespace InvertedTomato.Compression.Integers {
                 throw new ObjectDisposedException("this");
             }
 
-            throw new NotImplementedException();
+            // #1 Read and count zeros from the stream until you reach the first one. Call this count of zeros L
+            byte l = 1;
+            while (!Input.PeakBit()) {
+                // Note that length is one bit longer
+                l++;
+
+                // Remove 0 from input
+                Input.Read(1);
+            };
+
+            // #2 Considering the one that was reached to be the first digit of an integer, with a value of 2L, read the remaining L digits of the integer. Call this integer N+1, and subtract one to get N.
+            var n = (byte)(Input.Read(l) - 1);
+
+            // #3 Put a one in the first place of our final output, representing the value 2N.
+
+            // #4 Read and append the following N digits.
+            var value = Input.Read(n) + ((ulong)1 << n);
+
+            // Remove zero offset
+            value--;
+
+            return value;
         }
 
         /// <summary>

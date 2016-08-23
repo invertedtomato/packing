@@ -57,12 +57,7 @@ namespace InvertedTomato.Compression.Integers {
 
             // Read length
             byte length = 1;
-            while (true) {
-                // If the next bit is a 1, abort
-                if (Input.PeakBit()) {
-                    break;
-                }
-
+            while (!Input.PeakBit()) {
                 // Note that length is one bit longer
                 length++;
 

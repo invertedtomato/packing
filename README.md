@@ -110,6 +110,15 @@ instead. If I knew my number set was large, I'd use *Thompson-Alpha* instead. So
 Like Elias-Omega, this is a very interesting algorithm. However it's only really useful for small integers (less than 16). And
 even then I'd suggest using *Fibonacci* instead.
 
+### Elias-Gamma
+ - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
+ - **Random access:** no (can't jump ahead)
+ - **Universal:** yes *(can handle any number)*
+ - **Supported values:**  all
+ - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_delta_coding)
+ - **Writer:** `EliasDeltaUnsignedWriter`, `EliasDeltaSignedWriter`
+ - **Reader:** `EliasDeltaUnsignedReader`, `EliasDeltaSignedReader`
+ - 
 ### Thompson-Alpha
  - **Family:** none
  - **Random access:** no

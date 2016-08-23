@@ -68,7 +68,21 @@ namespace InvertedTomato.Compression.Integers {
             // Offset value to allow zeros
             value++;
 
-            throw new NotImplementedException();
+            // #1 Separate X into the highest power of 2 it contains (2N) and the remaining N binary digits.
+            byte n = 0;
+            while (Math.Pow(2, n + 1) <= value) {
+                n++;
+            }
+            var r = value - (ulong)Math.Pow(2, n);
+
+            // #2 Encode N+1 with Elias gamma coding.
+            var np = (byte)(n + 1);
+            var len = Bits.CountUsed(np);
+            Output.Write(0, (byte)(len - 1));
+            Output.Write(np, len);
+
+            // #3 Append the remaining N binary digits to this representation of N+1.
+            Output.Write(r, n);
         }
 
         /// <summary>
