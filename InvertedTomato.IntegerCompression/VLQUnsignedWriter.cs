@@ -1,6 +1,5 @@
 ﻿using InvertedTomato.IO;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
@@ -39,7 +38,9 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         public bool IsDisposed { get; private set; }
 
-
+        /// <summary>
+        /// Number of bits to include in each packet.
+        /// </summary>
         private readonly byte PacketSize;
 
         /// <summary>

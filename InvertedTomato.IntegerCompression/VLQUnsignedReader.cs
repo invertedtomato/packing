@@ -29,6 +29,9 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         public bool IsDisposed { get; private set; }
 
+        /// <summary>
+        /// Number of bits to include in each packet.
+        /// </summary>
         private readonly byte PacketSize;
 
         /// <summary>
