@@ -1,14 +1,13 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using InvertedTomato.IO;
+using System.IO;
+using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class ThompsonAlphaUnsignedWriterTests {
-        private string Write(params ulong[] values) {
-            return ThompsonAlphaUnsignedWriter.WriteAll(values).ToBinaryString();
+        private string Write(ulong value) {
+            return ThompsonAlphaUnsignedWriter.WriteOneDefault(value).ToBinaryString();
         }
 
         [TestMethod]
@@ -85,42 +84,55 @@ namespace InvertedTomato.IntegerCompression.Tests {
         }
         [TestMethod]
         public void Write_1_1_1() {
-            Assert.AreEqual("00000100 00001000 00010000", Write(1, 1, 1));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new ThompsonAlphaUnsignedWriter(stream)) {
+                    writer.Write(1);
+                    writer.Write(1);
+                    writer.Write(1);
+                }
+                Assert.AreEqual("00000100 00001000 00010000", stream.ToArray().ToBinaryString());
+            }
         }
         [TestMethod]
         public void Write_4_4_4() {
-            Assert.AreEqual("00001001 00001001 00001001", Write(4, 4, 4));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new ThompsonAlphaUnsignedWriter(stream)) {
+                    writer.Write(4);
+                    writer.Write(4);
+                    writer.Write(4);
+                }
+                Assert.AreEqual("00001001 00001001 00001001", stream.ToArray().ToBinaryString());
+            }
         }
 
 
         [TestMethod]
         public void WriteRead_First1000() {
-            for (ulong input = 1; input < 1000; input++) {
-                var encoded = ThompsonAlphaUnsignedWriter.WriteAll(new List<ulong>() { input });
-                var output = ThompsonAlphaUnsignedReader.ReadAll(encoded);
+            for (ulong input = 0; input < 1000; input++) {
+                var encoded = ThompsonAlphaUnsignedWriter.WriteOneDefault(input);
+                var output = ThompsonAlphaUnsignedReader.ReadOneDefault(encoded);
 
-                Assert.IsTrue(output.Count() > 0);
-                Assert.AreEqual(input, output.First());
+                Assert.AreEqual(input, output);
             }
         }
 
         [TestMethod]
         public void WriteRead_First1000_Appending() {
+            ulong min = 0;
             ulong max = 1000;
 
-            var input = new List<ulong>();
-            ulong i;
-            for (i = 1; i <= max; i++) {
-                input.Add(i);
-            }
-
-            var encoded = ThompsonAlphaUnsignedWriter.WriteAll(input);
-            var output = ThompsonAlphaUnsignedReader.ReadAll(encoded);
-
-            Assert.IsTrue((ulong)output.Count() >= max); // The padding zeros may cause us to get more values than we input
-
-            for (i = 1; i <= max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)i - 1));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new ThompsonAlphaUnsignedWriter(stream)) {
+                    for (var i = min; i < max; i++) {
+                        writer.Write(i);
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
+                    for (var i = min; i < max; i++) {
+                        Assert.AreEqual(i, reader.Read());
+                    }
+                }
             }
         }
     }

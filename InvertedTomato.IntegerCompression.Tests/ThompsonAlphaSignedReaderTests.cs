@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
@@ -8,11 +9,10 @@ namespace InvertedTomato.IntegerCompression.Tests {
         [TestMethod]
         public void WriteRead_First1000() {
             for (long input = -500; input < 500; input++) {
-                var encoded = ThompsonAlphaSignedWriter.WriteAll(new List<long>() { input });
-                var output = ThompsonAlphaSignedReader.ReadAll(encoded);
+                var encoded = ThompsonAlphaSignedWriter.WriteOneDefault(input);
+                var output = ThompsonAlphaSignedReader.ReadOneDefault(encoded);
 
-                Assert.IsTrue(output.Count() >= 1);
-                Assert.AreEqual(input, output.First());
+                Assert.AreEqual(input, output);
             }
         }
 
@@ -21,19 +21,18 @@ namespace InvertedTomato.IntegerCompression.Tests {
             long min = -500;
             long max = 500;
 
-            var input = new List<long>();
-            long i;
-            for (i = min; i <= max; i++) {
-                input.Add(i);
-            }
-
-            var encoded = ThompsonAlphaSignedWriter.WriteAll(input);
-            var output = ThompsonAlphaSignedReader.ReadAll(encoded);
-
-            Assert.IsTrue(output.Count() >= -min + max + 1);
-
-            for (i = min; i <= max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)(i - min)));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new ThompsonAlphaSignedWriter(stream)) {
+                    for (long i = min; i < max; i++) {
+                        writer.Write(i);
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new ThompsonAlphaSignedReader(stream)) {
+                    for (long i = min; i < max; i++) {
+                        Assert.AreEqual(i, reader.Read());
+                    }
+                }
             }
         }
     }

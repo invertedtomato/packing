@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
@@ -8,32 +7,30 @@ namespace InvertedTomato.IntegerCompression.Tests {
         [TestMethod]
         public void WriteRead_First1000() {
             for (long input = -500; input < 500; input++) {
-                var encoded = EliasGammaSignedWriter.WriteAll(new List<long>() { input });
-                var output = EliasGammaSignedReader.ReadAll(encoded);
-
-                Assert.IsTrue(output.Count() >= 1);
-                Assert.AreEqual(input, output.First());
+                var encoded = EliasGammaSignedWriter.WriteOneDefault(input);
+                var output = EliasGammaSignedReader.ReadOneDefault(encoded);
+                
+                Assert.AreEqual(input, output);
             }
         }
 
         [TestMethod]
         public void WriteRead_First1000_Appending() {
-            long min = -2;
-            long max = 2;
+            long min = -500;
+            long max = 500;
 
-            var input = new List<long>();
-            long i;
-            for (i = min; i <= max; i++) {
-                input.Add(i);
-            }
-
-            var encoded = EliasGammaSignedWriter.WriteAll(input);
-            var output = EliasGammaSignedReader.ReadAll(encoded);
-
-            Assert.IsTrue(output.Count() >= -min + max + 1);
-
-            for (i = min; i <= max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)(i - min)));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new EliasGammaSignedWriter(stream)) {
+                    for (long i = min; i < max; i++) {
+                        writer.Write(i);
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new EliasGammaSignedReader(stream)) {
+                    for (long i = min; i < max; i++) {
+                        Assert.AreEqual(i, reader.Read());
+                    }
+                }
             }
         }
     }

@@ -8,21 +8,18 @@ namespace InvertedTomato.IntegerCompression {
     /// </summary>
     public class ThompsonAlphaSignedReader : ISignedReader {
         /// <summary>
-        /// Read all values in a byte array.
+        /// Read first value from a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<long> ReadAll(byte[] input) {
+        public static long ReadOneDefault(byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
                 using (var reader = new ThompsonAlphaSignedReader(stream)) {
-                    long value;
-                    while (reader.TryRead(out value)) {
-                        yield return value;
-                    }
+                    return reader.Read();
                 }
             }
         }
@@ -52,30 +49,14 @@ namespace InvertedTomato.IntegerCompression {
         public ThompsonAlphaSignedReader(Stream input, int lengthBits) {
             Underlying = new ThompsonAlphaUnsignedReader(input, lengthBits);
         }
-
-        /// <summary>
-        /// Attempt to read the next value.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns>If a read was successful.</returns>
-        public bool TryRead(out long value) {
-            ulong innerValue;
-            var success = Underlying.TryRead(out innerValue);
-            value = ZigZag.Decode(innerValue);
-            return success;
-        }
-
+        
         /// <summary>
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">No value was available.</exception>
         public long Read() {
-            long value;
-            if (!TryRead(out value)) {
-                throw new EndOfStreamException();
-            }
-            return value;
+            return ZigZag.Decode(Underlying.Read());
         }
 
         /// <summary>

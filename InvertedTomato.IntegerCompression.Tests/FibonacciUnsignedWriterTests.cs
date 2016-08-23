@@ -1,15 +1,11 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
-using System.Collections.Generic;
-using InvertedTomato.IO;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class FibonacciUnsignedWriterTests {
-        private string Write(params ulong[] values) {
-            return FibonacciUnsignedWriter.WriteAll(values).ToBinaryString();
+        private string Write(ulong value) {
+            return FibonacciUnsignedWriter.WriteOneDefault(value).ToBinaryString();
         }
 
         [TestMethod]
@@ -74,27 +70,51 @@ namespace InvertedTomato.IntegerCompression.Tests {
         }
         [TestMethod]
         public void Write_1_1_1() {
-            Assert.AreEqual("01101101 10000000", Write(1, 1, 1));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new FibonacciUnsignedWriter(stream)) {
+                    writer.Write(1);
+                    writer.Write(1);
+                    writer.Write(1);
+                }
+                Assert.AreEqual("01101101 10000000", stream.ToArray().ToBinaryString());
+            }
         }
         [TestMethod]
         public void Write_13_13_13() {
-            Assert.AreEqual("10000111 00001110 00011000", Write(13, 13, 13));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new FibonacciUnsignedWriter(stream)) {
+                    writer.Write(13);
+                    writer.Write(13);
+                    writer.Write(13);
+                }
+                Assert.AreEqual("10000111 00001110 00011000", stream.ToArray().ToBinaryString());
+            }
         }
 
+        [TestMethod]
+        public void WriteRead_First1000() {
+            for (ulong input = 0; input < 1000; input++) {
+                var encoded = FibonacciUnsignedWriter.WriteOneDefault(input);
+                var output = FibonacciUnsignedReader.ReadOneDefault(encoded);
+
+                Assert.AreEqual(input, output);
+            }
+        }
 
         [TestMethod]
         public void WriteRead_First1000_Appending() {
+            ulong min = 0;
             ulong max = 1000;
 
             using (var stream = new MemoryStream()) {
                 using (var writer = new FibonacciUnsignedWriter(stream)) {
-                    for (ulong i = 0; i < max; i++) {
+                    for (var i = min; i < max; i++) {
                         writer.Write(i);
                     }
                 }
                 stream.Position = 0;
                 using (var reader = new FibonacciUnsignedReader(stream)) {
-                    for (ulong i = 0; i < max; i++) {
+                    for (var i = min; i < max; i++) {
                         Assert.AreEqual(i, reader.Read());
                     }
                 }

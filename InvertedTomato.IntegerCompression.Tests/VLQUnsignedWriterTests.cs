@@ -1,14 +1,13 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InvertedTomato.IntegerCompression;
-using System.Linq;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class VLQUnsignedWriterTests {
-        private string Write(params ulong[] values) {
-            return VLQUnsignedWriter.WriteAll(values).ToBinaryString();
+        private string Write(ulong value) {
+            return VLQUnsignedWriter.WriteOneDefault(value).ToBinaryString();
         }
         
         [TestMethod]
@@ -51,34 +50,55 @@ namespace InvertedTomato.IntegerCompression.Tests {
         public void Write_Max() {
             Assert.AreEqual("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", Write(ulong.MaxValue));
         }
+        [TestMethod]
+        public void Write_1_1_1() {
+            using (var stream = new MemoryStream()) {
+                using (var writer = new VLQUnsignedWriter(stream)) {
+                    writer.Write(1);
+                    writer.Write(1);
+                    writer.Write(1);
+                }
+                Assert.AreEqual("10000001 10000001 10000001", stream.ToArray().ToBinaryString());
+            }
+        }
+        [TestMethod]
+        public void Write_128_128_128() {
+            using (var stream = new MemoryStream()) {
+                using (var writer = new VLQUnsignedWriter(stream)) {
+                    writer.Write(128);
+                    writer.Write(128);
+                    writer.Write(128);
+                }
+                Assert.AreEqual("00000000 10000000 00000000 10000000 00000000 10000000", stream.ToArray().ToBinaryString());
+            }
+        }
 
         [TestMethod]
         public void WriteRead_First1000() {
             for (ulong input = 0; input < 1000; input++) {
-                var encoded = VLQUnsignedWriter.WriteAll(new List<ulong>() { input });
-                var output = VLQUnsignedReader.ReadAll(encoded);
+                var encoded = VLQUnsignedWriter.WriteOneDefault(input);
+                var output = VLQUnsignedReader.ReadOneDefault(encoded);
 
-                Assert.AreEqual(1, output.Count());
-                Assert.AreEqual(input, output.First());
+                Assert.AreEqual(input, output);
             }
         }
         [TestMethod]
         public void WriteRead_First1000_Appending() {
+            ulong min = 0;
             ulong max = 1000;
 
-            var input = new List<ulong>();
-            ulong i;
-            for (i = 0; i < max; i++) {
-                input.Add(i);
-            }
-
-            var encoded = VLQUnsignedWriter.WriteAll(input);
-            var output = VLQUnsignedReader.ReadAll(encoded);
-
-            Assert.IsTrue((ulong)output.Count() == max);
-
-            for (i = 0; i < max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)i));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new VLQUnsignedWriter(stream)) {
+                    for (var i = min; i < max; i++) {
+                        writer.Write(i);
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new VLQUnsignedReader(stream)) {
+                    for (var i = min; i < max; i++) {
+                        Assert.AreEqual(i, reader.Read());
+                    }
+                }
             }
         }
     }

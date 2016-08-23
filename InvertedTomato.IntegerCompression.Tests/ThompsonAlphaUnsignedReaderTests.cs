@@ -1,13 +1,14 @@
 ﻿using InvertedTomato.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class ThompsonAlphaUnsignedReaderTests {
         private ulong Read(string input) {
-            return ThompsonAlphaUnsignedReader.ReadAll(ByteArrayUtility.ParseBinaryString(input)).First();
+            return ThompsonAlphaUnsignedReader.ReadOneDefault(ByteArrayUtility.ParseBinaryString(input));
         }
 
         [TestMethod]
@@ -81,19 +82,23 @@ namespace InvertedTomato.IntegerCompression.Tests {
 
         [TestMethod]
         public void Read_1_1_1() {
-            var result = ThompsonAlphaUnsignedReader.ReadAll(ByteArrayUtility.ParseBinaryString("00000100 00001000 00010000"));
-            Assert.AreEqual(3, result.Count());
-            Assert.AreEqual((ulong)1, result.ElementAt(0));
-            Assert.AreEqual((ulong)1, result.ElementAt(1));
-            Assert.AreEqual((ulong)1, result.ElementAt(2));
+            using (var stream = new MemoryStream(ByteArrayUtility.ParseBinaryString("00000100 00001000 00010000"))) {
+                using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
+                    Assert.AreEqual((ulong)1, reader.Read());
+                    Assert.AreEqual((ulong)1, reader.Read());
+                    Assert.AreEqual((ulong)1, reader.Read());
+                }
+            }
         }
         [TestMethod]
         public void Read_4_4_4() {
-            var result = ThompsonAlphaUnsignedReader.ReadAll(ByteArrayUtility.ParseBinaryString("00001001 00001001 00001001"));
-            Assert.AreEqual(3, result.Count());
-            Assert.AreEqual((ulong)4, result.ElementAt(0));
-            Assert.AreEqual((ulong)4, result.ElementAt(1));
-            Assert.AreEqual((ulong)4, result.ElementAt(2));
+            using (var stream = new MemoryStream(ByteArrayUtility.ParseBinaryString("00001001 00001001 00001001"))) {
+                using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
+                    Assert.AreEqual((ulong)4, reader.Read());
+                    Assert.AreEqual((ulong)4, reader.Read());
+                    Assert.AreEqual((ulong)4, reader.Read());
+                }
+            }
         }
     }
 }

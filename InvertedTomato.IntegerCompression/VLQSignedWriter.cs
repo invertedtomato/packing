@@ -8,16 +8,14 @@ namespace InvertedTomato.IntegerCompression {
     /// </summary>
     public class VLQSignedWriter : ISignedWriter {
         /// <summary>
-        /// Write all given values.
+        /// Write a given value.
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<long> values) { 
+        public static byte[] WriteOneDefault(long value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new VLQSignedWriter(stream)) {
-                    foreach (var value in values) {
-                        writer.Write(value);
-                    }
+                    writer.Write(value);
                 }
                 return stream.ToArray();
             }
@@ -55,8 +53,7 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="value"></param>
         public void Write(long value) {
-            var innerValue = ZigZag.Encode(value);
-            Underlying.Write(innerValue);
+            Underlying.Write(ZigZag.Encode(value));
         }
 
         /// <summary>

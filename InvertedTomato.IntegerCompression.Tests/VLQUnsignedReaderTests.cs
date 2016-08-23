@@ -1,13 +1,14 @@
 ﻿using InvertedTomato.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class VLQUnsignedReaderTests {
         private ulong Read(string input) {
-            return VLQUnsignedReader.ReadAll(ByteArrayUtility.ParseBinaryString(input)).First();
+            return VLQUnsignedReader.ReadOneDefault(ByteArrayUtility.ParseBinaryString(input));
         }
 
         [TestMethod]
@@ -59,15 +60,25 @@ namespace InvertedTomato.IntegerCompression.Tests {
         public void Read_UnneededBytes() {
             Assert.AreEqual((ulong)1, Read("10000001 10000000 10000000"));
         }
+        [TestMethod]
+        public void Read_1_1_1() {
+            using (var stream = new MemoryStream(ByteArrayUtility.ParseBinaryString("10000001 10000001 10000001"))) {
+                using (var reader = new VLQUnsignedReader(stream)) {
+                    Assert.AreEqual((ulong)1, reader.Read());
+                    Assert.AreEqual((ulong)1, reader.Read());
+                    Assert.AreEqual((ulong)1, reader.Read());
+                }
+            }
+        }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(EndOfStreamException))]
         public void Read_InsufficentBytes1() {
             Assert.AreEqual((ulong)1, Read(""));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(EndOfStreamException))]
         public void Read_InsufficentBytes2() {
             Assert.AreEqual((ulong)1, Read("00000000"));
         }

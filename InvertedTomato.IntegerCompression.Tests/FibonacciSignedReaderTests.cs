@@ -1,11 +1,19 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class FibonacciSignedReaderTests {
+        [TestMethod]
+        public void WriteRead_First1000() {
+            for (long input = -500; input < 500; input++) {
+                var encoded = FibonacciSignedWriter.WriteOneDefault(input);
+                var output = FibonacciSignedReader.ReadOneDefault(encoded);
+
+                Assert.AreEqual(input, output);
+            }
+        }
+
         [TestMethod]
         public void WriteRead_First1000_Appending() {
             long min = -500;

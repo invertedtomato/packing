@@ -8,11 +8,7 @@ namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
     public class FibonacciUnsignedReaderTests {
         private ulong Read(string input) {
-            using (var stream = new MemoryStream(ByteArrayUtility.ParseBinaryString(input))) {
-                using (var reader = new FibonacciUnsignedReader(stream)) {
-                    return reader.Read();
-                }
-            }
+            return FibonacciUnsignedReader.ReadOneDefault(ByteArrayUtility.ParseBinaryString(input));
         }
 
         [TestMethod]

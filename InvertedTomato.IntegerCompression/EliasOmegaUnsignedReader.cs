@@ -8,22 +8,18 @@ namespace InvertedTomato.IntegerCompression {
     /// </summary>
     public class EliasOmegaUnsignedReader : IUnsignedReader {
         /// <summary>
-        /// Read all values in a byte array.
+        /// Read first value from a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(byte[] input) {
+        public static ulong ReadOneDefault(byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
                 using (var reader = new EliasOmegaUnsignedReader(stream)) {
-
-                    ulong value;
-                    while (reader.TryRead(out value)) {
-                        yield return value;
-                    }
+                    return reader.Read();
                 }
             }
         }
@@ -52,7 +48,7 @@ namespace InvertedTomato.IntegerCompression {
         /// Standard instantiation.
         /// </summary>
         /// <param name="input"></param>
-        public EliasOmegaUnsignedReader(Stream input) { 
+        public EliasOmegaUnsignedReader(Stream input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
@@ -61,25 +57,21 @@ namespace InvertedTomato.IntegerCompression {
         }
 
         /// <summary>
-        /// Attempt to read the next value.
+        /// Read the next value. 
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns>If a read was successful.</returns>
-        public bool TryRead(out ulong value) {
+        /// <returns></returns>
+        public ulong Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // Load current byte
             if (CurrentOffset >= 8) {
-                if (!ReadByte()) {
-                    value = 0;
-                    return false; // Missing initial byte
-                }
+                ReadByte();
             }
 
             // #1 Start with a variable N, set to a value of 1.
-            value = 1;
+            ulong value = 1;
 
             // #2 If the next bit is a "0", stop. The decoded number is N.
             while ((CurrentByte & 1 << (7 - CurrentOffset)) > 0) {
@@ -102,9 +94,7 @@ namespace InvertedTomato.IntegerCompression {
 
                     // Increment offset, and load next byte if required
                     if ((CurrentOffset += chunk) >= 8) {
-                        if (!ReadByte()) {
-                            throw new InvalidOperationException("Missing body byte.");
-                        }
+                        ReadByte();
                     }
                 }
             }
@@ -117,19 +107,6 @@ namespace InvertedTomato.IntegerCompression {
             // Offset for min value
             value = value - 1;
 
-            return true;
-        }
-
-        /// <summary>
-        /// Read the next value. 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">No value was available.</exception>
-        public ulong Read() {
-            ulong value;
-            if (!TryRead(out value)) {
-                throw new EndOfStreamException();
-            }
             return value;
         }
 
@@ -137,17 +114,15 @@ namespace InvertedTomato.IntegerCompression {
         /// Read a byte from the input stream.
         /// </summary>
         /// <returns>TRUE if successful.</returns>
-        private bool ReadByte() {
+        private void ReadByte() {
             // Get next byte
             CurrentByte = Input.ReadByte();
             if (CurrentByte < 0) {
-                return false;
+                throw new EndOfStreamException();
             }
 
             // Reset offset
             CurrentOffset = 0;
-
-            return true;
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace InvertedTomato.IntegerCompression.Benchmark {
         static void Main(string[] args) {
             using (var writer = new StreamWriter("output.csv", false)) {
                 writer.WriteLine(",min,elias-omega,elias-gamma,fibonacci,vlq(7),vlq(10),thompson-alpha(4),thompson-alpha(5),thompson-alpha(6)");
-                for (ulong i = 1; i < ulong.MaxValue / 10; i *= 2) {
+                for (ulong i = 1; i < ulong.MaxValue / 10; i *= 10) {
                     writer.Write(i);
                     writer.Write(",");
                     writer.Write(Bits.CountUsed(i));

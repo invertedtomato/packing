@@ -1,6 +1,5 @@
 ﻿using InvertedTomato.IO;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
@@ -9,21 +8,18 @@ namespace InvertedTomato.IntegerCompression {
     /// </summary>
     public class ThompsonAlphaUnsignedReader : IUnsignedReader {
         /// <summary>
-        /// Read all values in a byte array.
+        /// Read first value from a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(byte[] input) {
+        public static ulong ReadOneDefault(byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
                 using (var reader = new ThompsonAlphaUnsignedReader(stream)) {
-                    ulong value;
-                    while (reader.TryRead(out value)) {
-                        yield return value;
-                    }
+                    return reader.Read();
                 }
             }
         }
@@ -71,43 +67,23 @@ namespace InvertedTomato.IntegerCompression {
         /// </summary>
         /// <param name="value"></param>
         /// <returns>If a read was successful.</returns>
-        public bool TryRead(out ulong value) {
+        public ulong Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
-            value = 0;
-
             // Read length
-            ulong length;
-            if (!Input.TryRead(out length, LengthBits)) {
-                return false;
-            }
-
+            var length = (byte)Input.Read(LengthBits);
+                        
             // Read body
-            if (!Input.TryRead(out value, (byte)length)) {
-                throw new InvalidOperationException("Missing payload bits.");
-            }
+            var value = Input.Read(length);
 
             // Recover implied MSB
-            value |= (ulong)1 << (byte)length;
+            value |= (ulong)1 << length;
 
             // Remove offset to allow zeros
             value--;
 
-            return true;
-        }
-
-        /// <summary>
-        /// Read the next value. 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">No value was available.</exception>
-        public ulong Read() {
-            ulong value;
-            if (!TryRead(out value)) {
-                throw new EndOfStreamException();
-            }
             return value;
         }
 

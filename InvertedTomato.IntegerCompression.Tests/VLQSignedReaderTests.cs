@@ -1,7 +1,5 @@
-﻿using InvertedTomato.IntegerCompression;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace InvertedTomato.IntegerCompression.Tests {
     [TestClass]
@@ -9,11 +7,10 @@ namespace InvertedTomato.IntegerCompression.Tests {
         [TestMethod]
         public void WriteRead_First1000() {
             for (long input = -500; input < 500; input++) {
-                var encoded = VLQSignedWriter.WriteAll(new List<long>() { input });
-                var output = VLQSignedReader.ReadAll(encoded);
+                var encoded = VLQSignedWriter.WriteOneDefault(input);
+                var output = VLQSignedReader.ReadOneDefault(encoded);
 
-                Assert.AreEqual(1, output.Count());
-                Assert.AreEqual(input, output.First());
+                Assert.AreEqual(input, output);
             }
         }
 
@@ -22,19 +19,18 @@ namespace InvertedTomato.IntegerCompression.Tests {
             long min = -500;
             long max = 500;
 
-            var input = new List<long>();
-            long i;
-            for (i = min; i <= max; i++) {
-                input.Add(i);
-            }
-
-            var encoded = VLQSignedWriter.WriteAll(input);
-            var output = VLQSignedReader.ReadAll(encoded);
-
-            Assert.AreEqual(-min + max+1, output.Count());
-
-            for (i = min; i <= max; i++) {
-                Assert.AreEqual(i, output.ElementAt((int)(i - min)));
+            using (var stream = new MemoryStream()) {
+                using (var writer = new VLQSignedWriter(stream)) {
+                    for (long i = min; i < max; i++) {
+                        writer.Write(i);
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new VLQSignedReader(stream)) {
+                    for (long i = min; i < max; i++) {
+                        Assert.AreEqual(i, reader.Read());
+                    }
+                }
             }
         }
     }

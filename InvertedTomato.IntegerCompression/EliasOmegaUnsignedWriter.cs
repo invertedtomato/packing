@@ -7,20 +7,17 @@ namespace InvertedTomato.IntegerCompression {
     /// <summary>
     /// Reader for Elias Omega universal coding for unsigned values.
     /// </summary>
-    public class EliasOmegaUnsignedWriter : IUnsignedWriter, IDisposable {
+    public class EliasOmegaUnsignedWriter : IUnsignedWriter {
         /// <summary>
-        /// Write all given values.
+        /// Write a given value.
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteAll(IEnumerable<ulong> values) {
+        public static byte[] WriteOneDefault(ulong value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new EliasOmegaUnsignedWriter(stream)) {
-                    foreach (var value in values) {
-                        writer.Write(value);
-                    }
+                    writer.Write(value);
                 }
-
                 return stream.ToArray();
             }
         }

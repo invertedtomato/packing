@@ -1,6 +1,5 @@
 ﻿using InvertedTomato.IO;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.IntegerCompression {
@@ -9,21 +8,18 @@ namespace InvertedTomato.IntegerCompression {
     /// </summary>
     public class VLQUnsignedReader : IUnsignedReader {
         /// <summary>
-        /// Read all values in a byte array.
+        /// Read first value from a byte array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IEnumerable<ulong> ReadAll(byte[] input) {
+        public static ulong ReadOneDefault(byte[] input) {
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
 
             using (var stream = new MemoryStream(input)) {
                 using (var reader = new VLQUnsignedReader(stream)) {
-                    ulong value;
-                    while (reader.TryRead(out value)) {
-                        yield return value;
-                    }
+                    return reader.Read();
                 }
             }
         }
@@ -65,11 +61,10 @@ namespace InvertedTomato.IntegerCompression {
         }
 
         /// <summary>
-        /// Attempt to read the next value.
+        /// Read the next value. 
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns>If a read was successful.</returns>
-        public bool TryRead(out ulong value) {
+        /// <returns></returns>
+        public ulong Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
@@ -78,42 +73,26 @@ namespace InvertedTomato.IntegerCompression {
             var outputPosition = 0;
 
             // Set value to 0
-            value = 0;
+            ulong value = 0;
 
-            ulong continuity;
+            bool final;
             do {
                 // Read if this is the final packet
-                if (!Input.TryRead(out continuity, 1)) {
-                    return false;
-                }
+                final = Input.Read(1) > 0;
 
                 // Read payload
-                ulong chunk;
-                if (!Input.TryRead(out chunk, PacketSize)) {
-                    throw new InvalidOperationException("Missing some/all payload bits.");
-                }
+                var chunk = Input.Read(PacketSize);
 
                 // Add payload to value
-                value += chunk  + 1 << outputPosition;
-                
+                value += chunk + 1 << outputPosition;
+
                 // Update target offset
                 outputPosition += PacketSize;
-            } while (continuity == 0);
+            } while (!final);
 
+            // Remove zero offset
             value--;
-            return true;
-        }
 
-        /// <summary>
-        /// Read the next value. 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">No value was available.</exception>
-        public ulong Read() {
-            ulong value;
-            if (!TryRead(out value)) {
-                throw new EndOfStreamException();
-            }
             return value;
         }
 
