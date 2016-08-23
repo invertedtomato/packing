@@ -1,3 +1,3 @@
 @echo off
-nuget pack InvertedTomato.IntegerCompression.csproj -IncludeReferencedProjects
+nuget pack InvertedTomato.Compression.Integers.csproj -IncludeReferencedProjects
 pause
