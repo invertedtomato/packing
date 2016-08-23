@@ -48,6 +48,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EliasDeltaSignedReader.cs" />
+    <Compile Include="EliasDeltaSignedWriter.cs" />
+    <Compile Include="EliasDeltaUnsignedReader.cs" />
+    <Compile Include="EliasDeltaUnsignedWriter.cs" />
     <Compile Include="Fibonacci.cs" />
     <Compile Include="FibonacciSignedReader.cs" />
     <Compile Include="ThompsonAlphaSignedReader.cs" />
@@ -81,6 +85,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
