@@ -59,28 +59,28 @@ namespace InvertedTomato.Compression.Integers {
             // Set default value
             ulong value = 0;
 
-            // Read first bit
-            var bit = Input.Read(1);
+            var lastBit = false;
+            var fibIdx = 0;
+            do {
+                if (Input.Read(1) > 0) {
+                    if (lastBit) {
+                        break;
+                    }
 
-            for (var i = 0; i < Fibonacci.Values.Length; i++) {
-                // If true
-                bool hit = false;
-                if (bit > 0) {
-                    value += Fibonacci.Values[i];
-                    hit = true;
+                    value += Fibonacci.Values[fibIdx];
+                    lastBit = true;
+                }else {
+                    lastBit = false;
                 }
 
-                // Read next bit
-                bit = Input.Read(1);
-
-                // If double 1 bit, it's the end
-                if (hit && bit > 0) {
-                    break;
-                } else if (i == Fibonacci.Values.Length) {
-                    throw new InvalidOperationException("Haven't encountered final bit.");
+                fibIdx++;
+#if DEBUG
+                if (fibIdx == Fibonacci.Values.Length - 1) {
+                    throw new OverflowException("Value too long to decode.");
                 }
-            }
-
+#endif
+            } while (true);
+            
             // Remove zero offset
             value--;
 

@@ -3,7 +3,6 @@
 namespace InvertedTomato.Compression.Integers {
     public static class Fibonacci {
         public static readonly ulong[] Values;
-        public static Dictionary<byte, ulong> Values2;
 
         static Fibonacci() {
             // Compute all Fibonacci numbers that can fit in a ulong
