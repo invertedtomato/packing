@@ -76,23 +76,37 @@ namespace InvertedTomato.Compression.Integers {
             value++;
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
-            Stack<ulong> buffer = null;
-            for (var i = Fibonacci.Values.Length - 1; i >= 0; i--) {
+            ulong[] buffer = new ulong[2];
+            int maxFibIdx = 0;
+            for (var fibIdx = Fibonacci.Values.Length - 1; fibIdx >= 0; fibIdx--) {
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
-                // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-                if (value >= Fibonacci.Values[i]) {
-                    if (null == buffer) {
-                        buffer = new Stack<ulong>();
+                if (value >= Fibonacci.Values[fibIdx]) {
+                    // Detect if this is the largest fib and store
+                    if (maxFibIdx == 0) {
+                        maxFibIdx = fibIdx;
                     }
-                    buffer.Push(1);
-                    value -= Fibonacci.Values[i];
-                } else if (null != buffer) {
-                    buffer.Push(0);
+
+                    // Write to buffer
+                    if (maxFibIdx < 64) {
+                        buffer[0] |= (ulong)1 << maxFibIdx - fibIdx;
+                    } else if (fibIdx >= 64) {
+                        buffer[1] |= (ulong)1 << maxFibIdx - fibIdx;
+                    } else {
+                        buffer[0] |= (ulong)1 << 63 - fibIdx;
+                    }
+
+                    // Deduct Fibonacci number from value
+                    value -= Fibonacci.Values[fibIdx];
                 }
             }
+            // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
 
-            foreach (var item in buffer) {
-                Output.Write(item, 1);
+            // Write to output
+            if (maxFibIdx >= 64) {
+                Output.Write(buffer[0], 64);
+                Output.Write(buffer[1], maxFibIdx - 64 + 1);
+            } else {
+                Output.Write(buffer[0], maxFibIdx + 1);
             }
 
             // #4 Place an additional 1 after the rightmost digit in the code word.

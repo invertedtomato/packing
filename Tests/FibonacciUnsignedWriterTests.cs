@@ -65,6 +65,18 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual("10000110", Write(13));
         }
         [TestMethod]
+        public void Write_63th() {
+            Assert.AreEqual("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000011", Write(10610209857722));
+        }
+        [TestMethod]
+        public void Write_64th() {
+            Assert.AreEqual("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 10000000", Write(17167680177564));
+        }
+        [TestMethod]
+        public void Write_65th() {
+            Assert.AreEqual("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 11000000", Write(27777890035287));
+        }
+        [TestMethod]
         public void Write_Max() {
             Assert.AreEqual("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000", Write(ulong.MaxValue - 1)); // Not completely sure about this value
         }
@@ -99,6 +111,12 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
                 Assert.AreEqual(input, output);
             }
+        }
+
+        [TestMethod]
+        public void WriteRead_100000000000000() {
+            var encoded = FibonacciUnsignedWriter.WriteOneDefault(100000000000000);
+            Assert.AreEqual((ulong)100000000000000, FibonacciUnsignedReader.ReadOneDefault(encoded));
         }
 
         [TestMethod]
