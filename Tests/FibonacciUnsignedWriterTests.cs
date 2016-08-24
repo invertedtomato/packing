@@ -65,6 +65,14 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual("10000110", Write(13));
         }
         [TestMethod]
+        public void Write_1st() {
+            Assert.AreEqual("11000000", Write(0));
+        }
+        [TestMethod]
+        public void Write_2nd() {
+            Assert.AreEqual("01100000", Write(1));
+        }
+        [TestMethod]
         public void Write_63th() {
             Assert.AreEqual("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000011", Write(10610209857722));
         }

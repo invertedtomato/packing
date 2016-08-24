@@ -76,6 +76,7 @@ namespace InvertedTomato.Compression.Integers {
             value++;
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
+            // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
             ulong[] buffer = new ulong[2];
             int maxFibIdx = 0;
             for (var fibIdx = Fibonacci.Values.Length - 1; fibIdx >= 0; fibIdx--) {
@@ -99,8 +100,7 @@ namespace InvertedTomato.Compression.Integers {
                     value -= Fibonacci.Values[fibIdx];
                 }
             }
-            // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-
+            
             // Write to output
             if (maxFibIdx >= 64) {
                 Output.Write(buffer[0], 64);
