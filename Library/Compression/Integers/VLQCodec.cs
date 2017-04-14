@@ -70,6 +70,9 @@ namespace InvertedTomato.Compression.Integers {
             } while (DecompressedSet.TryDequeue(out value));
         }
 
+        private ulong DecompressSymbol = 0;
+        private int DecompressBit = 0;
+
         public int Decompress() {
 #if DEBUG
             if (null == CompressedSet) {
@@ -83,29 +86,28 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             // Setup symbol
-            ulong symbol = 0;
-            var bit = 0;
+            
 
             // Iterate through input
             byte input;
             while (CompressedSet.TryDequeue(out input)) {
                 // Add input bits to output
                 var chunk = (ulong)(input & MASK);
-                symbol += chunk + 1 << bit;
-                bit += PACKETSIZE;
+                DecompressSymbol += chunk + 1 << DecompressBit;
+                DecompressBit += PACKETSIZE;
 
                 // If last byte in symbol
                 if ((input & MSB) > 0) {
                     // Remove zero offset
-                    symbol--;
+                    DecompressSymbol--;
 
                     // If output hasn't been allocated...
                     if (null == DecompressedSet) {
                         // Allocate output
-                        DecompressedSet = new Buffer<ulong>((int)symbol);
+                        DecompressedSet = new Buffer<ulong>((int)DecompressSymbol);
                     } else {
                         // Add to output
-                        DecompressedSet.Enqueue(symbol);
+                        DecompressedSet.Enqueue(DecompressSymbol);
 
                         // If we've run out of output buffer
                         if (DecompressedSet.IsFull) {
@@ -120,8 +122,8 @@ namespace InvertedTomato.Compression.Integers {
                     }
 
                     // Reset for next symbol
-                    symbol = 0;
-                    bit = 0;
+                    DecompressSymbol = 0;
+                    DecompressBit = 0;
                 }
             }
 

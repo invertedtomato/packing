@@ -297,6 +297,52 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
 
 
+        /// <summary>
+        /// Simulate a packet split mid-symbol.
+        /// </summary>
+        [TestMethod]
+        public void Decompress_11_11_11__SplitWithin_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(10);
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10111010 11101011"));
+            Assert.AreEqual(1, codec.Decompress());
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10101100"));
+            Assert.AreEqual(0, codec.Decompress());
+
+            var set = codec.DecompressedSet.ToArray();
+            Assert.AreEqual(3, set.Length);
+            Assert.AreEqual((ulong)11, set[0]);
+            Assert.AreEqual((ulong)11, set[1]);
+            Assert.AreEqual((ulong)11, set[2]);
+        }
+
+        /// <summary>
+        /// Simulate a packet split between-symbols.
+        /// </summary>
+        [TestMethod]
+        public void Decompress_0_0_0_0_0_0_0_0_0_SplitBetween_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(10);
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("01001111"));
+            Assert.AreEqual(1, codec.Decompress());
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("11111111 11111111"));
+            Assert.AreEqual(0, codec.Decompress());
+
+            var set = codec.DecompressedSet.ToArray();
+            Assert.AreEqual(9, set.Length);
+            Assert.AreEqual((ulong)0, set[0]);
+            Assert.AreEqual((ulong)0, set[1]);
+            Assert.AreEqual((ulong)0, set[2]);
+            Assert.AreEqual((ulong)0, set[3]);
+            Assert.AreEqual((ulong)0, set[4]);
+            Assert.AreEqual((ulong)0, set[5]);
+            Assert.AreEqual((ulong)0, set[6]);
+            Assert.AreEqual((ulong)0, set[7]);
+            Assert.AreEqual((ulong)0, set[8]);
+        }
+
 
 
 

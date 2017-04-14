@@ -298,6 +298,47 @@ namespace InvertedTomato.Compression.Integers {
             Assert.AreEqual(1, codec.Decompress());
         }
 
+        /// <summary>
+        /// Simulate a packet split mid-symbol.
+        /// </summary>
+        [TestMethod]
+        public void Decompress_16511_16512_16511_SplitWithin_WithHeader() {
+            var codec = new VLQCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(10);
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10000011 01111111 11111111 00000000"));
+            Assert.AreEqual(1, codec.Decompress());
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("00000000 10000000 01111111 11111111"));
+            Assert.AreEqual(0, codec.Decompress());
+
+            var set = codec.DecompressedSet.ToArray();
+            Assert.AreEqual(3, set.Length);
+            Assert.AreEqual((ulong)16511, set[0]);
+            Assert.AreEqual((ulong)16512, set[1]);
+            Assert.AreEqual((ulong)16511, set[2]);
+        }
+
+        /// <summary>
+        /// Simulate a packet split between-symbols.
+        /// </summary>
+        [TestMethod]
+        public void Decompress_16511_16512_16511_SplitBetween_WithHeader() {
+            var codec = new VLQCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(10);
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10000011 01111111 11111111 00000000 00000000 10000000"));
+            Assert.AreEqual(1, codec.Decompress());
+            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("01111111 11111111"));
+            Assert.AreEqual(0, codec.Decompress());
+
+            var set = codec.DecompressedSet.ToArray();
+            Assert.AreEqual(3, set.Length);
+            Assert.AreEqual((ulong)16511, set[0]);
+            Assert.AreEqual((ulong)16512, set[1]);
+            Assert.AreEqual((ulong)16511, set[2]);
+        }
+
+
 
 
         [TestMethod]
