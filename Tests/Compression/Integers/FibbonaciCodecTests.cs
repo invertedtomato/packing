@@ -82,37 +82,14 @@ namespace InvertedTomato.Compression.Integers.Tests {
         public void Compress_0_1_2() {
             Assert.AreEqual("11011001 10000000", CompressSet(new ulong[] { 0, 1, 2 }));
         }
-
         [TestMethod]
-        public void Compress_0_WithHeader() {
-            Assert.AreEqual("11110000", CompressSymbol(0, true));
+        public void Compress_Empty() {
+            Assert.AreEqual("", CompressSet(new ulong[] { }));
         }
-        [TestMethod]
-        public void Compress_1_WithHeader() {
-            Assert.AreEqual("11011000", CompressSymbol(1, true));
-        }
-        [TestMethod]
-        public void Compress_2_WithHeader() {
-            Assert.AreEqual("11001100", CompressSymbol(2, true));
-        }
-        [TestMethod]
-        public void Compress_0_1_2_WithHeader() {
-            Assert.AreEqual("00111101 10011000", CompressSet(new ulong[] { 0, 1, 2 }, true));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Compress_NoParams() {
-            Assert.AreEqual("11111111", CompressSet(new ulong[] { }));
-        }
-
-
-
         [TestMethod]
         public void Compress_10x1() {
             Assert.AreEqual("11111111 11111111 11110000", CompressSet(new ulong[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
-
         [TestMethod]
         public void Compress_10xSize() {
             var codec = new FibonacciCodec();
@@ -120,12 +97,30 @@ namespace InvertedTomato.Compression.Integers.Tests {
             codec.Compress();
             Assert.AreEqual(Math.Ceiling((float)(10 * 2) / 8), codec.CompressedSet.ToArray().Length);
         }
+        [TestMethod]
+        public void Compress_0_WithHeader() {
+            Assert.AreEqual("01111000", CompressSymbol(0, true));
+        }
+        [TestMethod]
+        public void Compress_1_WithHeader() {
+            Assert.AreEqual("01101100", CompressSymbol(1, true));
+        }
+        [TestMethod]
+        public void Compress_2_WithHeader() {
+            Assert.AreEqual("01100110", CompressSymbol(2, true));
+        }
+        [TestMethod]
+        public void Compress_0_1_2_WithHeader() {
+            Assert.AreEqual("10111101 10011000", CompressSet(new ulong[] { 0, 1, 2 }, true));
+        }
+        [TestMethod]
+        public void Compress_Empty_WithHeader() {
+            Assert.AreEqual("11000000", CompressSet(new ulong[] { }, true));
+        }
 
 
 
-
-
-
+        
 
 
         private ulong[] DecompressSet(string value, bool includeHeader = false) {
@@ -220,20 +215,20 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
         [TestMethod]
         public void Decompress_0_WithHeader() {
-            Assert.AreEqual((ulong)0, DecompressSymbol("1111 0000", true));
+            Assert.AreEqual((ulong)0, DecompressSymbol("011 11 000", true)); // 1 0
         }
         [TestMethod]
         public void Decompress_1_WithHeader() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("11011 000", true));
+            Assert.AreEqual((ulong)1, DecompressSymbol("011 011 00", true)); // 1 1
         }
         [TestMethod]
         public void Decompress_2_WithHeader() {
-            Assert.AreEqual((ulong)2, DecompressSymbol("110011 00", true));
+            Assert.AreEqual((ulong)2, DecompressSymbol("0110 011 0", true)); // 1 2
         }
 
         [TestMethod]
         public void Decompress_0_1_2_WithHeader() {
-            var symbols = DecompressSet("0011 11 011 0011 000", true); // 0 1 2
+            var symbols = DecompressSet("1011 11 011 0011 000", true); // 0 1 2
             Assert.AreEqual((ulong)0, symbols[0]);
             Assert.AreEqual((ulong)1, symbols[1]);
             Assert.AreEqual((ulong)2, symbols[2]);
@@ -243,7 +238,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
         [TestMethod]
         public void Decompress_0_WithHeader_WithTrailingJunk() {
-            var symbols = DecompressSet("11 11 11 11", true); // 0 0 0 0
+            var symbols = DecompressSet("011 11 11 11 0000000", true); // 1 0 0 0
             Assert.AreEqual(1, symbols.Length); // Important to check there's no trailing 0s which happens when it isn't a complete byte
             Assert.AreEqual((ulong)0, symbols[0]);
         }

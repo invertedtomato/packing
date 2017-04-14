@@ -40,10 +40,13 @@ namespace InvertedTomato.Compression.Integers {
             if (null == DecompressedSet) {
                 throw new InvalidOperationException("DecompressedSet is null.");
             }
-            if (DecompressedSet.IsEmpty) {
-                throw new InvalidOperationException("DecompressedSet is empty. It must contain at least one value.");
-            }
 #endif
+
+            // Quickly handle empty sets with no headers - they'll cause issues later if not handled here
+            if (!IncludeHeader && DecompressedSet.IsEmpty) {
+                CompressedSet = new Buffer<byte>(0);
+                return;
+            }
 
             // Allocate buffer for compressed output - we assume the worst-case compression (could be optimised to lazy grow?)
             CompressedSet = new Buffer<byte>((DecompressedSet.Used + 1) * 12);
@@ -52,7 +55,7 @@ namespace InvertedTomato.Compression.Integers {
             var current = new BitBuffer();
 
             // Get first symbol
-            var symbol = IncludeHeader ? (ulong)DecompressedSet.Used - 1 : DecompressedSet.Dequeue();
+            var symbol = IncludeHeader ? (ulong)DecompressedSet.Used : DecompressedSet.Dequeue();
 
             // Iterate through all symbols
             do {
@@ -136,7 +139,7 @@ namespace InvertedTomato.Compression.Integers {
                         if (DecompressLastBit) {
                             if (null == DecompressedSet) {
                                 // Prepare for next message
-                                DecompressedSet = new Buffer<ulong>((int)DecompressSymbol);
+                                DecompressedSet = new Buffer<ulong>((int)DecompressSymbol - 1);
                             } else {
                                 // Remove zero offset
                                 DecompressSymbol--;
