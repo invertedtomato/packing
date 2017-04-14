@@ -313,15 +313,15 @@ namespace InvertedTomato.Compression.Integers.Tests {
         public void CompressDecompress_First1000_Parallel_WithHeader() {
             var set = new ulong[1000];
 
-            for (var i = 0; i < set.Length; i++) {
-                set[i] = (ulong)i;
+            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
+                set[i] = i;
             }
 
             var encoded = CompressSet(set, true);
             var decoded = DecompressSet(encoded, true);
 
             Assert.AreEqual(set.Length, decoded.Length);
-            for (var i = 0; i < set.Length; i++) {
+            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
                 Assert.AreEqual((ulong)i, decoded[i]);
             }
         }

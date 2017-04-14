@@ -144,18 +144,20 @@ namespace InvertedTomato.Compression.Integers {
                     if (((input << inputPosition) & MSB) > 0) {
                         // If double 1 bits
                         if (DecompressLastBit) {
-                            if (null == DecompressedSet) {
-                                // Prepare for next message
-                                DecompressedSet = new Buffer<ulong>((int)DecompressSymbol - 1);
-                            } else {
-                                // Remove zero offset
-                                DecompressSymbol--;
+                            // Remove zero offset
+                            DecompressSymbol--;
 
+                            // If output hasn't been allocated...
+                            if (null == DecompressedSet) {
+                                // Allocate output
+                                DecompressedSet = new Buffer<ulong>((int)DecompressSymbol);
+                            } else {
                                 // Add to output
                                 DecompressedSet.Enqueue(DecompressSymbol);
 
-                                // If all symbols have arrived for this set
+                                // If we've run out of output buffer
                                 if (DecompressedSet.IsFull) {
+                                    // This had a header, so that must be all the data
                                     if (IncludeHeader) {
                                         // Return
                                         return 0;
