@@ -65,6 +65,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Compression\Integers\FibbonaciCodecTests.cs" />
+    <Compile Include="Compression\Integers\VLQCodecTests.cs" />
     <Compile Include="Legacy\EliasDeltaSignedReaderTests.cs" />
     <Compile Include="Legacy\EliasDeltaUnsignedReaderTests.cs" />
     <Compile Include="Legacy\EliasDeltaUnsignedWriterTests.cs" />
