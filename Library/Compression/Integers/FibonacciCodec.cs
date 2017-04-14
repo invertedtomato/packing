@@ -18,9 +18,6 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         private const byte MSB = 0x80;
 
-        private const int DefaultSetSize = 8;
-        private const int GrowthRate = 2;
-
         static FibonacciCodec() {
             // Compute all Fibonacci numbers that can fit in a ulong.
             Lookup[0] = 1;
@@ -30,6 +27,16 @@ namespace InvertedTomato.Compression.Integers {
             }
         }
 
+        /// <summary>
+        /// The guessed size of buffer when there is no indication otherwise.
+        /// </summary>
+        public int BufferDefaultSize { get; set; } = 8;
+
+        /// <summary>
+        /// When BufferDefaultSize proves to be too small, increase the size by this factor.
+        /// </summary>
+        public int BufferGrowthFactor { get; set; } = 2;
+        
         public bool IncludeHeader { get; set; }
         public Buffer<ulong> DecompressedSet { get; set; }
         public Buffer<byte> CompressedSet { get; set; }
@@ -55,25 +62,25 @@ namespace InvertedTomato.Compression.Integers {
             var current = new BitBuffer();
 
             // Get first symbol
-            var symbol = IncludeHeader ? (ulong)DecompressedSet.Used : DecompressedSet.Dequeue();
+            var value = IncludeHeader ? (ulong)DecompressedSet.Used : DecompressedSet.Dequeue();
 
             // Iterate through all symbols
             do {
 #if DEBUG
-                if (symbol > MaxValue) {
+                if (value > MaxValue) {
                     throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
                 }
 #endif
 
                 // Fibbonacci doesn't support 0s, so add 1 to allow for them
-                symbol++;
+                value++;
 
                 // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
                 // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
                 bool[] map = null;
                 for (var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
                     // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
-                    if (symbol >= Lookup[fibIdx]) {
+                    if (value >= Lookup[fibIdx]) {
                         // Detect if this is the largest fib and store
                         if (null == map) {
                             map = new bool[fibIdx + 1];
@@ -83,7 +90,7 @@ namespace InvertedTomato.Compression.Integers {
                         map[fibIdx] = true;
 
                         // Deduct Fibonacci number from value
-                        symbol -= Lookup[fibIdx];
+                        value -= Lookup[fibIdx];
                     }
                 }
 
@@ -98,7 +105,7 @@ namespace InvertedTomato.Compression.Integers {
                 if (current.Append(true)) {
                     CompressedSet.Enqueue(current.Clear());
                 }
-            } while (DecompressedSet.TryDequeue(out symbol));
+            } while (DecompressedSet.TryDequeue(out value));
 
 
             // Flush bit buffer
@@ -126,7 +133,7 @@ namespace InvertedTomato.Compression.Integers {
 
             // If there's no header, lets assume the set is "default" sized
             if (!IncludeHeader && null == DecompressedSet) {
-                DecompressedSet = new Buffer<ulong>(DefaultSetSize);
+                DecompressedSet = new Buffer<ulong>(BufferDefaultSize);
             }
 
             byte input;
@@ -154,7 +161,7 @@ namespace InvertedTomato.Compression.Integers {
                                         return 0;
                                     } else {
                                         // There's no header - we don't know how big the set it, and the output is full - grow it
-                                        DecompressedSet = DecompressedSet.Resize(DecompressedSet.Used * GrowthRate);
+                                        DecompressedSet = DecompressedSet.Resize(DecompressedSet.Used * BufferGrowthFactor);
                                     }
                                 }
                             }
