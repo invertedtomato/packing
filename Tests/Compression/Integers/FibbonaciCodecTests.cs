@@ -19,6 +19,10 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
 
         [TestMethod]
+        public void Compress_Empty() {
+            Assert.AreEqual("", CompressSet(new ulong[] { }));
+        }
+        [TestMethod]
         public void Compress_0() {
             Assert.AreEqual("11000000", CompressSymbol(0));
         }
@@ -83,10 +87,6 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual("11011001 10000000", CompressSet(new ulong[] { 0, 1, 2 }));
         }
         [TestMethod]
-        public void Compress_Empty() {
-            Assert.AreEqual("", CompressSet(new ulong[] { }));
-        }
-        [TestMethod]
         public void Compress_10x1() {
             Assert.AreEqual("11111111 11111111 11110000", CompressSet(new ulong[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
@@ -96,6 +96,11 @@ namespace InvertedTomato.Compression.Integers.Tests {
             codec.DecompressedSet = new Buffer<ulong>(new ulong[10]);
             codec.Compress();
             Assert.AreEqual(Math.Ceiling((float)(10 * 2) / 8), codec.CompressedSet.ToArray().Length);
+        }
+
+        [TestMethod]
+        public void Compress_Empty_WithHeader() {
+            Assert.AreEqual("11000000", CompressSet(new ulong[] { }, true));
         }
         [TestMethod]
         public void Compress_0_WithHeader() {
@@ -113,10 +118,6 @@ namespace InvertedTomato.Compression.Integers.Tests {
         public void Compress_0_1_2_WithHeader() {
             Assert.AreEqual("10111101 10011000", CompressSet(new ulong[] { 0, 1, 2 }, true));
         }
-        [TestMethod]
-        public void Compress_Empty_WithHeader() {
-            Assert.AreEqual("11000000", CompressSet(new ulong[] { }, true));
-        }
 
 
 
@@ -133,14 +134,20 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
         private ulong DecompressSymbol(string value, bool includeHeader = false) {
             var set = DecompressSet(value, includeHeader);
-
-            Assert.IsTrue(set.Length <= 2);
-
+            Assert.IsTrue(set.Length <= 2); // There's possibly a trailing value from unused bits
             return set[0];
         }
 
 
 
+        [TestMethod]
+        public void Decompress_Empty1() {
+            Assert.AreEqual(0, DecompressSet("").Length);
+        }
+        [TestMethod]
+        public void Decompress_Empty2() {
+            Assert.AreEqual(0, DecompressSet("00000000").Length); // Trailing bits are ignored
+        }
         [TestMethod]
         public void Decompress_0() {
             Assert.AreEqual((ulong)0, DecompressSymbol("11 000000"));
@@ -214,6 +221,27 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
 
         [TestMethod]
+        public void Decompress_Empty1_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
+            Assert.AreEqual(1, codec.Decompress());
+        }
+        [TestMethod]
+        public void Decompress_Empty2_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
+            Assert.AreEqual(1, codec.Decompress());
+        }
+        [TestMethod]
+        public void Decompress_Empty3_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("11 000000 00000000")); // Trailing bits are ignored
+            Assert.AreEqual(1, codec.Decompress());
+        }
+        [TestMethod]
         public void Decompress_0_WithHeader() {
             Assert.AreEqual((ulong)0, DecompressSymbol("011 11 000", true)); // 1 0
         }
@@ -241,6 +269,61 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var symbols = DecompressSet("011 11 11 11 0000000", true); // 1 0 0 0
             Assert.AreEqual(1, symbols.Length); // Important to check there's no trailing 0s which happens when it isn't a complete byte
             Assert.AreEqual((ulong)0, symbols[0]);
+        }
+
+
+        [TestMethod]
+        public void Decompress_InsufficentData1_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
+            Assert.AreEqual(1, codec.Decompress());
+        }
+        [TestMethod]
+        public void Decompress_InsufficentData2_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
+            Assert.AreEqual(1, codec.Decompress());
+        }
+        [TestMethod]
+        public void Decompress_InsufficentData3_WithHeader() {
+            var codec = new FibonacciCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("01100000"));
+            Assert.AreEqual(1, codec.Decompress());
+        }
+
+
+
+
+
+
+
+        [TestMethod]
+        public void CompressDecompress_First1000_Series_WithHeader() {
+            for (ulong input = 0; input < 1000; input++) {
+                var encoded = CompressSymbol(input, true);
+                var output = DecompressSymbol(encoded, true);
+
+                Assert.AreEqual(input, output);
+            }
+        }
+        [TestMethod]
+        public void CompressDecompress_First1000_Parallel_WithHeader() {
+            var set = new ulong[1000];
+
+            for (var i = 0; i < set.Length; i++) {
+                set[i] = (ulong)i;
+            }
+
+            var encoded = CompressSet(set, true);
+            var decoded = DecompressSet(encoded, true);
+
+            Assert.AreEqual(set.Length, decoded.Length);
+            for (var i = 0; i < set.Length; i++) {
+                Assert.AreEqual((ulong)i, decoded[i]);
+            }
         }
     }
 }
