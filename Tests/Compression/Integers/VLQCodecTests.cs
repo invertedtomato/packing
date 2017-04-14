@@ -119,7 +119,7 @@ namespace InvertedTomato.Compression.Integers {
         public void CompressDecompress_First1000_Parallel() {
             var set = new ulong[1000];
 
-            for (var i = 0; i < set.Length; i++) {
+            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
                 set[i] = (ulong)i;
             }
 
@@ -127,7 +127,7 @@ namespace InvertedTomato.Compression.Integers {
             var decoded = DecompressSet(encoded);
 
             Assert.AreEqual(set.Length, decoded.Length);
-            for (var i = 0; i < set.Length; i++) {
+            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
                 Assert.AreEqual(i, decoded[i]);
             }
         }
@@ -212,10 +212,6 @@ namespace InvertedTomato.Compression.Integers {
         }
 
         [TestMethod]
-        public void Decompress_UnneededBytes() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("10000001 10000000 10000000")); // Ignore trailing bytes
-        }
-        [TestMethod]
         public void Decompress_1_1_1() {
             var set = DecompressSet("10000001 10000001 10000001");
             Assert.AreEqual(3, set.Length);
@@ -226,11 +222,17 @@ namespace InvertedTomato.Compression.Integers {
 
         [TestMethod]
         public void Decompress_InsufficentBytes1() {
-            Assert.AreEqual((ulong)1, DecompressSymbol(""));
+            var codec = new VLQCodec();
+            codec.IncludeHeader = false;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
+            Assert.AreEqual(0, codec.Decompress());
         }
         [TestMethod]
         public void Decompress_InsufficentBytes2() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("00000000"));
+            var codec = new VLQCodec();
+            codec.IncludeHeader = false;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
+            Assert.AreEqual(0, codec.Decompress());
         }
 
         [TestMethod]
@@ -268,19 +270,32 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Decompress_128_WithHeader() {
-            Assert.AreEqual((ulong)128, DecompressSymbol("10000010 00000000 10000000", true));
+            Assert.AreEqual((ulong)128, DecompressSymbol("10000001 00000000 10000000", true));
+        }
+        [TestMethod]
+        public void Decompress_UnneededBytes_WithHeader() {
+            Assert.AreEqual((ulong)1, DecompressSymbol("10000001 10000001 10000000", true)); // Ignore trailing bytes
         }
         [TestMethod]
         public void Decompress_InsufficentBytes1_WithHeader() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("", true));
+            var codec = new VLQCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
+            Assert.AreEqual(1, codec.Decompress());
         }
         [TestMethod]
         public void Decompress_InsufficentBytes2_WithHeader() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("00000000", true));
+            var codec = new VLQCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
+            Assert.AreEqual(1, codec.Decompress());
         }
         [TestMethod]
         public void Decompress_InsufficentBytes3_WithHeader() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("10000001", true));
+            var codec = new VLQCodec();
+            codec.IncludeHeader = true;
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("10000001"));
+            Assert.AreEqual(1, codec.Decompress());
         }
 
 

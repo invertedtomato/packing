@@ -82,53 +82,47 @@ namespace InvertedTomato.Compression.Integers {
                 DecompressedSet = new Buffer<ulong>(BufferDefaultSize);
             }
 
-            // Setup offset
+            // Setup symbol
             ulong symbol = 0;
-            //var symbolPosition = 0;
+            var bit = 0;
 
+            // Iterate through input
             byte input;
             while (CompressedSet.TryDequeue(out input)) {
-                // Add bits to symbol
-                symbol <<= 7;
-                symbol |= (ulong)(input & MASK);
-                
+                // Add input bits to output
+                var chunk = (ulong)(input & MASK);
+                symbol += chunk + 1 << bit;
+                bit += PACKETSIZE;
+
                 // If last byte in symbol
                 if ((input & MSB) > 0) {
-                    // If output is full, resize to make room
-                    if (DecompressedSet.IsFull) {
-                        DecompressedSet.Resize(DecompressedSet.Used * BufferGrowthFactor);
+                    // Remove zero offset
+                    symbol--;
+
+                    // If output hasn't been allocated...
+                    if (null == DecompressedSet) {
+                        // Allocate output
+                        DecompressedSet = new Buffer<ulong>((int)symbol);
+                    } else {
+                        // Add to output
+                        DecompressedSet.Enqueue(symbol);
+
+                        // If we've run out of output buffer
+                        if (DecompressedSet.IsFull) {
+                            // This had a header, so that must be all the data
+                            if (IncludeHeader) {
+                                return 0;
+                            } else {
+                                // There's no header - we don't know how big the set it, and the output is full - grow it
+                                DecompressedSet = DecompressedSet.Resize(DecompressedSet.Used * BufferGrowthFactor);
+                            }
+                        }
                     }
-                    DecompressedSet.Enqueue(symbol);
 
                     // Reset for next symbol
-                    //symbolPosition = 0;
                     symbol = 0;
+                    bit = 0;
                 }
-
-
-                // Remove zero offset
-                symbol++;
-
-                /*
-                // Set value to 0
-                ulong value = 0;
-
-                bool final;
-                do {
-                    // Read if this is the final packet
-                    final = Input.Read(1) > 0;
-
-                    // Read payload
-                    var chunk = Input.Read(PacketSize);
-
-                    // Add payload to value
-                    value += chunk + 1 << symbolPosition;
-
-                    // Update target offset
-                    symbolPosition += PacketSize;
-                } while (!final);
-                */
-
             }
 
             // Without a header we didn't know how much data to expect anyway. This must be all.
