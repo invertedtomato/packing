@@ -1,3 +1,3 @@
 @echo off
-nuget pack Library/Library.csproj -IncludeReferencedProjects
+dotnet pack Library/Library.csproj --include-symbols
 pause

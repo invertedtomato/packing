@@ -1,37 +1,50 @@
-﻿using System;
-using System.IO;
+﻿using InvertedTomato.IO.Buffers;
+using System;
 
 namespace InvertedTomato.Compression.Integers.Sample {
     class Program {
         static void Main(string[] args) {
-            using (var stream = new MemoryStream()) {
-                // Make a writer to encode values onto your stream
-                using (var writer = new FibonacciUnsignedWriter(stream)) { // Fibonacci is just one algorithm
-                    // Write 1st value
-                    writer.Write(1); // 8 bytes in memory
+            
+            // ===== COMPRESS =====
 
-                    // Write 2nd value
-                    writer.Write(2); // 8 bytes in memory
+            // Instantiate the codec ready to compress
+            var compressor = new FibonacciCodec();
 
-                    // Write 3rd value
-                    writer.Write(3); // 8 bytes in memory
-                }
+            // Give it a set of data - 3x8 bytes = 24bytes uncompressed 
+            compressor.DecompressedSet = new Buffer<ulong>(new ulong[] { 1, 2, 3 });
 
-                Console.WriteLine("Compressed data is " + stream.Length + " bytes");
-                // Output: Compressed data is 2 bytes
+            // Compress it
+            compressor.Compress();
 
-                stream.Position = 0;
+            // Get compressed data
+            var compressed = compressor.CompressedSet.ToArray();
 
-                // Make a reader to decode values from your stream
-                using (var reader = new FibonacciUnsignedReader(stream)) {
-                    Console.WriteLine(reader.Read());
-                    // Output: 1
-                    Console.WriteLine(reader.Read());
-                    // Output: 2
-                    Console.WriteLine(reader.Read());
-                    // Output: 3
-                }
-            }
+            // Check its size
+            Console.WriteLine("Compressed data is " + compressed.Length + " bytes");
+            // Output: Compressed data is 2 bytes
+
+
+            // ===== DECOMPRESS =====
+
+            // Instantiate the codec ready to decompress
+            var decompressor = new FibonacciCodec();
+
+            // Give it a set of data
+            decompressor.CompressedSet = new Buffer<byte>(compressed);
+
+            // Decompress
+            decompressor.Decompress();
+
+            // Get decompressed data
+            var decompressed = decompressor.DecompressedSet.ToArray();
+
+            // Check the result
+            Console.WriteLine(decompressed[0]);
+            // Output: 1
+            Console.WriteLine(decompressed[1]);
+            // Output: 2                
+            Console.WriteLine(decompressed[2]);
+            // Output: 3
 
             Console.ReadKey(true);
         }

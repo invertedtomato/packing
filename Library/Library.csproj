@@ -5,13 +5,16 @@
     <AssemblyName>InvertedTomato.IntegerCompression</AssemblyName>
     <RootNamespace>InvertedTomato</RootNamespace>
     <PackageLicenseUrl>https://github.com/invertedtomato/integer-compression/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/invertedtomato/integer-compression&lt;</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/invertedtomato/integer-compression&lt;</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/invertedtomato/integer-compression</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/invertedtomato/integer-compression</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Compression VLQ Elias Omega Gamma Delta Fibonacci Integer Numbers</PackageTags>
     <Version>1.1.0</Version>
     <Description>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
     <Copyright>Inverted Tomato</Copyright>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Inverted Tomato</Authors>
+    <Company>Inverted Tomato</Company>
   </PropertyGroup>
 
   <ItemGroup>

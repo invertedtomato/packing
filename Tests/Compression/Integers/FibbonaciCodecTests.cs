@@ -118,7 +118,18 @@ namespace InvertedTomato.Compression.Integers.Tests {
         public void Compress_0_1_2_WithHeader() {
             Assert.AreEqual("10111101 10011000", CompressSet(new ulong[] { 0, 1, 2 }, true));
         }
+        [TestMethod]
+        public void Compress_PointerReset() {
+            var codec = new FibonacciCodec();
+            codec.DecompressedSet = new Buffer<ulong>(new ulong[] { 0 });
+            codec.Compress();
 
+            Assert.AreEqual(1, codec.DecompressedSet.Start);
+            Assert.AreEqual(1, codec.DecompressedSet.End);
+
+            Assert.AreEqual(0, codec.CompressedSet.Start);
+            Assert.AreEqual(1, codec.CompressedSet.End);
+        }
 
 
         
@@ -343,6 +354,18 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual((ulong)0, set[8]);
         }
 
+        [TestMethod]
+        public void Decompress_PointerReset() {
+            var codec = new FibonacciCodec();
+            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00111111"));
+            codec.Decompress();
+
+            Assert.AreEqual(1, codec.CompressedSet.Start);
+            Assert.AreEqual(1, codec.CompressedSet.End);
+
+            Assert.AreEqual(0, codec.DecompressedSet.Start);
+            Assert.AreEqual(3, codec.DecompressedSet.End);
+        }
 
 
 

@@ -113,8 +113,7 @@ namespace InvertedTomato.Compression.Integers {
                 CompressedSet.Enqueue(current.Clear());
             }
         }
-
-
+        
         // Current symbol being decoded.
         ulong DecompressSymbol = 0;
 
