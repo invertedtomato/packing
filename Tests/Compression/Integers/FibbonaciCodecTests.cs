@@ -10,14 +10,14 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<ulong>(set);
             var output = new Buffer<byte>(outputBufferSize);
             var codec = new FibonacciCodec();
-            Assert.AreEqual(set.Length, codec.CompressMany(input, output));
+            Assert.IsTrue(codec.Compress(input, output));
 
             return output.ToArray().ToBinaryString();
         }
         public string CompressOne(ulong value, int outputBufferSize = 8) {
             var output = new Buffer<byte>(outputBufferSize);
             var codec = new FibonacciCodec();
-            codec.CompressOne(value, output);
+            codec.Compress(value, output);
 
             return output.ToArray().ToBinaryString();
         }
@@ -99,11 +99,35 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<ulong>(new ulong[10]);
             var output = new Buffer<byte>(32);
             var codec = new FibonacciCodec();
-            codec.CompressMany(input, output);
+            codec.Compress(input, output);
             Assert.AreEqual(Math.Ceiling((float)(10 * 2) / 8), output.ToArray().Length);
         }
-
-
+        /// <summary>
+        /// When the output buffer gets full before all of the input is consumed.
+        /// </summary>
+        [TestMethod]
+        public void Compress_OutputFull() {
+            var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
+            var output = new Buffer<byte>(1);
+            var codec = new FibonacciCodec();
+            Assert.IsFalse(codec.Compress(input, output));
+            Assert.AreEqual("", output.ToArray().ToBinaryString());
+            Assert.AreEqual(0, input.Start);
+            Assert.AreEqual(3, input.End);
+        }
+        /// <summary>
+        /// When there is exactly enough space in the output buffer for all the input.
+        /// </summary>
+        [TestMethod]
+        public void Compress_OutputPerfect() {
+            var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
+            var output = new Buffer<byte>(2);
+            var codec = new FibonacciCodec();
+            Assert.IsTrue(codec.Compress(input, output));
+            Assert.AreEqual("11011001 10000000", output.ToArray().ToBinaryString());
+            Assert.AreEqual(3, input.Start);
+            Assert.AreEqual(3, input.End);
+        }
 
 
 
@@ -112,14 +136,14 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var output = new Buffer<ulong>(count);
             var codec = new FibonacciCodec();
-            Assert.AreEqual(count, codec.DecompressMany(input, output));
+            Assert.IsTrue(codec.Decompress(input, output));
 
             return output.ToArray();
         }
         private ulong DecompressOne(string value) {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var codec = new FibonacciCodec();
-            return codec.DecompressOne(input);
+            return codec.Decompress(input);
         }
 
         [TestMethod]
@@ -201,71 +225,44 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual((ulong)0, symbols[3]);
         }
 
+        /// <summary>
+        /// When the output buffer gets full before all of the input is consumed.
+        /// </summary>
         [TestMethod]
-        public void Decompress_InsufficentData1() {
+        public void Decompress_InsufficentInput() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
+            var output = new Buffer<ulong>(2);
+            var codec = new FibonacciCodec();
+            Assert.IsFalse(codec.Decompress(input, output));
+            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual((ulong)0, output.Dequeue());
+        }
+        /// <summary>
+        /// When there is exactly enough space in the output buffer for all the input.
+        /// </summary>
+        [TestMethod]
+        public void Decompress_OutputPerfect() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
+            var output = new Buffer<ulong>(1);
+            var codec = new FibonacciCodec();
+            Assert.IsTrue(codec.Decompress(input, output));
+            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual((ulong)0, output.Dequeue());
+        }
+        [TestMethod]
+        public void Decompress_NoInput() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(""));
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            Assert.AreEqual(0, codec.DecompressMany(input, output));
+            Assert.IsFalse(codec.Decompress(input, output));
         }
         [TestMethod]
-        public void Decompress_InsufficentData2() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
+        public void Decompress_InsufficentBytes() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11011001"));
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            Assert.AreEqual(0, codec.DecompressMany(input, output));
-        }
-        [TestMethod]
-        public void Decompress_InsufficentData3() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("01100000"));
-            var output = new Buffer<ulong>(2);
-            var codec = new FibonacciCodec();
-            Assert.AreEqual(1, codec.DecompressMany(input, output));
-        }
-
-
-
-
-        /// <summary>
-        /// Simulate a packet split mid-symbol.
-        /// </summary>
-        [TestMethod]
-        public void Decompress_11_11_11_SplitWithin() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("10101110 10111010"), 3);
-            var output = new Buffer<ulong>(3);
-            var codec = new FibonacciCodec();
-
-            Assert.AreEqual(2, codec.DecompressMany(input, output));
-            Assert.AreEqual(2, output.Used);
-            Assert.AreEqual((ulong)11, output.Dequeue());
-            Assert.AreEqual((ulong)11, output.Dequeue());
-
-            input.EnqueueArray(BitOperation.ParseToBytes("11000000"));
-            Assert.AreEqual(1, codec.DecompressMany(input, output));
-            Assert.AreEqual(1, output.Used);
-            Assert.AreEqual((ulong)11, output.Dequeue());
-        }
-
-        /// <summary>
-        /// Simulate a packet split between-symbols.
-        /// </summary>
-        [TestMethod]
-        public void Decompress_0_0_0_0_0_SplitBetween() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("11111111"), 3);
-            var output = new Buffer<ulong>(5);
-            var codec = new FibonacciCodec();
-
-            Assert.AreEqual(4, codec.DecompressMany(input, output));
-            Assert.AreEqual(4, output.Used);
-            Assert.AreEqual((ulong)0, output.Dequeue());
-            Assert.AreEqual((ulong)0, output.Dequeue());
-            Assert.AreEqual((ulong)0, output.Dequeue());
-            Assert.AreEqual((ulong)0, output.Dequeue());
-
-            input.EnqueueArray(BitOperation.ParseToBytes("11000000"));
-            Assert.AreEqual(1, codec.DecompressMany(input, output));
-            Assert.AreEqual(1, output.Used);
-            Assert.AreEqual((ulong)0, output.Dequeue());
+            Assert.IsFalse(codec.Decompress(input, output));
+            Assert.AreEqual(0, output.Used);
         }
 
 
@@ -294,7 +291,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var compressed = new Buffer<byte>(128);
             var cycles = 0;
             while (input.Used > 0 && cycles++ < 20) {
-                var count = codec.CompressMany(input, compressed);
+                var count = codec.Compress(input, compressed);
                 compressed = compressed.Resize(compressed.Used * 2);
             }
             Assert.IsTrue(cycles < 20, "Aborted - was going to loop forever");
@@ -305,7 +302,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             ulong index = 0;
             while (index < (ulong)max &&
                 cycles++ < 20) {
-                codec.DecompressMany(compressed, decompressed);
+                codec.Decompress(compressed, decompressed);
 
                 while (decompressed.Used > 0) {
                     var a = decompressed.Dequeue();

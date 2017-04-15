@@ -3,13 +3,13 @@ using System;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : IIntegerCodec {
-        public void CompressOne(ulong input, Buffer<byte> output) {
-            if (CompressMany(new Buffer<ulong>(new ulong[] { input }), output) < 1) {
-                throw new InvalidOperationException("Insufficent space in output buffer.");
+        public void Compress(ulong input, Buffer<byte> output) {
+            if (!Compress(new Buffer<ulong>(new ulong[] { input }), output)) {
+                throw new BufferOverflowException("Insufficent space in output buffer.");
             }
         }
 
-        public int CompressMany(Buffer<ulong> input, Buffer<byte> output) {
+        public bool Compress(Buffer<ulong> input, Buffer<byte> output) {
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -36,8 +36,8 @@ namespace InvertedTomato.Compression.Integers {
                         input.MoveStart(-1);
                         output.MoveEnd(-pending);
 
-                        // Return number of completed bytes
-                        return done;
+                        // Return
+                        return false; // INPUT isn't empty
                     }
 
                     // Write payload, skipping MSB bit
@@ -54,9 +54,9 @@ namespace InvertedTomato.Compression.Integers {
                     // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
                     input.MoveStart(-1);
                     output.MoveEnd(-pending);
-                    
-                    // Return number of completed bytes
-                    return done;
+
+                    // Return
+                    return false; // INPUT isn't empty
                 }
 
                 // Write remaining - marking it as the final byte for symbol
@@ -66,18 +66,19 @@ namespace InvertedTomato.Compression.Integers {
                 done++;
             }
 
-            return done;
+            // Return
+            return true; // INPUT is empty
         }
 
-        public ulong DecompressOne(Buffer<byte> input) {
+        public ulong Decompress(Buffer<byte> input) {
             var output = new Buffer<ulong>(1);
-            if (DecompressMany(input, output) < 1) {
-                throw new InvalidOperationException("Insufficent space in output buffer.");
+            if (!Decompress(input, output)) {
+                throw new BufferOverflowException("Insufficent space in output buffer.");
             }
             return output.Dequeue();
         }
 
-        public int DecompressMany(Buffer<byte> input, Buffer<ulong> output) {
+        public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -86,10 +87,10 @@ namespace InvertedTomato.Compression.Integers {
                 throw new ArgumentNullException("output");
             }
 #endif
-            
+
             // Initialise completed counter
             var done = 0;
-            
+
             // Initialise pending bytes counter
             var pending = 0;
 
@@ -118,8 +119,8 @@ namespace InvertedTomato.Compression.Integers {
 
                     // If we've run out of output buffer
                     if (output.IsFull) {
-                        // Return the number compleed
-                        return done;
+                        // Return 
+                        return true; // OUTPUT is full
                     }
 
                     // Reset for next symbol
@@ -129,13 +130,11 @@ namespace InvertedTomato.Compression.Integers {
                 }
             }
 
-            // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
-            if (pending > 0) {
-                input.MoveStart(-pending);
-            }
+            // Revert the partially read symbol
+            input.MoveStart(-pending);
 
-            // Return number completed
-            return done;
+            // Return
+            return output.IsFull; // OUTPUT isn't full
         }
 
 
@@ -143,6 +142,5 @@ namespace InvertedTomato.Compression.Integers {
         private const byte MASK = 0x7f; // 01111111
         private const int PACKETSIZE = 7;
         private const ulong MINVAL = ulong.MaxValue >> 64 - PACKETSIZE;
-
     }
 }

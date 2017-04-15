@@ -31,7 +31,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             for (ulong v = min; v < min + count; v++) {
                 decompressed.Enqueue(v);
             }
-            codec.CompressMany(decompressed,compressed);
+            codec.Compress(decompressed,compressed);
 
             stopWatch.Stop();
             Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
@@ -40,7 +40,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             stopWatch = Stopwatch.StartNew();
 
             var decompressed2 = new Buffer<ulong>((int)(count));
-            codec.DecompressMany(compressed, decompressed2);
+            codec.Decompress(compressed, decompressed2);
             for (ulong output = min; output < min + count; output++) {
                 if (decompressed2.Dequeue() != output) {
                     throw new Exception("Incorrect result. Expected " + output + " got " + output + ".");

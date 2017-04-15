@@ -3,13 +3,13 @@ using InvertedTomato.IO.Buffers;
 
 namespace InvertedTomato.Compression.Integers {
     public class FibonacciCodec : IIntegerCodec {
-        public void CompressOne(ulong input, Buffer<byte> output) {
-            if (CompressMany(new Buffer<ulong>(new ulong[] { input }), output) < 1) {
-                throw new InvalidOperationException("Insufficent space in output buffer.");
+        public void Compress(ulong input, Buffer<byte> output) {
+            if (!Compress(new Buffer<ulong>(new ulong[] { input }), output)) {
+                throw new BufferOverflowException("Insufficent space in output buffer.");
             }
         }
 
-        public int CompressMany(Buffer<ulong> input, Buffer<byte> output) { // TODO: rollback if we run out of buffer space part way through a symbol
+        public bool Compress(Buffer<ulong> input, Buffer<byte> output) { // TODO: rollback if we run out of buffer space part way through a symbol
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -74,7 +74,7 @@ namespace InvertedTomato.Compression.Integers {
                             input.MoveStart(-done);
                             output.MoveEnd(-pending);
 
-                            return 0;
+                            return false; // OUTPUT is full
                         }
 
                         // Add byte to output
@@ -84,8 +84,6 @@ namespace InvertedTomato.Compression.Integers {
                         pending++;
                     }
                 }
-
-                pending = 0;
                 done++;
             }
 
@@ -96,25 +94,25 @@ namespace InvertedTomato.Compression.Integers {
                     input.MoveStart(-done);
                     output.MoveEnd(-pending);
 
-                    return 0;
+                    return false; // OUTPUT is full
                 }
 
                 output.Enqueue(current);
             }
 
-            return done;
+            return true; // OUTPUT isn't full
         }
 
 
-        public ulong DecompressOne(Buffer<byte> input) {
+        public ulong Decompress(Buffer<byte> input) {
             var output = new Buffer<ulong>(1);
-            if (DecompressMany(input, output) < 1) {
-                throw new InvalidOperationException("Insufficent space in output buffer.");
+            if (!Decompress(input, output)) {
+                throw new BufferOverflowException("Insufficent space in output buffer.");
             }
             return output.Dequeue();
         }
 
-        public int DecompressMany(Buffer<byte> input, Buffer<ulong> output) {
+        public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -138,14 +136,13 @@ namespace InvertedTomato.Compression.Integers {
 
             // State of the last bit while decoding.
             bool lastBit = false;
-
-            var bi = input.SubOffset;
+            
             byte b;
             while (input.TryDequeue(out b)) {
                 pending++;
 
                 // For each bit of buffer
-                do {
+                for(var bi=0; bi<7; bi++) {
                     // If bit is set...
                     if (((b << bi) & MSB) > 0) {
                         // If double 1 bits
@@ -156,18 +153,11 @@ namespace InvertedTomato.Compression.Integers {
                             // Add to output
                             output.Enqueue(symbol);
                             done++;
-
-                            // Store bit position
-                            //if (bi != 7) {
-                            //    pending = 1;
-                            //}
-                            //input.SubOffset = bi + 1;
                             
-
                             // If we've run out of output buffer
                             if (output.IsFull) {
-                                // Return the number completed
-                                return done;
+                                // Return 
+                                return true; // OUTPUT is full
                             }
 
                             // Reset for next symbol
@@ -196,16 +186,14 @@ namespace InvertedTomato.Compression.Integers {
                         throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
                     }
 #endif
-                } while (++bi < 8);
-                bi = 0;
+                }
             }
 
-            // Run out of input before output was full
-            if (pending > 0) {
-                input.MoveStart(-pending);
-            }
+            // Revert whole read (since Fib uses part-bytes we can't just revert the last symbol)
+            input.MoveStart(-pending);
+            output.MoveEnd(-done);
 
-            return done;
+            return false; // OUTPUT isn't full
         }
 
 
