@@ -50,7 +50,7 @@ namespace InvertedTomato.Compression.Integers {
                         // Detect if this is the largest fib and store
                         if (null == map) {
                             map = new bool[fibIdx + 2];
-                            map[fibIdx + 1] = true;
+                            map[fibIdx + 1] = true; // Termination bit
                         }
 
                         // Write to map
@@ -124,8 +124,6 @@ namespace InvertedTomato.Compression.Integers {
             }
 #endif
 
-            // TODO: use bit pointer in buffers?
-
             // Initialise completed counter
             var done = 0;
 
@@ -141,14 +139,15 @@ namespace InvertedTomato.Compression.Integers {
             // State of the last bit while decoding.
             bool lastBit = false;
 
+            var bi = input.SubOffset;
             byte b;
             while (input.TryDequeue(out b)) {
                 pending++;
 
                 // For each bit of buffer
-                for (var inputPosition = 0; inputPosition < 8; inputPosition++) {
+                do {
                     // If bit is set...
-                    if (((b << inputPosition) & MSB) > 0) {
+                    if (((b << bi) & MSB) > 0) {
                         // If double 1 bits
                         if (lastBit) {
                             // Remove zero offset
@@ -158,6 +157,13 @@ namespace InvertedTomato.Compression.Integers {
                             output.Enqueue(symbol);
                             done++;
 
+                            // Store bit position
+                            //if (bi != 7) {
+                            //    pending = 1;
+                            //}
+                            //input.SubOffset = bi + 1;
+                            
+
                             // If we've run out of output buffer
                             if (output.IsFull) {
                                 // Return the number completed
@@ -165,7 +171,6 @@ namespace InvertedTomato.Compression.Integers {
                             }
 
                             // Reset for next symbol
-                            pending = 0;
                             symbol = 0;
                             nextFibIndex = 0;
                             lastBit = false;
@@ -191,15 +196,13 @@ namespace InvertedTomato.Compression.Integers {
                         throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
                     }
 #endif
-                }
+                } while (++bi < 8);
+                bi = 0;
             }
 
             // Run out of input before output was full
             if (pending > 0) {
                 input.MoveStart(-pending);
-                output.MoveEnd(-done);
-
-                return 0;
             }
 
             return done;

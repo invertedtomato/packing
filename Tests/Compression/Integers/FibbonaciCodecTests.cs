@@ -250,23 +250,22 @@ namespace InvertedTomato.Compression.Integers.Tests {
         /// Simulate a packet split between-symbols.
         /// </summary>
         [TestMethod]
-        public void Decompress_1_1_1_1_1_SplitBetween() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("01101101"),3);
+        public void Decompress_0_0_0_0_0_SplitBetween() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11111111"),3);
             var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
 
-            Assert.AreEqual(2, codec.DecompressMany(input, output));
-            Assert.AreEqual(2, output.Used);
-            Assert.AreEqual((ulong)1, output.Dequeue());
-            Assert.AreEqual((ulong)1, output.Dequeue());
-
-            input.EnqueueArray(BitOperation.ParseToBytes("10110110 11000000"));
             Assert.AreEqual(4, codec.DecompressMany(input, output));
             Assert.AreEqual(4, output.Used);
-            Assert.AreEqual((ulong)1, output.Dequeue());
-            Assert.AreEqual((ulong)1, output.Dequeue());
-            Assert.AreEqual((ulong)1, output.Dequeue());
-            Assert.AreEqual((ulong)1, output.Dequeue());
+            Assert.AreEqual((ulong)0, output.Dequeue());
+            Assert.AreEqual((ulong)0, output.Dequeue());
+            Assert.AreEqual((ulong)0, output.Dequeue());
+            Assert.AreEqual((ulong)0, output.Dequeue());
+
+            input.EnqueueArray(BitOperation.ParseToBytes("11000000"));
+            Assert.AreEqual(1, codec.DecompressMany(input, output));
+            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual((ulong)0, output.Dequeue());
         }
 
 

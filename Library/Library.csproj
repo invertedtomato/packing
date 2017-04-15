@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InvertedTomato.Buffers" Version="1.0.7" />
+    <PackageReference Include="InvertedTomato.Buffers" Version="1.0.9" />
   </ItemGroup>
 
 </Project>
