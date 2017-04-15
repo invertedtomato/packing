@@ -147,12 +147,8 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
 
         [TestMethod]
-        public void Decompress_Empty1() {
+        public void Decompress_Empty() {
             Assert.AreEqual(0, DecompressMany("", 0).Length);
-        }
-        [TestMethod]
-        public void Decompress_Empty2() {
-            Assert.AreEqual(0, DecompressMany("00000000", 0).Length); // Trailing bits are ignored
         }
         [TestMethod]
         public void Decompress_0() {
@@ -234,8 +230,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var output = new Buffer<ulong>(2);
             var codec = new FibonacciCodec();
             Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(1, output.Used);
-            Assert.AreEqual((ulong)0, output.Dequeue());
+            Assert.AreEqual(0, output.Used);
         }
         /// <summary>
         /// When there is exactly enough space in the output buffer for all the input.
@@ -259,12 +254,15 @@ namespace InvertedTomato.Compression.Integers.Tests {
         [TestMethod]
         public void Decompress_InsufficentBytes() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("11011001"));
-            var output = new Buffer<ulong>(1);
+            var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
             Assert.IsFalse(codec.Decompress(input, output));
             Assert.AreEqual(0, output.Used);
         }
-
+        [TestMethod]
+        public void Decompress_IgnoreTrailing() {
+            Assert.AreEqual(0, DecompressMany("00000000", 0).Length); // Trailing bits are ignored
+        }
 
         [TestMethod]
         public void CompressDecompress_First1000_Series() {
@@ -292,7 +290,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var cycles = 0;
             while (input.Used > 0 && cycles++ < 20) {
                 var count = codec.Compress(input, compressed);
-                compressed = compressed.Resize(compressed.Used * 2);
+                compressed = compressed.Resize(compressed.MaxCapacity * 2);
             }
             Assert.IsTrue(cycles < 20, "Aborted - was going to loop forever");
 

@@ -134,7 +134,7 @@ namespace InvertedTomato.Compression.Integers {
             input.MoveStart(-pending);
 
             // Return
-            return output.IsFull; // OUTPUT isn't full
+            return output.IsFull;
         }
 
 

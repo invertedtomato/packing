@@ -31,7 +31,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             for (ulong v = min; v < min + count; v++) {
                 decompressed.Enqueue(v);
             }
-            codec.Compress(decompressed,compressed);
+            codec.Compress(decompressed, compressed);
 
             stopWatch.Stop();
             Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");

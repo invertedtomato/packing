@@ -142,7 +142,7 @@ namespace InvertedTomato.Compression.Integers {
                 pending++;
 
                 // For each bit of buffer
-                for(var bi=0; bi<7; bi++) {
+                for(var bi=0; bi<8; bi++) {
                     // If bit is set...
                     if (((b << bi) & MSB) > 0) {
                         // If double 1 bits
@@ -193,7 +193,8 @@ namespace InvertedTomato.Compression.Integers {
             input.MoveStart(-pending);
             output.MoveEnd(-done);
 
-            return false; // OUTPUT isn't full
+            // Return
+            return output.IsFull;
         }
 
 
