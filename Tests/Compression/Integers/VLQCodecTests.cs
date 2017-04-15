@@ -252,38 +252,42 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void CompressDecompress_First1000_Parallel() {
+            var max = 1000;
+
             var codec = new VLQCodec();
 
-            var input = new Buffer<ulong>(1000);
+            // Create input
+            var input = new Buffer<ulong>(max);
             for (ulong i = 0; i < (ulong)input.MaxCapacity; i++) {
                 input.Enqueue(i);
             }
 
+            // Compress in chunks
             var compressed = new Buffer<byte>(128);
-            while (true) {
-                codec.CompressMany(input, compressed);
-
-                if (compressed.MaxCapacity < input.MaxCapacity) {
-                    compressed = compressed.Resize(compressed.Used * 2);
-                } else {
-                    break;
-                }
+            var cycles = 0;
+            while (input.Used > 0 && cycles++ < 10) {
+                var count = codec.CompressMany(input, compressed);
+                compressed = compressed.Resize(compressed.Used * 2);
             }
+            Assert.IsTrue(cycles < 10, "Aborted - was going to loop forever");
 
-            var decompressed = new Buffer<ulong>(128);
-            while (true) {
+            // Decompress in chunks
+            var decompressed = new Buffer<ulong>(100);
+            cycles = 0;
+            ulong index = 0;
+            while (index < (ulong)max &&
+                cycles++ < 10) {
                 codec.DecompressMany(compressed, decompressed);
 
-                if (decompressed.MaxCapacity < input.MaxCapacity) {
-                    decompressed = decompressed.Resize(decompressed.MaxCapacity * 2);
-                } else {
-                    break;
+                while (decompressed.Used > 0) {
+                    var a = decompressed.Dequeue();
+                    Assert.AreEqual(index++, a);
                 }
+
+                decompressed = decompressed.Resize(decompressed.MaxCapacity * 2);
             }
 
-            for (ulong i = 0; i < (ulong)input.MaxCapacity; i++) {
-                Assert.AreEqual(i, decompressed.Dequeue());
-            }
+            Assert.IsTrue(cycles < 10, "Aborted - was going to loop forever");
         }
     }
 }
