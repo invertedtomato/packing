@@ -3,69 +3,34 @@ using InvertedTomato.IO.Buffers;
 
 namespace InvertedTomato.Compression.Integers {
     public class FibonacciCodec : IIntegerCodec {
-        /// <summary>
-        /// The maximum value of a symbol this codec can support.
-        /// </summary>
-        public const ulong MaxValue = ulong.MaxValue - 1;
-
-        /// <summary>
-        /// Lookup table of Fibonacci numbers that can fit in a ulong.
-        /// </summary>
-        public static readonly ulong[] Lookup = new ulong[92];
-
-        /// <summary>
-        /// The most significant bit in a byte.
-        /// </summary>
-        private const byte MSB = 0x80;
-
-        static FibonacciCodec() {
-            // Compute all Fibonacci numbers that can fit in a ulong.
-            Lookup[0] = 1;
-            Lookup[1] = 2;
-            for (var i = 2; i < Lookup.Length; i++) {
-                Lookup[i] = Lookup[i - 1] + Lookup[i - 2];
+        public void CompressOne(ulong input, Buffer<byte> output) {
+            if (CompressMany(new Buffer<ulong>(new ulong[] { input }), output) < 1) {
+                throw new InvalidOperationException("Insufficent space in output buffer.");
             }
         }
 
-        /// <summary>
-        /// The guessed size of buffer when there is no indication otherwise.
-        /// </summary>
-        public int BufferDefaultSize { get; set; } = 8;
-
-        /// <summary>
-        /// When BufferDefaultSize proves to be too small, increase the size by this factor.
-        /// </summary>
-        public int BufferGrowthFactor { get; set; } = 2;
-        
-        public bool IncludeHeader { get; set; }
-        public Buffer<ulong> DecompressedSet { get; set; }
-        public Buffer<byte> CompressedSet { get; set; }
-
-
-        public void Compress() {
+        public int CompressMany(Buffer<ulong> input, Buffer<byte> output) { // TODO: rollback if we run out of buffer space part way through a symbol
 #if DEBUG
-            if (null == DecompressedSet) {
-                throw new InvalidOperationException("DecompressedSet is null.");
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+            if (null == output) {
+                throw new ArgumentNullException("output");
             }
 #endif
 
-            // Quickly handle empty sets with no headers - they'll cause issues later if not handled here
-            if (!IncludeHeader && DecompressedSet.IsEmpty) {
-                CompressedSet = new Buffer<byte>(0);
-                return;
-            }
+            // Initialise completed counter
+            var done = 0;
 
-            // Allocate buffer for compressed output - we assume the worst-case compression (could be optimised to lazy grow?)
-            CompressedSet = new Buffer<byte>((DecompressedSet.Used + 1) * 12);
+            // Initialise pending bytes counter
+            var pending = 0;
 
             // Clear currently worked-on byte
             var current = new BitBuffer();
 
-            // Get first symbol
-            var value = IncludeHeader ? (ulong)DecompressedSet.Used : DecompressedSet.Dequeue();
-
             // Iterate through all symbols
-            do {
+            ulong value;
+            while (input.TryDequeue(out value)) {
 #if DEBUG
                 if (value > MaxValue) {
                     throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
@@ -97,112 +62,174 @@ namespace InvertedTomato.Compression.Integers {
                 // Output the bits of the map in reverse order
                 foreach (var bit in map) {
                     if (current.Append(bit)) {
-                        CompressedSet.Enqueue(current.Clear());
+                        // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
+                        if (output.IsFull) {
+                            input.MoveStart(-done);
+                            output.MoveEnd(-pending);
+
+                            return 0;
+                        }
+
+                        output.Enqueue(current.Clear());
+                        pending++;
                     }
                 }
 
                 // #4 Place an additional 1 after the rightmost digit in the code word.
                 if (current.Append(true)) {
-                    CompressedSet.Enqueue(current.Clear());
-                }
-            } while (DecompressedSet.TryDequeue(out value));
+                    // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
+                    if (output.IsFull) {
+                        input.MoveStart(-done);
+                        output.MoveEnd(-pending);
 
+                        return 0;
+                    }
+
+                    output.Enqueue(current.Clear());
+                }
+
+                done++;
+            }
 
             // Flush bit buffer
             if (current.IsDirty) {
-                CompressedSet.Enqueue(current.Clear());
+                // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
+                if (output.IsFull) {
+                    input.MoveStart(-done);
+                    output.MoveEnd(-pending);
+
+                    return 0;
+                }
+
+                output.Enqueue(current.Clear());
             }
+
+            return done;
         }
-        
-        // Current symbol being decoded.
-        ulong DecompressSymbol = 0;
 
-        // Next Fibonacci number to test.
-        int DecompressNextFibIndex = 0;
 
-        // State of the last bit while decoding.
-        bool DecompressLastBit = false;
+        public ulong DecompressOne(Buffer<byte> input) {
+            var output = new Buffer<ulong>(1);
+            if (DecompressMany(input, output) < 1) {
+                throw new InvalidOperationException("Insufficent space in output buffer.");
+            }
+            return output.Dequeue();
+        }
 
-        public int Decompress() {
+        public int DecompressMany(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
-            if (null == CompressedSet) {
-                throw new InvalidOperationException("CompressedSet is null.");
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+            if (null == output) {
+                throw new ArgumentNullException("output");
             }
 #endif
 
-            // If there's no header, lets assume the set is "default" sized
-            if (!IncludeHeader && null == DecompressedSet) {
-                DecompressedSet = new Buffer<ulong>(BufferDefaultSize);
-            }
+            // TODO: use bit pointer in buffers?
 
-            byte input;
-            while (CompressedSet.TryDequeue(out input)) {
+            // Initialise completed counter
+            var done = 0;
+
+            // Initialise pending bytes counter
+            var pending = 0;
+
+            // Current symbol being decoded.
+            ulong symbol = 0;
+
+            // Next Fibonacci number to test.
+            int nextFibIndex = 0;
+
+            // State of the last bit while decoding.
+            bool lastBit = false;
+
+            byte b;
+            while (input.TryDequeue(out b)) {
+                pending++;
+
                 // For each bit of buffer
                 for (var inputPosition = 0; inputPosition < 8; inputPosition++) {
                     // If bit is set...
-                    if (((input << inputPosition) & MSB) > 0) {
+                    if (((b << inputPosition) & MSB) > 0) {
                         // If double 1 bits
-                        if (DecompressLastBit) {
+                        if (lastBit) {
                             // Remove zero offset
-                            DecompressSymbol--;
+                            symbol--;
 
-                            // If output hasn't been allocated...
-                            if (null == DecompressedSet) {
-                                // Allocate output
-                                DecompressedSet = new Buffer<ulong>((int)DecompressSymbol);
-                            } else {
-                                // Add to output
-                                DecompressedSet.Enqueue(DecompressSymbol);
+                            // Add to output
+                            output.Enqueue(symbol);
+                            done++;
 
-                                // If we've run out of output buffer
-                                if (DecompressedSet.IsFull) {
-                                    // This had a header, so that must be all the data
-                                    if (IncludeHeader) {
-                                        // Return
-                                        return 0;
-                                    } else {
-                                        // There's no header - we don't know how big the set it, and the output is full - grow it
-                                        DecompressedSet = DecompressedSet.Resize(DecompressedSet.Used * BufferGrowthFactor);
-                                    }
-                                }
+                            // If we've run out of output buffer
+                            if (output.IsFull) {
+                                // Return the number completed
+                                return done;
                             }
 
                             // Reset for next symbol
-                            DecompressSymbol = 0;
-                            DecompressNextFibIndex = 0;
-                            DecompressLastBit = false;
+                            pending = 0;
+                            symbol = 0;
+                            nextFibIndex = 0;
+                            lastBit = false;
                             continue;
                         }
 
                         // Add value to current symbol
-                        DecompressSymbol += Lookup[DecompressNextFibIndex];
+                        symbol += Lookup[nextFibIndex];
 
                         // Note bit for next cycle
-                        DecompressLastBit = true;
+                        lastBit = true;
                     } else {
                         // Note bit for next cycle
-                        DecompressLastBit = false;
+                        lastBit = false;
                     }
 
                     // Increment bit position
-                    DecompressNextFibIndex++;
+                    nextFibIndex++;
 
 #if DEBUG
                     // Check for overflow
-                    if (DecompressNextFibIndex > Lookup.Length) {
+                    if (nextFibIndex > Lookup.Length) {
                         throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
                     }
 #endif
                 }
             }
 
-            // Without a header we didn't know how much data to expect anyway. This must be all.
-            if (!IncludeHeader) {
+            // Run out of input before output was full
+            if (pending > 0) {
+                input.MoveStart(-done);
+                output.MoveEnd(-pending);
+
                 return 0;
             }
 
-            // No complete sets were found
-            return 1;
+            return done;
+        }
+
+
+        /// <summary>
+        /// The most significant bit in a byte.
+        /// </summary>
+        private const byte MSB = 0x80;
+
+        /// <summary>
+        /// The maximum value of a symbol this codec can support.
+        /// </summary>
+        public static readonly ulong MaxValue = ulong.MaxValue - 1;
+
+        /// <summary>
+        /// Lookup table of Fibonacci numbers that can fit in a ulong.
+        /// </summary>
+        public static readonly ulong[] Lookup = new ulong[92];
+
+        static FibonacciCodec() {
+            // Pre-compute all Fibonacci numbers that can fit in a ulong.
+            Lookup[0] = 1;
+            Lookup[1] = 2;
+            for (var i = 2; i < Lookup.Length; i++) {
+                Lookup[i] = Lookup[i - 1] + Lookup[i - 2];
+            }
         }
     }
 }

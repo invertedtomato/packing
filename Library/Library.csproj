@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/invertedtomato/integer-compression</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Compression VLQ Elias Omega Gamma Delta Fibonacci Integer Numbers</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Description>Library for compressing integers in the minimal number of bits. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
     <Copyright>Inverted Tomato</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InvertedTomato.Buffers" Version="1.0.6" />
+    <PackageReference Include="InvertedTomato.Buffers" Version="1.0.7" />
   </ItemGroup>
 
 </Project>

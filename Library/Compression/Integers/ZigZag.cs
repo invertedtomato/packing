@@ -1,4 +1,6 @@
-﻿namespace InvertedTomato.Compression.Integers {
+﻿using System;
+
+namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm. https://developers.google.com/protocol-buffers/docs/encoding
     /// </summary>

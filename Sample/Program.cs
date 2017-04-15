@@ -8,43 +8,27 @@ namespace InvertedTomato.Compression.Integers.Sample {
             // ===== COMPRESS =====
 
             // Instantiate the codec ready to compress
-            var compressor = new FibonacciCodec();
+            var codec = new FibonacciCodec();
 
-            // Give it a set of data - 3x8 bytes = 24bytes uncompressed 
-            compressor.DecompressedSet = new Buffer<ulong>(new ulong[] { 1, 2, 3 });
-
-            // Compress it
-            compressor.Compress();
-
-            // Get compressed data
-            var compressed = compressor.CompressedSet.ToArray();
+            // Compress data - 3x8 bytes = 24bytes uncompressed
+            var input = new Buffer<ulong>(new ulong[] { 1, 2, 3 });
+            var compressed = new Buffer<byte>(10); // 10 bytes of buffer, although we won't use it
+            codec.CompressMany(input, compressed);
 
             // Check its size
-            Console.WriteLine("Compressed data is " + compressed.Length + " bytes");
-            // Output: Compressed data is 2 bytes
+            Console.WriteLine("Compressed data is " + compressed.Used + " bytes"); // Output: Compressed data is 2 bytes
 
 
             // ===== DECOMPRESS =====
 
-            // Instantiate the codec ready to decompress
-            var decompressor = new FibonacciCodec();
-
             // Give it a set of data
-            decompressor.CompressedSet = new Buffer<byte>(compressed);
-
-            // Decompress
-            decompressor.Decompress();
-
-            // Get decompressed data
-            var decompressed = decompressor.DecompressedSet.ToArray();
-
+            var decompressed = new Buffer<ulong>(3);
+            codec.DecompressMany(compressed, decompressed);
+            
             // Check the result
-            Console.WriteLine(decompressed[0]);
-            // Output: 1
-            Console.WriteLine(decompressed[1]);
-            // Output: 2                
-            Console.WriteLine(decompressed[2]);
-            // Output: 3
+            Console.WriteLine(decompressed.Dequeue()); // Output: 1
+            Console.WriteLine(decompressed.Dequeue()); // Output: 2                
+            Console.WriteLine(decompressed.Dequeue()); // Output: 3
 
             Console.ReadKey(true);
         }

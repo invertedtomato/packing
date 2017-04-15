@@ -24,22 +24,25 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             // Write
             var stopWatch = Stopwatch.StartNew();
 
-            var compressor = new FibonacciCodec();
-            compressor.DecompressedSet = new Buffer<ulong>((int)(count));
-            for (ulong input = min; input < min + count; input++) {
-                compressor.DecompressedSet.Enqueue(input);
+            var codec = new FibonacciCodec();
+
+            var decompressed = new Buffer<ulong>((int)(count));
+            var compressed = new Buffer<byte>(10000000 * 2);
+            for (ulong v = min; v < min + count; v++) {
+                decompressed.Enqueue(v);
             }
-            compressor.Compress();
+            codec.CompressMany(decompressed,compressed);
 
             stopWatch.Stop();
             Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
 
             // Read
             stopWatch = Stopwatch.StartNew();
-            compressor.DecompressedSet = null;
-            compressor.Decompress();
+
+            var decompressed2 = new Buffer<ulong>((int)(count));
+            codec.DecompressMany(compressed, decompressed2);
             for (ulong output = min; output < min + count; output++) {
-                if (compressor.DecompressedSet.Dequeue() != output) {
+                if (decompressed2.Dequeue() != output) {
                     throw new Exception("Incorrect result. Expected " + output + " got " + output + ".");
                 }
             }

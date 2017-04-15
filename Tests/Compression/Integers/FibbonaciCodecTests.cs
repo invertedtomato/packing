@@ -1,221 +1,192 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using InvertedTomato.IO.Bits;
 using InvertedTomato.IO.Buffers;
-using System.Collections.Generic;
-using InvertedTomato.IO.Bits;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace InvertedTomato.Compression.Integers.Tests {
     [TestClass]
     public class FibonacciCodecTests {
-        public string CompressSet(ulong[] set, bool includeHeader = false) {
+        public string CompressMany(ulong[] set, int outputBufferSize = 8) {
+            var input = new Buffer<ulong>(set);
+            var output = new Buffer<byte>(outputBufferSize);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = includeHeader;
-            codec.DecompressedSet = new Buffer<ulong>(set);
-            codec.Compress();
-            return codec.CompressedSet.ToArray().ToBinaryString();
+            Assert.AreEqual(set.Length, codec.CompressMany(input, output));
+
+            return output.ToArray().ToBinaryString();
         }
-        public string CompressSymbol(ulong value, bool includeHeader = false) {
-            return CompressSet(new ulong[] { value }, includeHeader);
+        public string CompressOne(ulong value, int outputBufferSize = 8) {
+            var output = new Buffer<byte>(outputBufferSize);
+            var codec = new FibonacciCodec();
+            codec.CompressOne(value, output);
+
+            return output.ToArray().ToBinaryString();
         }
 
         [TestMethod]
         public void Compress_Empty() {
-            Assert.AreEqual("", CompressSet(new ulong[] { }));
+            Assert.AreEqual("", CompressMany(new ulong[] { }));
         }
         [TestMethod]
         public void Compress_0() {
-            Assert.AreEqual("11000000", CompressSymbol(0));
+            Assert.AreEqual("11000000", CompressOne(0));
         }
         [TestMethod]
         public void Compress_1() {
-            Assert.AreEqual("01100000", CompressSymbol(1));
+            Assert.AreEqual("01100000", CompressOne(1));
         }
         [TestMethod]
         public void Compress_2() {
-            Assert.AreEqual("00110000", CompressSymbol(2));
+            Assert.AreEqual("00110000", CompressOne(2));
         }
         [TestMethod]
         public void Compress_3() {
-            Assert.AreEqual("10110000", CompressSymbol(3));
+            Assert.AreEqual("10110000", CompressOne(3));
         }
         [TestMethod]
         public void Compress_4() {
-            Assert.AreEqual("00011000", CompressSymbol(4));
+            Assert.AreEqual("00011000", CompressOne(4));
         }
         [TestMethod]
         public void Compress_5() {
-            Assert.AreEqual("10011000", CompressSymbol(5));
+            Assert.AreEqual("10011000", CompressOne(5));
         }
         [TestMethod]
         public void Compress_6() {
-            Assert.AreEqual("01011000", CompressSymbol(6));
+            Assert.AreEqual("01011000", CompressOne(6));
         }
         [TestMethod]
         public void Compress_7() {
-            Assert.AreEqual("00001100", CompressSymbol(7));
+            Assert.AreEqual("00001100", CompressOne(7));
         }
         [TestMethod]
         public void Compress_8() {
-            Assert.AreEqual("10001100", CompressSymbol(8));
+            Assert.AreEqual("10001100", CompressOne(8));
         }
         [TestMethod]
         public void Compress_9() {
-            Assert.AreEqual("01001100", CompressSymbol(9));
+            Assert.AreEqual("01001100", CompressOne(9));
         }
         [TestMethod]
         public void Compress_10() {
-            Assert.AreEqual("00101100", CompressSymbol(10));
+            Assert.AreEqual("00101100", CompressOne(10));
         }
         [TestMethod]
         public void Compress_11() {
-            Assert.AreEqual("10101100", CompressSymbol(11));
+            Assert.AreEqual("10101100", CompressOne(11));
         }
         [TestMethod]
         public void Compress_12() {
-            Assert.AreEqual("00000110", CompressSymbol(12));
+            Assert.AreEqual("00000110", CompressOne(12));
         }
         [TestMethod]
         public void Compress_13() {
-            Assert.AreEqual("10000110", CompressSymbol(13));
+            Assert.AreEqual("10000110", CompressOne(13));
         }
         [TestMethod]
         public void Compress_Max() {
-            Assert.AreEqual("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000", CompressSymbol(FibonacciCodec.MaxValue)); // Not completely sure about this value
+            Assert.AreEqual("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000", CompressOne(FibonacciCodec.MaxValue, 32)); // Not completely sure about this value
         }
         [TestMethod]
         public void Compress_0_1_2() {
-            Assert.AreEqual("11011001 10000000", CompressSet(new ulong[] { 0, 1, 2 }));
+            Assert.AreEqual("11011001 10000000", CompressMany(new ulong[] { 0, 1, 2 }));
         }
         [TestMethod]
         public void Compress_10x1() {
-            Assert.AreEqual("11111111 11111111 11110000", CompressSet(new ulong[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
+            Assert.AreEqual("11111111 11111111 11110000", CompressMany(new ulong[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
         [TestMethod]
         public void Compress_10xSize() {
+            var input = new Buffer<ulong>(new ulong[10]);
+            var output = new Buffer<byte>(32);
             var codec = new FibonacciCodec();
-            codec.DecompressedSet = new Buffer<ulong>(new ulong[10]);
-            codec.Compress();
-            Assert.AreEqual(Math.Ceiling((float)(10 * 2) / 8), codec.CompressedSet.ToArray().Length);
+            codec.CompressMany(input, output);
+            Assert.AreEqual(Math.Ceiling((float)(10 * 2) / 8), output.ToArray().Length);
         }
 
-        [TestMethod]
-        public void Compress_Empty_WithHeader() {
-            Assert.AreEqual("11000000", CompressSet(new ulong[] { }, true));
-        }
-        [TestMethod]
-        public void Compress_0_WithHeader() {
-            Assert.AreEqual("01111000", CompressSymbol(0, true));
-        }
-        [TestMethod]
-        public void Compress_1_WithHeader() {
-            Assert.AreEqual("01101100", CompressSymbol(1, true));
-        }
-        [TestMethod]
-        public void Compress_2_WithHeader() {
-            Assert.AreEqual("01100110", CompressSymbol(2, true));
-        }
-        [TestMethod]
-        public void Compress_0_1_2_WithHeader() {
-            Assert.AreEqual("10111101 10011000", CompressSet(new ulong[] { 0, 1, 2 }, true));
-        }
-        [TestMethod]
-        public void Compress_PointerReset() {
+
+
+
+
+
+        private ulong[] DecompressMany(string value, int count) {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
+            var output = new Buffer<ulong>(count);
             var codec = new FibonacciCodec();
-            codec.DecompressedSet = new Buffer<ulong>(new ulong[] { 0 });
-            codec.Compress();
+            Assert.AreEqual(count, codec.DecompressMany(input, output));
 
-            Assert.AreEqual(1, codec.DecompressedSet.Start);
-            Assert.AreEqual(1, codec.DecompressedSet.End);
-
-            Assert.AreEqual(0, codec.CompressedSet.Start);
-            Assert.AreEqual(1, codec.CompressedSet.End);
+            return output.ToArray();
         }
-
-
-        
-
-
-        private ulong[] DecompressSet(string value, bool includeHeader = false) {
+        private ulong DecompressOne(string value) {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = includeHeader;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(value));
-            Assert.AreEqual(0, codec.Decompress());
-            return codec.DecompressedSet.ToArray();
+            return codec.DecompressOne(input);
         }
-
-        private ulong DecompressSymbol(string value, bool includeHeader = false) {
-            var set = DecompressSet(value, includeHeader);
-            Assert.IsTrue(set.Length <= 2); // There's possibly a trailing value from unused bits
-            return set[0];
-        }
-
-
 
         [TestMethod]
         public void Decompress_Empty1() {
-            Assert.AreEqual(0, DecompressSet("").Length);
+            Assert.AreEqual(0, DecompressMany("", 0).Length);
         }
         [TestMethod]
         public void Decompress_Empty2() {
-            Assert.AreEqual(0, DecompressSet("00000000").Length); // Trailing bits are ignored
+            Assert.AreEqual(0, DecompressMany("00000000", 0).Length); // Trailing bits are ignored
         }
         [TestMethod]
         public void Decompress_0() {
-            Assert.AreEqual((ulong)0, DecompressSymbol("11 000000"));
+            Assert.AreEqual((ulong)0, DecompressOne("11 000000"));
         }
         [TestMethod]
         public void Decompress_1() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("011 00000"));
+            Assert.AreEqual((ulong)1, DecompressOne("011 00000"));
         }
         [TestMethod]
         public void Decompress_2() {
-            Assert.AreEqual((ulong)2, DecompressSymbol("0011 0000"));
+            Assert.AreEqual((ulong)2, DecompressOne("0011 0000"));
         }
         [TestMethod]
         public void Decompress_3() {
-            Assert.AreEqual((ulong)3, DecompressSymbol("1011 0000"));
+            Assert.AreEqual((ulong)3, DecompressOne("1011 0000"));
         }
         [TestMethod]
         public void Decompress_4() {
-            Assert.AreEqual((ulong)4, DecompressSymbol("00011 000"));
+            Assert.AreEqual((ulong)4, DecompressOne("00011 000"));
         }
         [TestMethod]
         public void Decompress_5() {
-            Assert.AreEqual((ulong)5, DecompressSymbol("10011 000"));
+            Assert.AreEqual((ulong)5, DecompressOne("10011 000"));
         }
         [TestMethod]
         public void Decompress_6() {
-            Assert.AreEqual((ulong)6, DecompressSymbol("01011 000"));
+            Assert.AreEqual((ulong)6, DecompressOne("01011 000"));
         }
         [TestMethod]
         public void Decompress_7() {
-            Assert.AreEqual((ulong)7, DecompressSymbol("000011 00"));
+            Assert.AreEqual((ulong)7, DecompressOne("000011 00"));
         }
         [TestMethod]
         public void Decompress_8() {
-            Assert.AreEqual((ulong)8, DecompressSymbol("100011 00"));
+            Assert.AreEqual((ulong)8, DecompressOne("100011 00"));
         }
         [TestMethod]
         public void Decompress_9() {
-            Assert.AreEqual((ulong)9, DecompressSymbol("010011 00"));
+            Assert.AreEqual((ulong)9, DecompressOne("010011 00"));
         }
         [TestMethod]
         public void Decompress_10() {
-            Assert.AreEqual((ulong)10, DecompressSymbol("001011 00"));
+            Assert.AreEqual((ulong)10, DecompressOne("001011 00"));
         }
         [TestMethod]
         public void Decompress_11() {
-            Assert.AreEqual((ulong)11, DecompressSymbol("101011 00"));
+            Assert.AreEqual((ulong)11, DecompressOne("101011 00"));
         }
         [TestMethod]
         public void Decompress_Max() {
-            Assert.AreEqual((ulong)ulong.MaxValue - 1, DecompressSymbol("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
+            Assert.AreEqual((ulong)ulong.MaxValue - 1, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
         }
 
 
         [TestMethod]
         public void Decompress_0_1_2() {
-            var symbols = DecompressSet("11 011 0011 0000000"); // 0 1 2
+            var symbols = DecompressMany("11 011 0011 0000000", 3); // 0 1 2
             Assert.AreEqual((ulong)0, symbols[0]);
             Assert.AreEqual((ulong)1, symbols[1]);
             Assert.AreEqual((ulong)2, symbols[2]);
@@ -223,8 +194,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
         [TestMethod]
         public void Decompress_0_0_0_0() { // Complete byte
-            var symbols = DecompressSet("11 11 11 11"); // 0 0 0 0
-            Assert.AreEqual(4, symbols.Length); // Important to check there's no trailing 0s which happens when it isn't a complete byte
+            var symbols = DecompressMany("11 11 11 11", 4); // 0 0 0 0
             Assert.AreEqual((ulong)0, symbols[0]);
             Assert.AreEqual((ulong)0, symbols[1]);
             Assert.AreEqual((ulong)0, symbols[2]);
@@ -232,77 +202,25 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
 
         [TestMethod]
-        public void Decompress_Empty1_WithHeader() {
+        public void Decompress_InsufficentData1() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes(""));
+            var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
-            Assert.AreEqual(1, codec.Decompress());
+            Assert.AreEqual(0, codec.DecompressMany(input, output));
         }
         [TestMethod]
-        public void Decompress_Empty2_WithHeader() {
+        public void Decompress_InsufficentData2() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
+            var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
-            Assert.AreEqual(1, codec.Decompress());
+            Assert.AreEqual(0, codec.DecompressMany(input, output));
         }
         [TestMethod]
-        public void Decompress_Empty3_WithHeader() {
+        public void Decompress_InsufficentData3() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("01100000"));
+            var output = new Buffer<ulong>(2);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("11 000000 00000000")); // Trailing bits are ignored
-            Assert.AreEqual(1, codec.Decompress());
-        }
-        [TestMethod]
-        public void Decompress_0_WithHeader() {
-            Assert.AreEqual((ulong)0, DecompressSymbol("011 11 000", true)); // 1 0
-        }
-        [TestMethod]
-        public void Decompress_1_WithHeader() {
-            Assert.AreEqual((ulong)1, DecompressSymbol("011 011 00", true)); // 1 1
-        }
-        [TestMethod]
-        public void Decompress_2_WithHeader() {
-            Assert.AreEqual((ulong)2, DecompressSymbol("0110 011 0", true)); // 1 2
-        }
-
-        [TestMethod]
-        public void Decompress_0_1_2_WithHeader() {
-            var symbols = DecompressSet("1011 11 011 0011 000", true); // 0 1 2
-            Assert.AreEqual((ulong)0, symbols[0]);
-            Assert.AreEqual((ulong)1, symbols[1]);
-            Assert.AreEqual((ulong)2, symbols[2]);
-        }
-
-
-
-        [TestMethod]
-        public void Decompress_0_WithHeader_WithTrailingJunk() {
-            var symbols = DecompressSet("011 11 11 11 0000000", true); // 1 0 0 0
-            Assert.AreEqual(1, symbols.Length); // Important to check there's no trailing 0s which happens when it isn't a complete byte
-            Assert.AreEqual((ulong)0, symbols[0]);
-        }
-
-
-        [TestMethod]
-        public void Decompress_InsufficentData1_WithHeader() {
-            var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes(""));
-            Assert.AreEqual(1, codec.Decompress());
-        }
-        [TestMethod]
-        public void Decompress_InsufficentData2_WithHeader() {
-            var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
-            Assert.AreEqual(1, codec.Decompress());
-        }
-        [TestMethod]
-        public void Decompress_InsufficentData3_WithHeader() {
-            var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("01100000"));
-            Assert.AreEqual(1, codec.Decompress());
+            Assert.AreEqual(1, codec.DecompressMany(input, output));
         }
 
 
@@ -312,86 +230,88 @@ namespace InvertedTomato.Compression.Integers.Tests {
         /// Simulate a packet split mid-symbol.
         /// </summary>
         [TestMethod]
-        public void Decompress_11_11_11__SplitWithin_WithHeader() {
+        public void Decompress_11_11_11_SplitWithin() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("10101110 10111010"),3);
+            var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(10);
-            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10111010 11101011"));
-            Assert.AreEqual(1, codec.Decompress());
-            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("10101100"));
-            Assert.AreEqual(0, codec.Decompress());
 
-            var set = codec.DecompressedSet.ToArray();
-            Assert.AreEqual(3, set.Length);
-            Assert.AreEqual((ulong)11, set[0]);
-            Assert.AreEqual((ulong)11, set[1]);
-            Assert.AreEqual((ulong)11, set[2]);
+            Assert.AreEqual(2, codec.DecompressMany(input, output));
+            Assert.AreEqual(2, output.Used);
+            Assert.AreEqual((ulong)11, output.Dequeue());
+            Assert.AreEqual((ulong)11, output.Dequeue());
+
+            input.EnqueueArray(BitOperation.ParseToBytes("11000000"));
+            Assert.AreEqual(1, codec.DecompressMany(input, output));
+            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual((ulong)11, output.Dequeue());
         }
 
         /// <summary>
         /// Simulate a packet split between-symbols.
         /// </summary>
         [TestMethod]
-        public void Decompress_0_0_0_0_0_0_0_0_0_SplitBetween_WithHeader() {
+        public void Decompress_1_1_1_1_1_SplitBetween() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("01101101"),3);
+            var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
-            codec.IncludeHeader = true;
-            codec.CompressedSet = new Buffer<byte>(10);
-            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("01001111"));
-            Assert.AreEqual(1, codec.Decompress());
-            codec.CompressedSet.EnqueueArray(BitOperation.ParseToBytes("11111111 11111111"));
-            Assert.AreEqual(0, codec.Decompress());
 
-            var set = codec.DecompressedSet.ToArray();
-            Assert.AreEqual(9, set.Length);
-            Assert.AreEqual((ulong)0, set[0]);
-            Assert.AreEqual((ulong)0, set[1]);
-            Assert.AreEqual((ulong)0, set[2]);
-            Assert.AreEqual((ulong)0, set[3]);
-            Assert.AreEqual((ulong)0, set[4]);
-            Assert.AreEqual((ulong)0, set[5]);
-            Assert.AreEqual((ulong)0, set[6]);
-            Assert.AreEqual((ulong)0, set[7]);
-            Assert.AreEqual((ulong)0, set[8]);
+            Assert.AreEqual(2, codec.DecompressMany(input, output));
+            Assert.AreEqual(2, output.Used);
+            Assert.AreEqual((ulong)1, output.Dequeue());
+            Assert.AreEqual((ulong)1, output.Dequeue());
+
+            input.EnqueueArray(BitOperation.ParseToBytes("10110110 11000000"));
+            Assert.AreEqual(4, codec.DecompressMany(input, output));
+            Assert.AreEqual(4, output.Used);
+            Assert.AreEqual((ulong)1, output.Dequeue());
+            Assert.AreEqual((ulong)1, output.Dequeue());
+            Assert.AreEqual((ulong)1, output.Dequeue());
+            Assert.AreEqual((ulong)1, output.Dequeue());
         }
-
-        [TestMethod]
-        public void Decompress_PointerReset() {
-            var codec = new FibonacciCodec();
-            codec.CompressedSet = new Buffer<byte>(BitOperation.ParseToBytes("00111111"));
-            codec.Decompress();
-
-            Assert.AreEqual(1, codec.CompressedSet.Start);
-            Assert.AreEqual(1, codec.CompressedSet.End);
-
-            Assert.AreEqual(0, codec.DecompressedSet.Start);
-            Assert.AreEqual(3, codec.DecompressedSet.End);
-        }
-
 
 
         [TestMethod]
         public void CompressDecompress_First1000_Series_WithHeader() {
             for (ulong input = 0; input < 1000; input++) {
-                var encoded = CompressSymbol(input, true);
-                var output = DecompressSymbol(encoded, true);
+                var encoded = CompressOne(input);
+                var output = DecompressOne(encoded);
 
                 Assert.AreEqual(input, output);
             }
         }
         [TestMethod]
         public void CompressDecompress_First1000_Parallel_WithHeader() {
-            var set = new ulong[1000];
+            var codec = new FibonacciCodec();
 
-            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
-                set[i] = i;
+            var input = new Buffer<ulong>(1000);
+            for (ulong i = 0; i < (ulong)input.MaxCapacity; i++) {
+                input.Enqueue(i);
             }
 
-            var encoded = CompressSet(set, true);
-            var decoded = DecompressSet(encoded, true);
+            var compressed = new Buffer<byte>(128);
+            while (true) {
+                codec.CompressMany(input, compressed);
 
-            Assert.AreEqual(set.Length, decoded.Length);
-            for (ulong i = 0; i < (ulong)set.LongLength; i++) {
-                Assert.AreEqual((ulong)i, decoded[i]);
+                if (compressed.MaxCapacity < input.MaxCapacity) {
+                    compressed = compressed.Resize(compressed.Used * 2);
+                } else {
+                    break;
+                }
+            }
+
+            var decompressed = new Buffer<ulong>(128);
+            while (true) {
+                codec.DecompressMany(compressed, decompressed);
+
+                if (decompressed.MaxCapacity < input.MaxCapacity) {
+                    decompressed = decompressed.Resize(decompressed.MaxCapacity * 2);
+                } else {
+                    break;
+                }
+            }
+
+            for (ulong i = 0; i < (ulong)input.MaxCapacity; i++) {
+                Assert.AreEqual(i, decompressed.Dequeue());
             }
         }
     }

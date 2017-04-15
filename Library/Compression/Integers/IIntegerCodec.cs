@@ -1,36 +1,36 @@
-﻿using InvertedTomato.IO.Buffers;
-using System;
+﻿using System;
+using InvertedTomato.IO.Buffers;
 
 namespace InvertedTomato.Compression.Integers {
-    interface IIntegerCodec {
-        /// <summary>
-        /// If a header is present.
-        /// </summary>
-        bool IncludeHeader { get; set; }
+    public interface IIntegerCodec {
 
         /// <summary>
-        /// Decompressed data. This overwritten populated by a Decompress(), or populated by you ready for a Compress(). 
+        /// Compress a single input.
         /// </summary>
-        Buffer<ulong> DecompressedSet { get; set; }
-
+        /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
+        /// <exception cref="InvalidOperationException">There was insufficent output buffer space a single value.</exception>
+        void CompressOne(ulong input, Buffer<byte> output);
+        
         /// <summary>
-        /// Compressed data. This is overwritten by a Compress(), or should be populated by you ready for a Decompress().
+        /// Compress all of the provided input.
         /// </summary>
-        Buffer<byte> CompressedSet { get; set; }
-
+        /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
+        /// <returns>The number of inputs that was processed. If this isn't all of the inputs, then the output buffer is full.</returns>
+        int CompressMany(Buffer<ulong> input, Buffer<byte> output);
+        
         /// <summary>
-        /// Compress the contents of 'Decompressed' into 'Compressed'.
+        /// Decompress a single input.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Indicates 'Decompressed' is not valid.</exception>
-        /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codex's supported range.</exception>
-        void Compress();
-
-        /// <summary>
-        /// Attempt to decompress the contents of 'Compressed' into 'Decompressed'. This can be called even if you are not sure there is sufficent data in 'Compressed' to perform the decompression. If there isn't, it will return the number of additional bytes required.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Indicates 'Compressed' is not valid.</exception>
         /// <exception cref="OverflowException">Value to be decoded is larger than supported by codec's (typically 64-bits).</exception>
-        /// <returns>0 if successful, otherwise the number of additional bytes required to attempt decompression again.</returns>
-        int Decompress();
+        /// <exception cref="InvalidOperationException">There was insufficent input data for a single value.</exception>
+        /// <returns>The decompressed value.</returns>
+        ulong DecompressOne(Buffer<byte> input);
+
+        /// <summary>
+        /// Decompress COUNT of the provided input.
+        /// </summary>
+        /// <exception cref="OverflowException">Value to be decoded is larger than supported by codec's (typically 64-bits).</exception>
+        /// <returns>The number of outputs that were processed. If this isn't all of the values, then the output buffer is full.</returns>
+        int DecompressMany(Buffer<byte> input, Buffer<ulong> output);
     }
 }

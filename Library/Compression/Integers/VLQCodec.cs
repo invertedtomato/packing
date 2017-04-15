@@ -3,137 +3,146 @@ using System;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : IIntegerCodec {
-        private const byte MSB = 0x80;  // 10000000
-        private const byte MASK = 0x7f; // 01111111
-        private const int PACKETSIZE = 7;
+        public void CompressOne(ulong input, Buffer<byte> output) {
+            if (CompressMany(new Buffer<ulong>(new ulong[] { input }), output) < 1) {
+                throw new InvalidOperationException("Insufficent space in output buffer.");
+            }
+        }
 
-        /// <summary>
-        /// The guessed size of buffer when there is no indication otherwise.
-        /// </summary>
-        public int BufferDefaultSize { get; set; } = 8;
-
-        /// <summary>
-        /// When BufferDefaultSize proves to be too small, increase the size by this factor.
-        /// </summary>
-        public int BufferGrowthFactor { get; set; } = 2;
-
-        public bool IncludeHeader { get; set; }
-        public Buffer<ulong> DecompressedSet { get; set; }
-        public Buffer<byte> CompressedSet { get; set; }
-
-        public void Compress() {
+        public int CompressMany(Buffer<ulong> input, Buffer<byte> output) {
 #if DEBUG
-            if (null == DecompressedSet) {
-                throw new InvalidOperationException("DecompressedSet is null.");
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+            if (null == output) {
+                throw new ArgumentNullException("output");
             }
 #endif
 
-            // Quickly handle empty sets with no headers - they'll cause issues later if not handled here
-            if (!IncludeHeader && DecompressedSet.IsEmpty) {
-                CompressedSet = new Buffer<byte>(0);
-                return;
-            }
-
-            // Allocate space for output
-            CompressedSet = new Buffer<byte>(BufferDefaultSize);
-
-            // Calculate size of non-final packet
-            var min = ulong.MaxValue >> 64 - PACKETSIZE;
-
-            // Get first symbol
-            var value = IncludeHeader ? (ulong)DecompressedSet.Used : DecompressedSet.Dequeue();
+            // Initialise completed counter
+            var done = 0;
 
             // Process decompressed set
-            do {
+            ulong value;
+            while (input.TryDequeue(out value)) {
+                // Initialise pending bytes counter
+                var pending = 0;
+
                 // Iterate through input, taking X bits of data each time, aborting when less than X bits left
-                while (value > min) {
-                    // If compressed buffer is full - grow it
-                    if (CompressedSet.IsFull) {
-                        CompressedSet = CompressedSet.Resize(CompressedSet.Used * BufferGrowthFactor);
+                while (value > MINVAL) {
+                    // If compressed buffer is full - stop
+                    if (output.IsFull) {
+                        // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
+                        input.MoveStart(-1);
+                        output.MoveEnd(-pending);
+
+                        // Return number of completed bytes
+                        return done;
                     }
 
                     // Write payload, skipping MSB bit
-                    CompressedSet.Enqueue((byte)(value & MASK));
+                    output.Enqueue((byte)(value & MASK));
+                    pending++;
 
                     // Offset value for next cycle
                     value >>= PACKETSIZE;
                     value--;
                 }
 
-                // If compressed buffer is full - grow it
-                if (CompressedSet.IsFull) {
-                    CompressedSet = CompressedSet.Resize(CompressedSet.Used * BufferGrowthFactor);
+                // If compressed buffer is full - stop
+                if (output.IsFull) {
+                    // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
+                    input.MoveStart(-1);
+                    output.MoveEnd(-pending);
+                    
+                    // Return number of completed bytes
+                    return done;
                 }
 
                 // Write remaining - marking it as the final byte for symbol
-                CompressedSet.Enqueue((byte)(value | MSB));
-            } while (DecompressedSet.TryDequeue(out value));
+                output.Enqueue((byte)(value | MSB));
+
+                // Increment number of completed symbols
+                done++;
+            }
+
+            return done;
         }
 
-        private ulong DecompressSymbol = 0;
-        private int DecompressBit = 0;
+        public ulong DecompressOne(Buffer<byte> input) {
+            var output = new Buffer<ulong>(1);
+            if (DecompressMany(input, output) < 1) {
+                throw new InvalidOperationException("Insufficent space in output buffer.");
+            }
+            return output.Dequeue();
+        }
 
-        public int Decompress() {
+        public int DecompressMany(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
-            if (null == CompressedSet) {
-                throw new InvalidOperationException("CompressedSet is null.");
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+            if (null == output) {
+                throw new ArgumentNullException("output");
             }
 #endif
-
-            // If there's no header, lets assume the set is "default" sized
-            if (!IncludeHeader && null == DecompressedSet) {
-                DecompressedSet = new Buffer<ulong>(BufferDefaultSize);
-            }
+            
+            // Initialise completed counter
+            var done = 0;
+            
+            // Initialise pending bytes counter
+            var pending = 0;
 
             // Setup symbol
-            
+            ulong symbol = 0;
+            var bit = 0;
 
             // Iterate through input
-            byte input;
-            while (CompressedSet.TryDequeue(out input)) {
+            byte b;
+            while (input.TryDequeue(out b)) {
+                pending++;
+
                 // Add input bits to output
-                var chunk = (ulong)(input & MASK);
-                DecompressSymbol += chunk + 1 << DecompressBit;
-                DecompressBit += PACKETSIZE;
+                var chunk = (ulong)(b & MASK);
+                symbol += chunk + 1 << bit;
+                bit += PACKETSIZE;
 
                 // If last byte in symbol
-                if ((input & MSB) > 0) {
+                if ((b & MSB) > 0) {
                     // Remove zero offset
-                    DecompressSymbol--;
+                    symbol--;
 
-                    // If output hasn't been allocated...
-                    if (null == DecompressedSet) {
-                        // Allocate output
-                        DecompressedSet = new Buffer<ulong>((int)DecompressSymbol);
-                    } else {
-                        // Add to output
-                        DecompressedSet.Enqueue(DecompressSymbol);
+                    // Add to output
+                    output.Enqueue(symbol);
+                    done++;
 
-                        // If we've run out of output buffer
-                        if (DecompressedSet.IsFull) {
-                            // This had a header, so that must be all the data
-                            if (IncludeHeader) {
-                                return 0;
-                            } else {
-                                // There's no header - we don't know how big the set it, and the output is full - grow it
-                                DecompressedSet = DecompressedSet.Resize(DecompressedSet.Used * BufferGrowthFactor);
-                            }
-                        }
+                    // If we've run out of output buffer
+                    if (output.IsFull) {
+                        // Return the number compleed
+                        return done;
                     }
 
                     // Reset for next symbol
-                    DecompressSymbol = 0;
-                    DecompressBit = 0;
+                    pending = 0;
+                    symbol = 0;
+                    bit = 0;
                 }
             }
 
-            // Without a header we didn't know how much data to expect anyway. This must be all.
-            if (!IncludeHeader) {
-                return 0;
+            // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
+            if (pending > 0) {
+                input.MoveStart(-pending);
             }
 
-            // No complete sets were found
-            return 1;
+            // Return number completed
+            return done;
         }
+
+
+        private const byte MSB = 0x80;  // 10000000
+        private const byte MASK = 0x7f; // 01111111
+        private const int PACKETSIZE = 7;
+        private const ulong MINVAL = ulong.MaxValue >> 64 - PACKETSIZE;
+
     }
 }
