@@ -231,7 +231,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
         /// </summary>
         [TestMethod]
         public void Decompress_11_11_11_SplitWithin() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("10101110 10111010"),3);
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("10101110 10111010"), 3);
             var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
 
@@ -251,8 +251,8 @@ namespace InvertedTomato.Compression.Integers.Tests {
         /// </summary>
         [TestMethod]
         public void Decompress_0_0_0_0_0_SplitBetween() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("11111111"),3);
-            var output = new Buffer<ulong>(3);
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11111111"), 3);
+            var output = new Buffer<ulong>(5);
             var codec = new FibonacciCodec();
 
             Assert.AreEqual(4, codec.DecompressMany(input, output));
