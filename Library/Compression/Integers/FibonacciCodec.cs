@@ -48,7 +48,8 @@ namespace InvertedTomato.Compression.Integers {
                     if (value >= Lookup[fibIdx]) {
                         // Detect if this is the largest fib and store
                         if (null == map) {
-                            map = new bool[fibIdx + 1];
+                            map = new bool[fibIdx + 2];
+                            map[fibIdx + 1] = true;
                         }
 
                         // Write to map
@@ -73,19 +74,6 @@ namespace InvertedTomato.Compression.Integers {
                         output.Enqueue(current.Clear());
                         pending++;
                     }
-                }
-
-                // #4 Place an additional 1 after the rightmost digit in the code word.
-                if (current.Append(true)) {
-                    // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
-                    if (output.IsFull) {
-                        input.MoveStart(-done);
-                        output.MoveEnd(-pending);
-
-                        return 0;
-                    }
-
-                    output.Enqueue(current.Clear());
                 }
 
                 done++;
@@ -198,8 +186,8 @@ namespace InvertedTomato.Compression.Integers {
 
             // Run out of input before output was full
             if (pending > 0) {
-                input.MoveStart(-done);
-                output.MoveEnd(-pending);
+                input.MoveStart(-pending);
+                output.MoveEnd(-done);
 
                 return 0;
             }
