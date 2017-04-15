@@ -26,7 +26,8 @@ namespace InvertedTomato.Compression.Integers {
             var pending = 0;
 
             // Clear currently worked-on byte
-            var current = new BitBuffer();
+            var current = new byte();
+            var offset = 0;
 
             // Iterate through all symbols
             ulong value;
@@ -62,7 +63,12 @@ namespace InvertedTomato.Compression.Integers {
 
                 // Output the bits of the map in reverse order
                 foreach (var bit in map) {
-                    if (current.Append(bit)) {
+                    if (bit) {
+                        current |= (byte)(1 << (7 - offset));
+                    }
+
+                    // Increment offset;
+                    if (++offset == 8) {
                         // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                         if (output.IsFull) {
                             input.MoveStart(-done);
@@ -71,16 +77,20 @@ namespace InvertedTomato.Compression.Integers {
                             return 0;
                         }
 
-                        output.Enqueue(current.Clear());
+                        // Add byte to output
+                        output.Enqueue(current);
+                        current = 0;
+                        offset = 0;
                         pending++;
                     }
                 }
 
+                pending = 0;
                 done++;
             }
 
             // Flush bit buffer
-            if (current.IsDirty) {
+            if (offset > 0) {
                 // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                 if (output.IsFull) {
                     input.MoveStart(-done);
@@ -89,7 +99,7 @@ namespace InvertedTomato.Compression.Integers {
                     return 0;
                 }
 
-                output.Enqueue(current.Clear());
+                output.Enqueue(current);
             }
 
             return done;
