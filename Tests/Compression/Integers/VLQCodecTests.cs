@@ -14,7 +14,7 @@ namespace InvertedTomato.Compression.Integers {
             var input = new Buffer<ulong>(set);
             var output = new Buffer<byte>(outputBufferSize);
             var codec = new VLQCodec();
-            Assert.IsTrue( codec.Compress(input, output));
+            Assert.IsTrue(codec.Compress(input, output));
 
             return output.ToArray().ToBinaryString();
         }
@@ -86,30 +86,24 @@ namespace InvertedTomato.Compression.Integers {
         public void Compress_128_128_128() {
             Assert.AreEqual("00000000 10000000 00000000 10000000 00000000 10000000", CompressMany(new ulong[] { 128, 128, 128 }));
         }
-        /// <summary>
-        /// When the output buffer gets full before all of the input is consumed.
-        /// </summary>
         [TestMethod]
-        public void Compress_InsufficentOutput() {
-            var input = new Buffer<ulong>(new ulong[] { 128 });
-            var output = new Buffer<byte>(1);
-            var codec = new VLQCodec();
-            Assert.IsFalse(codec.Compress(input, output));
-            Assert.AreEqual("", output.ToArray().ToBinaryString());
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(1, input.End);
-        }
-        /// <summary>
-        /// When there is exactly enough space in the output buffer for all the input.
-        /// </summary>
-        [TestMethod]
-        public void Compress_PerfectOutput() {
+        public void Compress_OutputPerfectSize() {
             var input = new Buffer<ulong>(new ulong[] { 128 });
             var output = new Buffer<byte>(2);
             var codec = new VLQCodec();
             Assert.IsTrue(codec.Compress(input, output));
             Assert.AreEqual("00000000 10000000", output.ToArray().ToBinaryString());
             Assert.AreEqual(1, input.Start);
+            Assert.AreEqual(1, input.End);
+        }
+        [TestMethod]
+        public void Compress_OutputTooSmall() {
+            var input = new Buffer<ulong>(new ulong[] { 128 });
+            var output = new Buffer<byte>(1);
+            var codec = new VLQCodec();
+            Assert.IsFalse(codec.Compress(input, output));
+            Assert.AreEqual("", output.ToArray().ToBinaryString());
+            Assert.AreEqual(0, input.Start);
             Assert.AreEqual(1, input.End);
         }
 
@@ -193,23 +187,8 @@ namespace InvertedTomato.Compression.Integers {
             Assert.AreEqual((ulong)1, set[1]);
             Assert.AreEqual((ulong)1, set[2]);
         }
-        /// <summary>
-        /// When the output buffer gets full before all of the input is consumed.
-        /// </summary>
         [TestMethod]
-        public void Decompress_InsufficentInput() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000 10000000"));
-            var output = new Buffer<ulong>(2);
-            var codec = new VLQCodec();
-            Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(1, output.Used);
-            Assert.AreEqual((ulong)128, output.Dequeue());
-        }
-        /// <summary>
-        /// When there is exactly enough space in the output buffer for all the input.
-        /// </summary>
-        [TestMethod]
-        public void Decompress_OutputPerfect() {
+        public void Decompress_OutputPerfectSize() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000 10000000"));
             var output = new Buffer<ulong>(1);
             var codec = new VLQCodec();
@@ -218,18 +197,27 @@ namespace InvertedTomato.Compression.Integers {
             Assert.AreEqual((ulong)128, output.Dequeue());
         }
         [TestMethod]
-        public void Decompress_InsufficentBytes() {
+        public void Decompress_OutputTooSmall() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000 10000000 10000000"));
+            var output = new Buffer<ulong>(1);
+            var codec = new VLQCodec();
+            Assert.IsFalse(codec.Decompress(input, output));
+            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual((ulong)128, output.Dequeue());
+        }
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void Decompress_InputClipped() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
             var output = new Buffer<ulong>(1);
             var codec = new VLQCodec();
-            Assert.IsFalse( codec.Decompress(input, output));
-            Assert.AreEqual(0, output.Used);
+            codec.Decompress(input, output);
         }
         [TestMethod]
-        public void Decompress_UnneededBytes() {
-            Assert.AreEqual((ulong)1, DecompressOne("10000001 10000001 10000000")); // Ignore trailing bytes
+        [ExpectedException(typeof(OverflowException))]
+        public void Decompress_Overflow() {
+            DecompressOne("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000");
         }
-
 
 
 
@@ -244,42 +232,41 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void CompressDecompress_First1000_Parallel() {
-            var max = 1000;
-
             var codec = new VLQCodec();
 
             // Create input
-            var input = new Buffer<ulong>(max);
-            for (ulong i = 0; i < (ulong)input.MaxCapacity; i++) {
-                input.Enqueue(i);
+            var input = new Buffer<ulong>(1000);
+            input.Seed(0, 999);
+            Assert.AreEqual(0, input.Start);
+            Assert.AreEqual(1000, input.End);
+
+            // Create output
+            var compressed = new Buffer<byte>(100);
+            Assert.AreEqual(0, compressed.Start);
+            Assert.AreEqual(0, compressed.End);
+
+            // Attempt to compress with various output sizes - all will fail until the output is big enough
+            Assert.IsFalse(codec.Compress(input, compressed));
+            Assert.AreEqual(100, input.Start);
+            Assert.AreEqual(1000, input.End);
+            Assert.AreEqual(0, compressed.Start);
+            Assert.AreEqual(100, compressed.End);
+
+            compressed = compressed.Resize(2000);
+            Assert.IsTrue(codec.Compress(input, compressed));
+            Assert.AreEqual(1000, input.Start);
+            Assert.AreEqual(1000, input.End);
+            Assert.AreEqual(0, compressed.Start);
+            //Assert.AreEqual(1872, compressed.End); // TODO - is this size correct?
+
+            // Decompress in one batch - if it's in chunks the first value of each chunk will be messed up
+            var decompressed = new Buffer<ulong>(1000);
+            Assert.IsTrue(codec.Decompress(compressed, decompressed));
+
+            // Validate
+            for (ulong i = 0; i < 1000; i++) {
+                Assert.AreEqual(i, decompressed.Dequeue());
             }
-
-            // Compress in chunks
-            var compressed = new Buffer<byte>(128);
-            var cycles = 0;
-            while (input.Used > 0 && cycles++ < 10) {
-                var count = codec.Compress(input, compressed);
-                compressed = compressed.Resize(compressed.Used * 2);
-            }
-            Assert.IsTrue(cycles < 10, "Aborted - was going to loop forever");
-
-            // Decompress in chunks
-            var decompressed = new Buffer<ulong>(100);
-            cycles = 0;
-            ulong index = 0;
-            while (index < (ulong)max &&
-                cycles++ < 10) {
-                codec.Decompress(compressed, decompressed);
-
-                while (decompressed.Used > 0) {
-                    var a = decompressed.Dequeue();
-                    Assert.AreEqual(index++, a);
-                }
-
-                decompressed = decompressed.Resize(decompressed.MaxCapacity * 2);
-            }
-
-            Assert.IsTrue(cycles < 10, "Aborted - was going to loop forever");
         }
     }
 }

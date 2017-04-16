@@ -136,13 +136,13 @@ namespace InvertedTomato.Compression.Integers {
 
             // State of the last bit while decoding.
             bool lastBit = false;
-            
+
             byte b;
             while (input.TryDequeue(out b)) {
                 pendingInputs++;
 
                 // For each bit of buffer
-                for(var bi=0; bi<8; bi++) {
+                for (var bi = 0; bi < 8; bi++) {
                     // If bit is set...
                     if (((b << bi) & MSB) > 0) {
                         // If double 1 bits
@@ -153,11 +153,11 @@ namespace InvertedTomato.Compression.Integers {
                             // Add to output
                             output.Enqueue(symbol);
                             pendingOutputs++;
-                            
+
                             // If we've run out of output buffer
                             if (output.IsFull) {
                                 // Return 
-                                return true; // OUTPUT is full
+                                return input.IsEmpty;
                             }
 
                             // Reset for next symbol
@@ -194,7 +194,7 @@ namespace InvertedTomato.Compression.Integers {
             output.MoveEnd(-pendingOutputs);
 
             // Return
-            return output.IsFull;
+            return true; // INPUT is empty
         }
 
 

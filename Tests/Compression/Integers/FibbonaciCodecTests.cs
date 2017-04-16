@@ -94,30 +94,24 @@ namespace InvertedTomato.Compression.Integers.Tests {
         public void Compress_10x1() {
             Assert.AreEqual("11111111 11111111 11110000", CompressMany(new ulong[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
-        /// <summary>
-        /// When the output buffer gets full before all of the input is consumed.
-        /// </summary>
         [TestMethod]
-        public void Compress_InsufficentOutput() {
-            var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
-            var output = new Buffer<byte>(1);
-            var codec = new FibonacciCodec();
-            Assert.IsFalse(codec.Compress(input, output));
-            Assert.AreEqual("", output.ToArray().ToBinaryString());
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(3, input.End);
-        }
-        /// <summary>
-        /// When there is exactly enough space in the output buffer for all the input.
-        /// </summary>
-        [TestMethod]
-        public void Compress_PerfectOutput() {
+        public void Compress_OutputPerfectSize() {
             var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
             var output = new Buffer<byte>(2);
             var codec = new FibonacciCodec();
             Assert.IsTrue(codec.Compress(input, output));
             Assert.AreEqual("11011001 10000000", output.ToArray().ToBinaryString());
             Assert.AreEqual(3, input.Start);
+            Assert.AreEqual(3, input.End);
+        }
+        [TestMethod]
+        public void Compress_OutputTooSmall() {
+            var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
+            var output = new Buffer<byte>(1);
+            var codec = new FibonacciCodec();
+            Assert.IsFalse(codec.Compress(input, output));
+            Assert.AreEqual("", output.ToArray().ToBinaryString());
+            Assert.AreEqual(0, input.Start);
             Assert.AreEqual(3, input.End);
         }
 
@@ -192,7 +186,17 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
         [TestMethod]
         public void Decompress_Max() {
-            Assert.AreEqual((ulong)ulong.MaxValue - 1, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
+            Assert.AreEqual(ulong.MaxValue - 1, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
+        }
+        [TestMethod]
+        [ExpectedException(typeof(OverflowException))]
+        public void Decompress_Overflow1() { // Symbol too large
+            DecompressOne("01010100 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000");
+        }
+        [TestMethod]
+        [ExpectedException(typeof(OverflowException))]
+        public void Decompress_Overflow2() { // Symbol too large and too many bits
+            DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 010011 00");
         }
         [TestMethod]
         public void Decompress_0_1_2() {
@@ -209,22 +213,17 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual((ulong)0, symbols[2]);
             Assert.AreEqual((ulong)0, symbols[3]);
         }
-        /// <summary>
-        /// When the output buffer gets full before all of the input is consumed.
-        /// </summary>
         [TestMethod]
-        public void Decompress_InsufficentInput() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
-            var output = new Buffer<ulong>(2);
-            var codec = new FibonacciCodec();
-            Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(0, output.Used);
+        public void Decompress_0_0_0_0_OversizedOutput() {
+            var symbols = DecompressMany("11 11 11 11", 5); // 0 0 0 0
+            Assert.AreEqual(4, symbols.Length);
+            Assert.AreEqual((ulong)0, symbols[0]);
+            Assert.AreEqual((ulong)0, symbols[1]);
+            Assert.AreEqual((ulong)0, symbols[2]);
+            Assert.AreEqual((ulong)0, symbols[3]);
         }
-        /// <summary>
-        /// When there is exactly enough space in the output buffer for all the input.
-        /// </summary>
         [TestMethod]
-        public void Decompress_OutputPerfect() {
+        public void Decompress_OutputPerfectSize() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
@@ -233,16 +232,20 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual((ulong)0, output.Dequeue());
         }
         [TestMethod]
-        public void Decompress_InsufficentBytes() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("11011001"));
-            var output = new Buffer<ulong>(3);
+        public void Decompress_OutputTooSmall() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11 011 0011 0000000"));
+            var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
             Assert.IsFalse(codec.Decompress(input, output));
             Assert.AreEqual(0, output.Used);
         }
         [TestMethod]
-        public void Decompress_IgnoreTrailing() {
-            Assert.AreEqual(0, DecompressMany("00000000", 0).Length); // Trailing bits are ignored
+        [ExpectedException(typeof(FormatException))]
+        public void Decompress_InputClipped() {
+            var input = new Buffer<byte>(BitOperation.ParseToBytes("11011001"));
+            var output = new Buffer<ulong>(3);
+            var codec = new FibonacciCodec();
+            codec.Decompress(input, output);
         }
 
         [TestMethod]
@@ -276,27 +279,6 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual(0, compressed.Start);
             Assert.AreEqual(0, compressed.End);
 
-            compressed = compressed.Resize(250);
-            Assert.IsFalse(codec.Compress(input, compressed));
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(1000, input.End);
-            Assert.AreEqual(0, compressed.Start);
-            Assert.AreEqual(0, compressed.End);
-
-            compressed = compressed.Resize(500);
-            Assert.IsFalse(codec.Compress(input, compressed));
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(1000, input.End);
-            Assert.AreEqual(0, compressed.Start);
-            Assert.AreEqual(0, compressed.End);
-
-            compressed = compressed.Resize(1000);
-            Assert.IsFalse(codec.Compress(input, compressed));
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(1000, input.End);
-            Assert.AreEqual(0, compressed.Start);
-            Assert.AreEqual(0, compressed.End);
-
             compressed = compressed.Resize(2000);
             Assert.IsTrue(codec.Compress(input, compressed));
             Assert.AreEqual(1000, input.Start);
@@ -307,6 +289,8 @@ namespace InvertedTomato.Compression.Integers.Tests {
             // Decompress in one batch - if it's in chunks the first value of each chunk will be messed up
             var decompressed = new Buffer<ulong>(1000);
             Assert.IsTrue(codec.Decompress(compressed, decompressed));
+            
+            // Validate
             for (ulong i = 0; i < 1000; i++) {
                 Assert.AreEqual(i, decompressed.Dequeue());
             }

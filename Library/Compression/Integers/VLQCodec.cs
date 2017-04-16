@@ -105,7 +105,14 @@ namespace InvertedTomato.Compression.Integers {
 
                 // Add input bits to output
                 var chunk = (ulong)(b & MASK);
+                var pre = symbol;
                 symbol += chunk + 1 << bit;
+#if DEBUG
+                // Check for overflow
+                if (symbol < pre) {
+                    throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
+                }
+#endif
                 bit += PACKETSIZE;
 
                 // If last byte in symbol
@@ -120,7 +127,7 @@ namespace InvertedTomato.Compression.Integers {
                     // If we've run out of output buffer
                     if (output.IsFull) {
                         // Return 
-                        return true; // OUTPUT is full
+                        return input.IsEmpty;
                     }
 
                     // Reset for next symbol
@@ -130,11 +137,13 @@ namespace InvertedTomato.Compression.Integers {
                 }
             }
 
-            // Revert the partially read symbol
-            input.MoveStart(-pendingInputs);
+            // Bail if we were part way through a symbol
+            if (pendingInputs > 0) {
+                throw new FormatException("Input ends with a partial symbol - bytes are missing or the input is corrupt.");
+            }
 
             // Return
-            return output.IsFull;
+            return true;
         }
 
 
