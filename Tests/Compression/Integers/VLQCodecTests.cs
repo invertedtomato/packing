@@ -177,7 +177,7 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Decompress_Max() {
-            Assert.AreEqual(ulong.MaxValue, DecompressOne("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000"));
+            Assert.AreEqual(VLQCodec.MaxValue, DecompressOne("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000"));
         }
         [TestMethod]
         public void Decompress_1_1_1() {

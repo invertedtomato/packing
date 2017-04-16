@@ -138,7 +138,7 @@ namespace InvertedTomato.Compression.Integers {
             return true;
         }
 
-
+        public static readonly ulong MaxValue = ulong.MaxValue - 1;
         private const byte MSB = 0x80;  // 10000000
         private const byte MASK = 0x7f; // 01111111
         private const int PACKETSIZE = 7;

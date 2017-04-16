@@ -122,12 +122,6 @@ namespace InvertedTomato.Compression.Integers {
             }
 #endif
 
-            // Initialise completed counter
-            var pendingOutputs = 0;
-
-            // Initialise pending bytes counter
-            var pendingInputs = 0;
-
             // Current symbol being decoded.
             ulong symbol = 0;
 
@@ -139,8 +133,6 @@ namespace InvertedTomato.Compression.Integers {
 
             byte b;
             while (input.TryDequeue(out b)) {
-                pendingInputs++;
-
                 // For each bit of buffer
                 for (var bi = 0; bi < 8; bi++) {
                     // If bit is set...
@@ -152,7 +144,6 @@ namespace InvertedTomato.Compression.Integers {
 
                             // Add to output
                             output.Enqueue(symbol);
-                            pendingOutputs++;
 
                             // If we've run out of output buffer
                             if (output.IsFull) {
@@ -167,8 +158,22 @@ namespace InvertedTomato.Compression.Integers {
                             continue;
                         }
 
+#if DEBUG
+                        // Check for overflow
+                        if (nextFibIndex >= Lookup.Length) {
+                            throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
+                        }
+#endif
+
                         // Add value to current symbol
+                        var pre = symbol;
                         symbol += Lookup[nextFibIndex];
+#if DEBUG
+                        // Check for overflow
+                        if (symbol < pre) {
+                            throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
+                        }
+#endif
 
                         // Note bit for next cycle
                         lastBit = true;
@@ -179,19 +184,14 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Increment bit position
                     nextFibIndex++;
-
-#if DEBUG
-                    // Check for overflow
-                    if (nextFibIndex > Lookup.Length) {
-                        throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
-                    }
-#endif
                 }
             }
 
-            // Revert whole read (since Fib uses part-bytes we can't just revert the last symbol)
-            input.MoveStart(-pendingInputs);
-            output.MoveEnd(-pendingOutputs);
+#if DEBUG
+            if (nextFibIndex > 0) {
+                throw new FormatException("Input ends with a partial symbol - bytes are missing or the input is corrupt.");
+            }
+#endif
 
             // Return
             return true; // INPUT is empty

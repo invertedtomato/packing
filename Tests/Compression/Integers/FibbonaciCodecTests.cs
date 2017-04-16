@@ -186,7 +186,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
         }
         [TestMethod]
         public void Decompress_Max() {
-            Assert.AreEqual(ulong.MaxValue - 1, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
+            Assert.AreEqual(FibonacciCodec.MaxValue, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
         }
         [TestMethod]
         [ExpectedException(typeof(OverflowException))]
@@ -237,7 +237,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
             Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(0, output.Used);
+            Assert.AreEqual(1, output.Used);
         }
         [TestMethod]
         [ExpectedException(typeof(FormatException))]
@@ -289,7 +289,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             // Decompress in one batch - if it's in chunks the first value of each chunk will be messed up
             var decompressed = new Buffer<ulong>(1000);
             Assert.IsTrue(codec.Decompress(compressed, decompressed));
-            
+
             // Validate
             for (ulong i = 0; i < 1000; i++) {
                 Assert.AreEqual(i, decompressed.Dequeue());
