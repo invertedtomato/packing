@@ -4,7 +4,6 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Asynchronous Fibonacci coding reader (experimental).
     /// </summary>
-    [Obsolete]
     public class ASyncFibonacciUnsignedReader {
         private readonly Func<ulong, bool> Output;
         private ulong Buffer = 0;

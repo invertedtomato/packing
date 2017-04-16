@@ -5,7 +5,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Elias Delta universal coding adapted for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasDeltaSignedWriter : ISignedWriter {
         /// <summary>
         /// Write a given value.

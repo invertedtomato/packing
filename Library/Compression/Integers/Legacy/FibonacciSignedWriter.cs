@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Fibonacci for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class FibonacciSignedWriter : ISignedWriter {
         /// <summary>
         /// Write a given value.

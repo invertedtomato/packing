@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Elias Omega universal coding adapted for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasOmegaSignedWriter : ISignedWriter {
         /// <summary>
         /// Write a given value.

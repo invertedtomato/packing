@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for VLQ signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
     /// </summary>
-    [Obsolete]
+    
     public class VLQSignedWriter : ISignedWriter {
         /// <summary>
         /// Write a given value.

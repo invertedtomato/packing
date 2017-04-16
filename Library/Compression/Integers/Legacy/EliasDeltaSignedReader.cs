@@ -5,7 +5,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Elias Delta universal coding adapted for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasDeltaSignedReader : ISignedReader {
         /// <summary>
         /// Read first value from a byte array.

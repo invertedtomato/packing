@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for VLQ signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.
     /// </summary>
-    [Obsolete]
+    
     public class VLQSignedReader : ISignedReader {
         /// <summary>
         /// Read first value from a byte array.

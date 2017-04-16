@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Elias Omega universal coding for unsigned values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasOmegaUnsignedWriter : IUnsignedWriter {
         /// <summary>
         /// Write a given value.

@@ -7,7 +7,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Variable-length Quantity (VLQ) unsigned numbers.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Consider using VLQCodec instead. It's faster and easier.")]
     public class VLQUnsignedReader : IUnsignedReader {
         /// <summary>
         /// Read first value from a byte array.

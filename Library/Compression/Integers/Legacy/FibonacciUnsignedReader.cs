@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Fibonacci for unsigned values.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Consider using FibonacciCodec instead. It's faster and easier.")]
     public class FibonacciUnsignedReader : IUnsignedReader {
         /// <summary>
         /// Read first value from a byte array.

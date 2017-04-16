@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Thompson-Alpha for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class ThompsonAlphaSignedWriter : ISignedWriter {
         /// <summary>
         /// Write a given value.

@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Thompson-Alpha for unsigned values.
     /// </summary>
-    [Obsolete]
+    
     public class ThompsonAlphaUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         /// Write a given value.

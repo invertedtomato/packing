@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Thompson-Alpha for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class ThompsonAlphaSignedReader : ISignedReader {
         /// <summary>
         /// Read first value from a byte array.

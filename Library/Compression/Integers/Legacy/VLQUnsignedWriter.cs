@@ -7,7 +7,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Writer for Variable-length Quantity (VLQ) unsigned numbers.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Consider using VLQCodec instead. It's faster and easier.")]
     public class VLQUnsignedWriter : IUnsignedWriter {
         /// <summary>
         /// Write a given value.

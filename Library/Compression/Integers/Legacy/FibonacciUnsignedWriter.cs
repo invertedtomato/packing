@@ -1,14 +1,12 @@
-﻿using InvertedTomato.IO;
-using InvertedTomato.IO.Bits;
+﻿using InvertedTomato.IO.Bits;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Fibonacci for unsigned values.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Consider using FibonacciCodec instead. It's faster and easier.")]
     public class FibonacciUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         /// Write a given value.

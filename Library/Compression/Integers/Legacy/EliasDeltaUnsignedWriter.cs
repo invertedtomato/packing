@@ -7,7 +7,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Elias Delta universal coding for unsigned values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasDeltaUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         /// Write a given value.

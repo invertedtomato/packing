@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Fibonacci for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class FibonacciSignedReader : ISignedReader {
         /// <summary>
         /// Read first value from a byte array.

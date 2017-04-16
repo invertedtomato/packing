@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers {
     /// <summary>
     /// Reader for Elias Omega universal coding adapted for signed values.
     /// </summary>
-    [Obsolete]
+    
     public class EliasOmegaSignedReader : ISignedReader {
         /// <summary>
         /// Read first value from a byte array.
