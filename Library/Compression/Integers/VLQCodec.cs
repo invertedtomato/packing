@@ -88,12 +88,6 @@ namespace InvertedTomato.Compression.Integers {
             }
 #endif
 
-            // Initialise completed counter
-            var pendingOutputs = 0;
-
-            // Initialise pending bytes counter
-            var pendingInputs = 0;
-
             // Setup symbol
             ulong symbol = 0;
             var bit = 0;
@@ -101,8 +95,6 @@ namespace InvertedTomato.Compression.Integers {
             // Iterate through input
             byte b;
             while (input.TryDequeue(out b)) {
-                pendingInputs++;
-
                 // Add input bits to output
                 var chunk = (ulong)(b & MASK);
                 var pre = symbol;
@@ -122,7 +114,6 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Add to output
                     output.Enqueue(symbol);
-                    pendingOutputs++;
 
                     // If we've run out of output buffer
                     if (output.IsFull) {
@@ -131,16 +122,17 @@ namespace InvertedTomato.Compression.Integers {
                     }
 
                     // Reset for next symbol
-                    pendingInputs = 0;
                     symbol = 0;
                     bit = 0;
                 }
             }
 
             // Bail if we were part way through a symbol
-            if (pendingInputs > 0) {
+#if DEBUG
+            if (bit > 0) {
                 throw new FormatException("Input ends with a partial symbol - bytes are missing or the input is corrupt.");
             }
+#endif
 
             // Return
             return true;
