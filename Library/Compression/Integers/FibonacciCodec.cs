@@ -20,10 +20,10 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             // Initialise completed counter
-            var done = 0;
+            var pendingInputs = 0;
 
             // Initialise pending bytes counter
-            var pending = 0;
+            var pendingOutputs = 0;
 
             // Clear currently worked-on byte
             var current = new byte();
@@ -32,6 +32,7 @@ namespace InvertedTomato.Compression.Integers {
             // Iterate through all symbols
             ulong value;
             while (input.TryDequeue(out value)) {
+                pendingInputs++;
 #if DEBUG
                 if (value > MaxValue) {
                     throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
@@ -71,8 +72,8 @@ namespace InvertedTomato.Compression.Integers {
                     if (++offset == 8) {
                         // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                         if (output.IsFull) {
-                            input.MoveStart(-done);
-                            output.MoveEnd(-pending);
+                            input.MoveStart(-pendingInputs);
+                            output.MoveEnd(-pendingOutputs);
 
                             return false; // OUTPUT is full
                         }
@@ -81,18 +82,17 @@ namespace InvertedTomato.Compression.Integers {
                         output.Enqueue(current);
                         current = 0;
                         offset = 0;
-                        pending++;
+                        pendingOutputs++;
                     }
                 }
-                done++;
             }
 
             // Flush bit buffer
             if (offset > 0) {
                 // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                 if (output.IsFull) {
-                    input.MoveStart(-done);
-                    output.MoveEnd(-pending);
+                    input.MoveStart(-pendingInputs);
+                    output.MoveEnd(-pendingOutputs);
 
                     return false; // OUTPUT is full
                 }
@@ -123,10 +123,10 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             // Initialise completed counter
-            var done = 0;
+            var pendingOutputs = 0;
 
             // Initialise pending bytes counter
-            var pending = 0;
+            var pendingInputs = 0;
 
             // Current symbol being decoded.
             ulong symbol = 0;
@@ -139,7 +139,7 @@ namespace InvertedTomato.Compression.Integers {
             
             byte b;
             while (input.TryDequeue(out b)) {
-                pending++;
+                pendingInputs++;
 
                 // For each bit of buffer
                 for(var bi=0; bi<8; bi++) {
@@ -152,7 +152,7 @@ namespace InvertedTomato.Compression.Integers {
 
                             // Add to output
                             output.Enqueue(symbol);
-                            done++;
+                            pendingOutputs++;
                             
                             // If we've run out of output buffer
                             if (output.IsFull) {
@@ -190,8 +190,8 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             // Revert whole read (since Fib uses part-bytes we can't just revert the last symbol)
-            input.MoveStart(-pending);
-            output.MoveEnd(-done);
+            input.MoveStart(-pendingInputs);
+            output.MoveEnd(-pendingOutputs);
 
             // Return
             return output.IsFull;

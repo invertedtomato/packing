@@ -90,7 +90,7 @@ namespace InvertedTomato.Compression.Integers {
         /// When the output buffer gets full before all of the input is consumed.
         /// </summary>
         [TestMethod]
-        public void Compress_OutputFull() {
+        public void Compress_InsufficentOutput() {
             var input = new Buffer<ulong>(new ulong[] { 128 });
             var output = new Buffer<byte>(1);
             var codec = new VLQCodec();
@@ -103,7 +103,7 @@ namespace InvertedTomato.Compression.Integers {
         /// When there is exactly enough space in the output buffer for all the input.
         /// </summary>
         [TestMethod]
-        public void Compress_OutputPerfect() {
+        public void Compress_PerfectOutput() {
             var input = new Buffer<ulong>(new ulong[] { 128 });
             var output = new Buffer<byte>(2);
             var codec = new VLQCodec();

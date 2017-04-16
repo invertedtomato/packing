@@ -20,13 +20,13 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             // Initialise completed counter
-            var done = 0;
+            var pendingOutputs = 0;
 
             // Process decompressed set
             ulong value;
             while (input.TryDequeue(out value)) {
                 // Initialise pending bytes counter
-                var pending = 0;
+                var pendingInputs = 0;
 
                 // Iterate through input, taking X bits of data each time, aborting when less than X bits left
                 while (value > MINVAL) {
@@ -34,7 +34,7 @@ namespace InvertedTomato.Compression.Integers {
                     if (output.IsFull) {
                         // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
                         input.MoveStart(-1);
-                        output.MoveEnd(-pending);
+                        output.MoveEnd(-pendingInputs);
 
                         // Return
                         return false; // INPUT isn't empty
@@ -42,7 +42,7 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Write payload, skipping MSB bit
                     output.Enqueue((byte)(value & MASK));
-                    pending++;
+                    pendingInputs++;
 
                     // Offset value for next cycle
                     value >>= PACKETSIZE;
@@ -53,7 +53,7 @@ namespace InvertedTomato.Compression.Integers {
                 if (output.IsFull) {
                     // We were part way through a symbol when we ran out of output space - reset to the start of this symbol
                     input.MoveStart(-1);
-                    output.MoveEnd(-pending);
+                    output.MoveEnd(-pendingInputs);
 
                     // Return
                     return false; // INPUT isn't empty
@@ -63,7 +63,7 @@ namespace InvertedTomato.Compression.Integers {
                 output.Enqueue((byte)(value | MSB));
 
                 // Increment number of completed symbols
-                done++;
+                pendingOutputs++;
             }
 
             // Return
@@ -89,10 +89,10 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             // Initialise completed counter
-            var done = 0;
+            var pendingOutputs = 0;
 
             // Initialise pending bytes counter
-            var pending = 0;
+            var pendingInputs = 0;
 
             // Setup symbol
             ulong symbol = 0;
@@ -101,7 +101,7 @@ namespace InvertedTomato.Compression.Integers {
             // Iterate through input
             byte b;
             while (input.TryDequeue(out b)) {
-                pending++;
+                pendingInputs++;
 
                 // Add input bits to output
                 var chunk = (ulong)(b & MASK);
@@ -115,7 +115,7 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Add to output
                     output.Enqueue(symbol);
-                    done++;
+                    pendingOutputs++;
 
                     // If we've run out of output buffer
                     if (output.IsFull) {
@@ -124,14 +124,14 @@ namespace InvertedTomato.Compression.Integers {
                     }
 
                     // Reset for next symbol
-                    pending = 0;
+                    pendingInputs = 0;
                     symbol = 0;
                     bit = 0;
                 }
             }
 
             // Revert the partially read symbol
-            input.MoveStart(-pending);
+            input.MoveStart(-pendingInputs);
 
             // Return
             return output.IsFull;

@@ -86,6 +86,7 @@
     <Compile Include="Legacy\VLQSignedReaderTests.cs" />
     <Compile Include="Legacy\VLQUnsignedReaderTests.cs" />
     <Compile Include="Legacy\VLQUnsignedWriterTests.cs" />
+    <Compile Include="ULongBufferExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
