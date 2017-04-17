@@ -148,6 +148,7 @@ namespace InvertedTomato.Compression.Integers {
                     
                     // If we've run out of output buffer
                     if (output.IsFull) {
+                        // Remove partial outputs
                         input.MoveStart(-pending);
 
                         // Return 

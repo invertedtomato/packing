@@ -201,6 +201,13 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual((ulong)2, symbols[2]);
         }
         [TestMethod]
+        public void Decompress_1_2_3() {
+            var symbols = DecompressMany("011 0011 1011 00000", 3); // 1 2 3 
+            Assert.AreEqual((ulong)1, symbols[0]);
+            Assert.AreEqual((ulong)2, symbols[1]);
+            Assert.AreEqual((ulong)3, symbols[2]);
+        }
+        [TestMethod]
         public void Decompress_0_0_0_0() { // Complete byte
             var symbols = DecompressMany("11 11 11 11", 4); // 0 0 0 0
             Assert.AreEqual((ulong)0, symbols[0]);
@@ -232,7 +239,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
             Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(1, output.Used);
+            Assert.AreEqual(0, output.Used);
         }
         [TestMethod]
         [ExpectedException(typeof(FormatException))]

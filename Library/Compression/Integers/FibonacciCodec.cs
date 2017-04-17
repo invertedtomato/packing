@@ -37,10 +37,8 @@ namespace InvertedTomato.Compression.Integers {
             }
 #endif
 
-            // Initialise completed counter
+            // Initialise pending counters
             var pendingInputs = 0;
-
-            // Initialise pending bytes counter
             var pendingOutputs = 0;
 
             // Clear currently worked-on byte
@@ -93,7 +91,7 @@ namespace InvertedTomato.Compression.Integers {
                             input.MoveStart(-pendingInputs);
                             output.MoveEnd(-pendingOutputs);
 
-                            return false; // OUTPUT is full
+                            return false; // INPUT isn't empty
                         }
 
                         // Add byte to output
@@ -112,13 +110,13 @@ namespace InvertedTomato.Compression.Integers {
                     input.MoveStart(-pendingInputs);
                     output.MoveEnd(-pendingOutputs);
 
-                    return false; // OUTPUT is full
+                    return false; // INPUT isn't empty
                 }
 
                 output.Enqueue(current);
             }
 
-            return true; // OUTPUT isn't full
+            return true; // INPUT is empty
         }
 
 
@@ -157,6 +155,10 @@ namespace InvertedTomato.Compression.Integers {
             }
 #endif
 
+            // Initialise pending counters
+            var pendingInputs = 0;
+            var pendingOutputs = 0;
+
             // Current symbol being decoded.
             ulong symbol = 0;
 
@@ -168,6 +170,8 @@ namespace InvertedTomato.Compression.Integers {
 
             byte b;
             while (input.TryDequeue(out b)) {
+                pendingInputs++;
+
                 // For each bit of buffer
                 for (var bi = 0; bi < 8; bi++) {
                     // If bit is set...
@@ -177,14 +181,19 @@ namespace InvertedTomato.Compression.Integers {
                             // Remove zero offset
                             symbol--;
 
-                            // Add to output
-                            output.Enqueue(symbol);
-
                             // If we've run out of output buffer
                             if (output.IsFull) {
+                                // Remove partial outputs
+                                input.MoveStart(-pendingInputs);
+                                output.MoveEnd(-pendingOutputs);
+
                                 // Return 
-                                return input.IsEmpty;
+                                return false;
                             }
+
+                            // Add to output
+                            output.Enqueue(symbol);
+                            pendingOutputs++;
 
                             // Reset for next symbol
                             symbol = 0;
@@ -223,7 +232,8 @@ namespace InvertedTomato.Compression.Integers {
             }
 
 #if DEBUG
-            if (nextFibIndex > 0) {
+            // With fib there will usually be trailing unused "pad" bits - however these will always be zeros - so make sure they were always zeros
+            if (symbol > 0) {
                 throw new FormatException("Input ends with a partial symbol - bytes are missing or the input is corrupt.");
             }
 #endif
