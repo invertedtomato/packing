@@ -19,11 +19,7 @@ namespace InvertedTomato.Compression.Integers {
             return output.ToArray().ToBinaryString();
         }
         public string CompressOne(ulong value, int outputBufferSize = 8) {
-            var output = new Buffer<byte>(outputBufferSize);
-            var codec = new VLQCodec();
-            codec.Compress(value, output);
-
-            return output.ToArray().ToBinaryString();
+            return CompressMany(new ulong[] { value }, outputBufferSize);
         }
 
         [TestMethod]
@@ -118,9 +114,8 @@ namespace InvertedTomato.Compression.Integers {
             return output.ToArray();
         }
         private ulong DecompressOne(string value) {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
-            var codec = new VLQCodec();
-            return codec.Decompress(input);
+            var set= DecompressMany(value, 1);
+            return set[0];
         }
 
         [TestMethod]
@@ -266,6 +261,28 @@ namespace InvertedTomato.Compression.Integers {
             // Validate
             for (ulong i = 0; i < 1000; i++) {
                 Assert.AreEqual(i, decompressed.Dequeue());
+            }
+        }
+        [TestMethod]
+        public void CompressDecompress_First1000_Parallel_Basic() {
+            var codec = new VLQCodec();
+
+            // Create input
+            var input = new long[1000];
+            for(var i =0; i<input.Length; i++) {
+                input[i] = i;
+            }
+
+            // Compress
+            var compressed = codec.Compress(input);
+
+            // Decompress
+            var output = codec.Decompress(compressed);
+
+            // Validate
+            Assert.AreEqual(1000, output.Length);
+            for (long i = 0; i < 1000; i++) {
+                Assert.AreEqual(i, output[i]);
             }
         }
     }

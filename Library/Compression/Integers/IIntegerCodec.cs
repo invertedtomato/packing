@@ -4,29 +4,28 @@ using InvertedTomato.IO.Buffers;
 namespace InvertedTomato.Compression.Integers {
     public interface IIntegerCodec {
         /// <summary>
-        /// Compress a single input.
+        /// Compress an array. (not nearly as efficent as compressing a buffer.
         /// </summary>
-        /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
-        void Compress(ulong input, Buffer<byte> output);
+        /// <returns>Compressed array.</returns>
+        byte[] Compress(long[] input);
 
         /// <summary>
-        /// Compress a given buffer.
+        /// Compress a buffer.
         /// </summary>
         /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
         /// <returns>If all of the INPUT fit in the OUTPUT. False either indicates that a the output was not written at all or was partially written (resize output buffer and go again).</returns>
         bool Compress(Buffer<ulong> input, Buffer<byte> output);
 
         /// <summary>
-        /// Decompress a single input.
+        /// Decompress an array
         /// </summary>
         /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
-        /// <exception cref="BufferOverflowException">Insufficent space in output buffer.</exception>
         /// <exception cref="FormatException">Fault in compressed data.</exception>
-        /// <returns>The decompressed value.</returns>
-        ulong Decompress(Buffer<byte> input);
+        /// <returns>Decompressed array.</returns>
+        long[] Decompress(byte[] input);
 
         /// <summary>
-        /// Decompress a given buffer. Stops when the output is full or when the input runs drop
+        /// Decompress a buffer.
         /// </summary>
         /// <exception cref="OverflowException">Value could not be compressed as it exceeds the codec's supported range.</exception>
         /// <exception cref="FormatException">Fault in compressed data.</exception>

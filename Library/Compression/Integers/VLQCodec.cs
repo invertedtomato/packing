@@ -3,10 +3,28 @@ using System;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : IIntegerCodec {
-        public void Compress(ulong input, Buffer<byte> output) {
-            if (!Compress(new Buffer<ulong>(new ulong[] { input }), output)) {
-                throw new BufferOverflowException("Insufficent space in output buffer.");
+        public byte[] Compress(long[] symbols) {
+#if DEBUG
+            if (null == symbols) {
+                throw new ArgumentNullException("symbols");
             }
+#endif
+
+            // Prepare input buffer
+            var input = new Buffer<ulong>(symbols.Length);
+
+            // Perform signed conversion
+            foreach (var i in symbols) {
+                input.Enqueue(ZigZag.Encode(i));
+            }
+
+            // Compress
+            var output = new Buffer<byte>(input.Used * 2);
+            while (!Compress(input, output)) {
+                output = output.Resize(output.MaxCapacity * 2);
+            }
+
+            return output.ToArray();
         }
 
         public bool Compress(Buffer<ulong> input, Buffer<byte> output) {
@@ -70,12 +88,29 @@ namespace InvertedTomato.Compression.Integers {
             return true; // INPUT is empty
         }
 
-        public ulong Decompress(Buffer<byte> input) {
-            var output = new Buffer<ulong>(1);
-            if (!Decompress(input, output)) {
-                throw new BufferOverflowException("Insufficent space in output buffer.");
+        public long[] Decompress(byte[] raw) {
+#if DEBUG
+            if (null == raw) {
+                throw new ArgumentNullException("raw");
             }
-            return output.Dequeue();
+#endif
+
+            // Prepare buffers
+            var input = new Buffer<byte>(raw);
+            var output = new Buffer<ulong>(raw.Length);
+
+            // Decompress
+            while (!Decompress(input, output)) {
+                output = output.Resize(output.MaxCapacity * 2);
+            }
+
+            // Perform signed conversion
+            var symbols = new long[output.Used];
+            for (var i = 0; i < symbols.Length; i++) {
+                symbols[i] = ZigZag.Decode(output.Dequeue());
+            }
+
+            return symbols;
         }
 
         public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
