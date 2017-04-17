@@ -65,27 +65,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Compression\Integers\FibbonaciCodecTests.cs" />
+    <Compile Include="Compression\Integers\RawCodecTests.cs" />
     <Compile Include="Compression\Integers\VLQCodecTests.cs" />
-    <Compile Include="Legacy\EliasDeltaSignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasDeltaUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasDeltaUnsignedWriterTests.cs" />
-    <Compile Include="Legacy\FibonacciSignedReaderTests.cs" />
-    <Compile Include="Legacy\ThompsonAlphaSignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasGammaSignedReaderTests.cs" />
-    <Compile Include="Legacy\FibonacciUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\ThompsonAlphaUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\FibonacciUnsignedWriterTests.cs" />
-    <Compile Include="Legacy\ThompsonAlphaUnsignedWriterTests.cs" />
-    <Compile Include="Legacy\EliasOmegaSignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasGammaUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasOmegaUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\EliasGammaUnsignedWriterTests.cs" />
-    <Compile Include="Legacy\EliasOmegaUnsignedWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Legacy\ASyncFibonacciUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\VLQSignedReaderTests.cs" />
-    <Compile Include="Legacy\VLQUnsignedReaderTests.cs" />
-    <Compile Include="Legacy\VLQUnsignedWriterTests.cs" />
     <Compile Include="ULongBufferExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
