@@ -3,30 +3,9 @@ using System;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : IIntegerCodec {
-        public byte[] Compress(long[] symbols) {
-#if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
-            }
-#endif
-
-            // Prepare input buffer
-            var input = new Buffer<ulong>(symbols.Length);
-
-            // Perform signed conversion
-            foreach (var i in symbols) {
-                input.Enqueue(ZigZag.Encode(i));
-            }
-
-            // Compress
-            var output = new Buffer<byte>(input.Used * 2);
-            while (!Compress(input, output)) {
-                output = output.Resize(output.MaxCapacity * 2);
-            }
-
-            return output.ToArray();
-        }
-
+        /// <summary>
+        /// Compress a buffer
+        /// </summary>
         public bool Compress(Buffer<ulong> input, Buffer<byte> output) {
 #if DEBUG
             if (null == input) {
@@ -82,31 +61,73 @@ namespace InvertedTomato.Compression.Integers {
             return true; // INPUT is empty
         }
 
-        public long[] Decompress(byte[] raw) {
+        /// <summary>
+        /// Compress an arrage of unsigned values (sugar).
+        /// </summary>
+        public byte[] CompressUnsignedArray(ulong[] symbols) {
 #if DEBUG
-            if (null == raw) {
-                throw new ArgumentNullException("raw");
+            if (null == symbols) {
+                throw new ArgumentNullException("symbols");
             }
 #endif
 
-            // Prepare buffers
-            var input = new Buffer<byte>(raw);
-            var output = new Buffer<ulong>(raw.Length);
+            // Prepare input buffer
+            var input = new Buffer<ulong>(symbols);
 
-            // Decompress
-            while (!Decompress(input, output)) {
+            // Compress
+            var output = new Buffer<byte>(input.Used * 2);
+            while (!Compress(input, output)) {
                 output = output.Resize(output.MaxCapacity * 2);
             }
 
-            // Perform signed conversion
-            var symbols = new long[output.Used];
-            for (var i = 0; i < symbols.Length; i++) {
-                symbols[i] = ZigZag.Decode(output.Dequeue());
-            }
-
-            return symbols;
+            return output.ToArray();
         }
 
+        /// <summary>
+        /// Compress an array of signed values (sugar).
+        /// </summary>
+        public byte[] CompressArray(long[] symbols) {
+#if DEBUG
+            if (null == symbols) {
+                throw new ArgumentNullException("symbols");
+            }
+#endif
+
+            // Prepare input buffer
+            var input = new Buffer<ulong>(symbols.Length);
+
+            // Perform signed conversion
+            foreach (var i in symbols) {
+                input.Enqueue(ZigZag.Encode(i));
+            }
+
+            // Compress
+            var output = new Buffer<byte>(input.Used * 2);
+            while (!Compress(input, output)) {
+                output = output.Resize(output.MaxCapacity * 2);
+            }
+
+            return output.ToArray();
+        }
+        
+        /// <summary>
+        /// Compress a single unsigned value (sugar).
+        /// </summary>
+        public byte[] CompressUnsignedOne(ulong symbol) {
+            return CompressUnsignedArray(new ulong[] { symbol });
+        }
+        
+        /// <summary>
+        /// Compress a single signed value (sugar).
+        /// </summary>
+        public byte[] CompressOne(long symbol) {
+            return CompressArray(new long[] { symbol });
+        }
+
+
+        /// <summary>
+        /// Decompress a buffer
+        /// </summary>
         public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
             if (null == input) {
@@ -145,7 +166,7 @@ namespace InvertedTomato.Compression.Integers {
                 if ((b & MSB) > 0) {
                     // Remove zero offset
                     symbol--;
-                    
+
                     // If we've run out of output buffer
                     if (output.IsFull) {
                         // Remove partial outputs
@@ -157,7 +178,7 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Add to output
                     output.Enqueue(symbol);
-                    
+
                     // Reset for next symbol
                     symbol = 0;
                     bit = 0;
@@ -176,6 +197,85 @@ namespace InvertedTomato.Compression.Integers {
             return true;
         }
 
+        /// <summary>
+        /// Decompress an array of unsigned values (sugar).
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <returns></returns>
+        public ulong[] DecompressUnsignedArray(byte[] raw) {
+#if DEBUG
+            if (null == raw) {
+                throw new ArgumentNullException("raw");
+            }
+#endif
+
+            // Prepare buffers
+            var input = new Buffer<byte>(raw);
+            var output = new Buffer<ulong>(raw.Length);
+
+            // Decompress
+            while (!Decompress(input, output)) {
+                output = output.Resize(output.MaxCapacity * 2);
+            }
+
+            // Perform signed conversion
+            var symbols = new ulong[output.Used];
+            for (var i = 0; i < symbols.Length; i++) {
+                symbols[i] = output.Dequeue();
+            }
+
+            return symbols;
+        }
+
+        /// <summary>
+        /// Decompress an array of signed values (sugar).
+        /// </summary>
+        public long[] DecompressArray(byte[] raw) {
+#if DEBUG
+            if (null == raw) {
+                throw new ArgumentNullException("raw");
+            }
+#endif
+
+            // Prepare buffers
+            var input = new Buffer<byte>(raw);
+            var output = new Buffer<ulong>(raw.Length);
+
+            // Decompress
+            while (!Decompress(input, output)) {
+                output = output.Resize(output.MaxCapacity * 2);
+            }
+
+            // Perform signed conversion
+            var symbols = new long[output.Used];
+            for (var i = 0; i < symbols.Length; i++) {
+                symbols[i] = ZigZag.Decode(output.Dequeue());
+            }
+
+            return symbols;
+        }
+
+        /// <summary>
+        /// Decompress a single unsigned value (sugar).
+        /// </summary>
+        public ulong DecompressedUnsignedOne(Buffer<byte> input) {
+            var output = new Buffer<ulong>(1);
+
+            if (!Decompress(input, output)) {
+                throw new InvalidOperationException("Insufficent input.");
+            }
+
+            return input.Dequeue();
+        }
+
+        /// <summary>
+        /// Decompress a single signed value (sugar).
+        /// </summary>
+        public long DecompressOne(Buffer<byte> input) {
+            return ZigZag.Decode(DecompressedUnsignedOne(input));
+        }
+
+        
         public static readonly ulong MaxValue = ulong.MaxValue - 1;
         private const byte MSB = 0x80;  // 10000000
         private const byte MASK = 0x7f; // 01111111

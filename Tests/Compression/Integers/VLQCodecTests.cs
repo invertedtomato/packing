@@ -274,10 +274,10 @@ namespace InvertedTomato.Compression.Integers {
             }
 
             // Compress
-            var compressed = codec.Compress(input);
+            var compressed = codec.CompressArray(input);
 
             // Decompress
-            var output = codec.Decompress(compressed);
+            var output = codec.DecompressArray(compressed);
 
             // Validate
             Assert.AreEqual(1000, output.Length);
