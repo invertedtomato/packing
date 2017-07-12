@@ -75,7 +75,7 @@ namespace InvertedTomato.Compression.Integers {
             var input = new Buffer<ulong>(symbols);
 
             // Compress
-            var output = new Buffer<byte>(input.Used * 2);
+            var output = new Buffer<byte>(input.Used * 5);
             while (!Compress(input, output)) {
                 output = output.Resize(output.MaxCapacity * 2);
             }
@@ -261,7 +261,9 @@ namespace InvertedTomato.Compression.Integers {
         public ulong DecompressedUnsignedOne(Buffer<byte> input) {
             var output = new Buffer<ulong>(1);
 
-            if (!Decompress(input, output)) {
+            Decompress(input, output);
+
+            if (!output.IsFull) {
                 throw new InvalidOperationException("Insufficent input.");
             }
 
