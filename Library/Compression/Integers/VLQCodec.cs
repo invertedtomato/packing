@@ -1,11 +1,115 @@
 ﻿using InvertedTomato.IO.Buffers;
 using System;
+using System.Collections.Generic;
 
 namespace InvertedTomato.Compression.Integers {
-    public class VLQCodec : IIntegerCodec {
+    public class VLQCodec : IUIntCompressor, IUIntDecompressor {
+        /// <summary>
+        /// Compress a UInt to a given buffer.
+        /// </summary>
+        public void CompressUInt(ulong symbol, Buffer<byte> output) {
+#if DEBUG
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+#endif
+
+            // Iterate through input, taking X bits of data each time, aborting when less than X bits left
+            while (symbol > MINVAL) {
+                // Write payload, skipping MSB bit
+                output.Enqueue((byte)(symbol & MASK));
+
+                // Offset value for next cycle
+                symbol >>= PACKETSIZE;
+                symbol--;
+            }
+
+            // Write remaining - marking it as the final byte for symbol
+            output.Enqueue((byte)(symbol | MSB));
+        }
+
+        /// <summary>
+        /// Compress an array of UInts to a given buffer.
+        /// </summary>
+        public void CompressUIntArray(ulong[] symbols, Buffer<byte> output) {
+#if DEBUG
+            if (null == symbols) {
+                throw new ArgumentNullException("symbols");
+            }
+#endif
+
+            foreach(var symbol in symbols) {
+                CompressUInt(symbol, output);
+            }
+        }
+
+
+        /// <summary>
+        /// Decompress a UInt from a given buffer.
+        /// </summary>
+        public ulong DecompressUInt(Buffer<byte> input) {
+#if DEBUG
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+#endif
+
+            // Setup symbol
+            ulong symbol = 0;
+            var bit = 0;
+
+            // Iterate through input
+            byte b;
+            while (input.TryDequeue(out b)) {
+                // Add input bits to output
+                var chunk = (ulong)(b & MASK);
+                var pre = symbol;
+                symbol += chunk + 1 << bit;
+#if DEBUG
+                // Check for overflow
+                if (symbol < pre) {
+                    throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
+                }
+#endif
+                bit += PACKETSIZE;
+
+                // If last byte in symbol
+                if ((b & MSB) > 0) {
+                    // Remove zero offset
+                    symbol--;
+
+                    // Add to output
+                    return symbol;
+                }
+            }
+
+            // Insufficent input
+            throw new InsufficentInputException("Input ends with a partial symbol. More bytes required to decode.");
+        }
+
+        /// <summary>
+        /// Decompress a UInt array from a given buffer.
+        /// </summary>
+        public ulong[] DecompressUIntArray(Buffer<byte> input) {
+#if DEBUG
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+#endif
+            var output = new List<ulong>();
+            while (!input.IsEmpty) {
+                output.Add(DecompressUInt(input));
+            }
+
+            return output.ToArray();
+        }
+
+
+
         /// <summary>
         /// Compress a buffer
         /// </summary>
+        [Obsolete("Use CompressUIntArray instead.")]
         public bool Compress(Buffer<ulong> input, Buffer<byte> output) {
 #if DEBUG
             if (null == input) {
@@ -64,6 +168,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Compress an arrage of unsigned values (sugar).
         /// </summary>
+        [Obsolete]
         public byte[] CompressUnsignedArray(ulong[] symbols) {
 #if DEBUG
             if (null == symbols) {
@@ -86,6 +191,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Compress an array of signed values (sugar).
         /// </summary>
+        [Obsolete]
         public byte[] CompressArray(long[] symbols) {
 #if DEBUG
             if (null == symbols) {
@@ -109,17 +215,19 @@ namespace InvertedTomato.Compression.Integers {
 
             return output.ToArray();
         }
-        
+
         /// <summary>
         /// Compress a single unsigned value (sugar).
         /// </summary>
+        [Obsolete]
         public byte[] CompressUnsignedOne(ulong symbol) {
             return CompressUnsignedArray(new ulong[] { symbol });
         }
-        
+
         /// <summary>
         /// Compress a single signed value (sugar).
         /// </summary>
+        [Obsolete]
         public byte[] CompressOne(long symbol) {
             return CompressArray(new long[] { symbol });
         }
@@ -128,6 +236,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Decompress a buffer
         /// </summary>
+        [Obsolete("Use DecompressUIntArray instead.")]
         public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
 #if DEBUG
             if (null == input) {
@@ -202,6 +311,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="raw"></param>
         /// <returns></returns>
+        [Obsolete]
         public ulong[] DecompressUnsignedArray(byte[] raw) {
 #if DEBUG
             if (null == raw) {
@@ -230,6 +340,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Decompress an array of signed values (sugar).
         /// </summary>
+        [Obsolete]
         public long[] DecompressArray(byte[] raw) {
 #if DEBUG
             if (null == raw) {
@@ -258,6 +369,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Decompress a single unsigned value (sugar).
         /// </summary>
+        [Obsolete]
         public ulong DecompressedUnsignedOne(Buffer<byte> input) {
             var output = new Buffer<ulong>(1);
 
@@ -273,11 +385,11 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Decompress a single signed value (sugar).
         /// </summary>
+        [Obsolete]
         public long DecompressOne(Buffer<byte> input) {
             return ZigZag.Decode(DecompressedUnsignedOne(input));
         }
 
-        
         public static readonly ulong MaxValue = ulong.MaxValue - 1;
         private const byte MSB = 0x80;  // 10000000
         private const byte MASK = 0x7f; // 01111111

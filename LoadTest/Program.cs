@@ -71,6 +71,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
 
             //////////////////////////////////////////
+            /*
             Console.WriteLine("VLQ");
             stopWatch = Stopwatch.StartNew();
             codec = new VLQCodec();
@@ -111,7 +112,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             stopWatch.Stop();
             Console.WriteLine("Decompress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
 
-
+    */
 
 
 
