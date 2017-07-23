@@ -13,8 +13,9 @@ namespace InvertedTomato.Compression.Integers {
         private readonly VLQCodec Codec = new VLQCodec();
 
         public string CompressMany(ulong[] set, int outputBufferSize = 8) {
+            var input = new Buffer<ulong>(set);
             var output = new Buffer<byte>(outputBufferSize);
-            Codec.CompressUIntArray(set, output);
+            Codec.CompressUnsignedBuffer(input, output);
 
             return output.ToArray().ToBinaryString();
         }
@@ -84,22 +85,26 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Compress_OutputPerfectSize() {
+            var input = new Buffer<ulong>(new ulong[] { 128 });
             var output = new Buffer<byte>(2);
-            Codec.CompressUIntArray(new ulong[] { 128 }, output);
+            Codec.CompressUnsignedBuffer(input, output);
             Assert.AreEqual("00000000 10000000", output.ToArray().ToBinaryString());
         }
         [TestMethod]
         [ExpectedException(typeof(BufferOverflowException))]
         public void Compress_OutputTooSmall() {
+            var input = new Buffer<ulong>(new ulong[] { 128 });
             var output = new Buffer<byte>(1);
-            Codec.CompressUIntArray(new ulong[] { 128 }, output);
+            Codec.CompressUnsignedBuffer(input, output);
         }
 
 
 
         private ulong[] DecompressMany(string value) {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
-            return Codec.DecompressUIntArray(input);
+            var output = new Buffer<ulong>(5);
+             Codec.DecompressUnsignedBuffer(input,output);
+            return output.ToArray();
         }
         private ulong DecompressOne(string value) {
             var output = DecompressMany(value);
@@ -175,7 +180,7 @@ namespace InvertedTomato.Compression.Integers {
         [ExpectedException(typeof(InsufficentInputException))]
         public void Decompress_InputClipped() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
-            Codec.DecompressUInt(input);
+            Codec.DecompressUnsigned(input);
         }
         [TestMethod]
         [ExpectedException(typeof(OverflowException))]
@@ -187,7 +192,7 @@ namespace InvertedTomato.Compression.Integers {
         public void Decompress_1_X() {
             var codec = new VLQCodec();
             var input = new Buffer<byte>(BitOperation.ParseToBytes("10000001 00000011"));
-            Assert.AreEqual((ulong)1, Codec.DecompressUInt(input));
+            Assert.AreEqual((ulong)1, Codec.DecompressUnsigned(input));
         }
 
 

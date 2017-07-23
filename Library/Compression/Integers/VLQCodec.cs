@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 
 namespace InvertedTomato.Compression.Integers {
-    public class VLQCodec : IUIntCompressor, IUIntDecompressor {
+    public class VLQCodec : Codec, IUnsignedCompressor, IUnsignedDecompressor {
         /// <summary>
         /// Compress a UInt to a given buffer.
         /// </summary>
-        public void CompressUInt(ulong symbol, Buffer<byte> output) {
+        public override void CompressUnsigned(ulong symbol, Buffer<byte> output) {
 #if DEBUG
             if (null == output) {
                 throw new ArgumentNullException("output");
@@ -27,27 +27,13 @@ namespace InvertedTomato.Compression.Integers {
             // Write remaining - marking it as the final byte for symbol
             output.Enqueue((byte)(symbol | MSB));
         }
-
-        /// <summary>
-        /// Compress an array of UInts to a given buffer.
-        /// </summary>
-        public void CompressUIntArray(ulong[] symbols, Buffer<byte> output) {
-#if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
-            }
-#endif
-
-            foreach(var symbol in symbols) {
-                CompressUInt(symbol, output);
-            }
-        }
+        
 
 
         /// <summary>
         /// Decompress a UInt from a given buffer.
         /// </summary>
-        public ulong DecompressUInt(Buffer<byte> input) {
+        public override ulong DecompressUnsigned(Buffer<byte> input) {
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
@@ -86,24 +72,7 @@ namespace InvertedTomato.Compression.Integers {
             // Insufficent input
             throw new InsufficentInputException("Input ends with a partial symbol. More bytes required to decode.");
         }
-
-        /// <summary>
-        /// Decompress a UInt array from a given buffer.
-        /// </summary>
-        public ulong[] DecompressUIntArray(Buffer<byte> input) {
-#if DEBUG
-            if (null == input) {
-                throw new ArgumentNullException("input");
-            }
-#endif
-            var output = new List<ulong>();
-            while (!input.IsEmpty) {
-                output.Add(DecompressUInt(input));
-            }
-
-            return output.ToArray();
-        }
-
+        
 
 
         /// <summary>
