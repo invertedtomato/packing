@@ -3,6 +3,7 @@
 namespace InvertedTomato.Compression.Integers.Sample {
     class Program {
         static void Main(string[] args) {
+            /*
             // Instantiate the codec ready to compress
             var codec = new FibonacciCodec();
 
@@ -15,6 +16,7 @@ namespace InvertedTomato.Compression.Integers.Sample {
             Console.WriteLine(string.Join(",", decompressed)); // Output: 1,2,3
 
             Console.ReadKey(true);
+            */
         }
     }
 }

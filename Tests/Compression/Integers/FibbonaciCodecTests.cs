@@ -6,11 +6,12 @@ using System;
 namespace InvertedTomato.Compression.Integers.Tests {
     [TestClass]
     public class FibonacciCodecTests {
+        public readonly Codec Codec = new FibonacciCodec();
+
         public string CompressMany(ulong[] set, int outputBufferSize = 8) {
             var input = new Buffer<ulong>(set);
             var output = new Buffer<byte>(outputBufferSize);
-            var codec = new FibonacciCodec();
-            Assert.IsTrue(codec.Compress(input, output));
+            Assert.IsTrue(Codec.CompressUnsignedBuffer(input, output));
 
             return output.ToArray().ToBinaryString();
         }
@@ -95,7 +96,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
             var output = new Buffer<byte>(2);
             var codec = new FibonacciCodec();
-            Assert.IsTrue(codec.Compress(input, output));
+            Assert.IsTrue(codec.CompressUnsignedBuffer(input, output));
             Assert.AreEqual("11011001 10000000", output.ToArray().ToBinaryString());
             Assert.AreEqual(3, input.Start);
             Assert.AreEqual(3, input.End);
@@ -105,7 +106,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<ulong>(new ulong[] { 0, 1, 2 });
             var output = new Buffer<byte>(1);
             var codec = new FibonacciCodec();
-            Assert.IsFalse(codec.Compress(input, output));
+            Assert.IsFalse(codec.CompressUnsignedBuffer(input, output));
             Assert.AreEqual("", output.ToArray().ToBinaryString());
             Assert.AreEqual(0, input.Start);
             Assert.AreEqual(3, input.End);
@@ -118,7 +119,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var output = new Buffer<ulong>(count);
             var codec = new FibonacciCodec();
-            Assert.IsTrue(codec.Decompress(input, output));
+            Assert.IsTrue(codec.DecompressUnsignedBuffer(input, output));
 
             return output.ToArray();
         }
@@ -229,7 +230,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("11 000000"));
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            Assert.IsTrue(codec.Decompress(input, output));
+            Assert.IsTrue(codec.DecompressUnsignedBuffer(input, output));
             Assert.AreEqual(1, output.Used);
             Assert.AreEqual((ulong)0, output.Dequeue());
         }
@@ -238,7 +239,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("11 011 0011 0000000"));
             var output = new Buffer<ulong>(1);
             var codec = new FibonacciCodec();
-            Assert.IsFalse(codec.Decompress(input, output));
+            Assert.IsFalse(codec.DecompressUnsignedBuffer(input, output));
             Assert.AreEqual(0, output.Used);
         }
         [TestMethod]
@@ -247,7 +248,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("11011001"));
             var output = new Buffer<ulong>(3);
             var codec = new FibonacciCodec();
-            codec.Decompress(input, output);
+            codec.DecompressUnsignedBuffer(input, output);
         }
 
         [TestMethod]
@@ -275,14 +276,14 @@ namespace InvertedTomato.Compression.Integers.Tests {
             Assert.AreEqual(0, compressed.End);
 
             // Attempt to compress with various output sizes - all will fail until the output is big enough
-            Assert.IsFalse(codec.Compress(input, compressed));
+            Assert.IsFalse(codec.CompressUnsignedBuffer(input, compressed));
             Assert.AreEqual(0, input.Start);
             Assert.AreEqual(1000, input.End);
             Assert.AreEqual(0, compressed.Start);
             Assert.AreEqual(0, compressed.End);
 
             compressed = compressed.Resize(2000);
-            Assert.IsTrue(codec.Compress(input, compressed));
+            Assert.IsTrue(codec.CompressUnsignedBuffer(input, compressed));
             Assert.AreEqual(1000, input.Start);
             Assert.AreEqual(1000, input.End);
             Assert.AreEqual(0, compressed.Start);
@@ -290,7 +291,7 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
             // Decompress in one batch - if it's in chunks the first value of each chunk will be messed up
             var decompressed = new Buffer<ulong>(1000);
-            Assert.IsTrue(codec.Decompress(compressed, decompressed));
+            Assert.IsTrue(codec.DecompressUnsignedBuffer(compressed, decompressed));
 
             // Validate
             for (ulong i = 0; i < 1000; i++) {
@@ -300,24 +301,22 @@ namespace InvertedTomato.Compression.Integers.Tests {
 
         [TestMethod]
         public void CompressDecompress_First1000_Parallel_Basic() {
-            var codec = new FibonacciCodec();
-
             // Create input
-            var input = new long[1000];
-            for (var i = 0; i < input.Length; i++) {
-                input[i] = i;
-            }
+            var input = new Buffer<ulong>(1000);
+            input.Seed(0, 999);
 
             // Compress
-            var compressed = codec.Compress(input);
+            var compressed = new Buffer<byte>(5000);
+            Assert.IsTrue(Codec.CompressUnsignedBuffer(input, compressed));
 
             // Decompress
-            var output = codec.Decompress(compressed);
+            var output = new Buffer<ulong>(1000);
+            Assert.IsTrue(Codec.DecompressUnsignedBuffer(compressed, output));
 
             // Validate
-            Assert.AreEqual(1000, output.Length);
-            for (long i = 0; i < 1000; i++) {
-                Assert.AreEqual(i, output[i]);
+            Assert.IsFalse(output.IsWritable);
+            for (ulong i = 0; i < 1000; i++) {
+                Assert.AreEqual(i, output.Dequeue());
             }
         }
     }

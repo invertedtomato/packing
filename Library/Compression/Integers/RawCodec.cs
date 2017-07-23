@@ -2,7 +2,7 @@
 using System;
 
 namespace InvertedTomato.Compression.Integers {
-    public class RawCodec : Codec, IUnsignedCompressor, IUnsignedDecompressor {
+    public class RawCodec : Codec{
         public static readonly ulong MinValue = ulong.MinValue;
         public static readonly ulong MaxValue = ulong.MaxValue;
 

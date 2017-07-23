@@ -2,7 +2,7 @@
 using System;
 
 namespace InvertedTomato.Compression.Integers {
-    public class VLQCodec : Codec, IUnsignedCompressor, IUnsignedDecompressor {
+    public class VLQCodec : Codec{
         public static readonly ulong MinValue = ulong.MinValue;
         public static readonly ulong MaxValue = ulong.MaxValue - 1;
         private const byte MSB = 0x80;  // 10000000

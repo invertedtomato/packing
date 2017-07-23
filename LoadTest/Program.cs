@@ -31,7 +31,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             //////////////////////////////////////////
             Console.WriteLine("FIBONACCI");
             var stopWatch = Stopwatch.StartNew();
-            IIntegerCodec codec = new FibonacciCodec();
+            Codec codec = new FibonacciCodec();
 
             // Seed
             var input = new Buffer<ulong>((int)count);
@@ -41,7 +41,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
             // Compress
             var compressed = new Buffer<byte>((int)count * 5);
-            while (!codec.Compress(input, compressed)) {
+            while (!codec.CompressUnsignedBuffer(input, compressed)) {
                 Console.Write("Expanding compression buffer... ");
                 compressed = compressed.Resize(compressed.MaxCapacity * 2);
                 Console.WriteLine(compressed.MaxCapacity);
@@ -53,7 +53,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
             // Decompress
             var output = new Buffer<ulong>((int)count);
-            while (!codec.Decompress(compressed, output)) {
+            while (!codec.DecompressUnsignedBuffer(compressed, output)) {
                 Console.Write("Expanding decompression buffer...");
                 output = output.Resize(output.MaxCapacity * 2);
                 Console.WriteLine(output.MaxCapacity);

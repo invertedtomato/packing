@@ -2,35 +2,45 @@
 using InvertedTomato.IO.Buffers;
 
 namespace InvertedTomato.Compression.Integers {
-    public class FibonacciCodec : IIntegerCodec {
-        public byte[] Compress(long[] symbols) {
+    public class FibonacciCodec : Codec {
+        /// <summary>
+        /// The most significant bit in a byte.
+        /// </summary>
+        private const byte MSB = 0x80;
+
+        /// <summary>
+        /// Minimum value this codec can support.
+        /// </summary>
+        public static readonly ulong MinValue = ulong.MinValue;
+
+        /// <summary>
+        /// The maximum value of a symbol this codec can support.
+        /// </summary>
+        public static readonly ulong MaxValue = ulong.MaxValue - 1;
+
+        /// <summary>
+        /// Lookup table of Fibonacci numbers that can fit in a ulong.
+        /// </summary>
+        public static readonly ulong[] Lookup = new ulong[92];
+
+        static FibonacciCodec() {
+            // Pre-compute all Fibonacci numbers that can fit in a ulong.
+            Lookup[0] = 1;
+            Lookup[1] = 2;
+            for (var i = 2; i < Lookup.Length; i++) {
+                Lookup[i] = Lookup[i - 1] + Lookup[i - 2];
+            }
+        }
+
+        public override void CompressUnsigned(ulong symbol, Buffer<byte> output) {
+            throw new NotSupportedException();
+        }
+
+        public override bool CompressUnsignedBuffer(Buffer<ulong> symbols, Buffer<byte> output) {
+            // TODO: rollback if we run out of buffer space part way through a symbol
 #if DEBUG
             if (null == symbols) {
                 throw new ArgumentNullException("symbols");
-            }
-#endif
-
-            // Prepare input buffer
-            var input = new Buffer<ulong>(symbols.Length);
-
-            // Perform signed conversion
-            foreach (var i in symbols) {
-                input.Enqueue(ZigZag.Encode(i));
-            }
-
-            // Compress
-            var output = new Buffer<byte>(input.Used * 2);
-            while (!Compress(input, output)) {
-                output = output.Resize(output.MaxCapacity * 2);
-            }
-
-            return output.ToArray();
-        }
-
-        public bool Compress(Buffer<ulong> input, Buffer<byte> output) { // TODO: rollback if we run out of buffer space part way through a symbol
-#if DEBUG
-            if (null == input) {
-                throw new ArgumentNullException("input");
             }
             if (null == output) {
                 throw new ArgumentNullException("output");
@@ -47,7 +57,7 @@ namespace InvertedTomato.Compression.Integers {
 
             // Iterate through all symbols
             ulong value;
-            while (input.TryDequeue(out value)) {
+            while (symbols.TryDequeue(out value)) {
                 pendingInputs++;
 #if DEBUG
                 if (value > MaxValue) {
@@ -87,8 +97,8 @@ namespace InvertedTomato.Compression.Integers {
                     // Increment offset;
                     if (++offset == 8) {
                         // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
-                        if (output.IsFull) {
-                            input.MoveStart(-pendingInputs);
+                        if (!output.IsWritable) {
+                            symbols.MoveStart(-pendingInputs);
                             output.MoveEnd(-pendingOutputs);
 
                             return false; // INPUT isn't empty
@@ -106,8 +116,8 @@ namespace InvertedTomato.Compression.Integers {
             // Flush bit buffer
             if (offset > 0) {
                 // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
-                if (output.IsFull) {
-                    input.MoveStart(-pendingInputs);
+                if (!output.IsWritable) {
+                    symbols.MoveStart(-pendingInputs);
                     output.MoveEnd(-pendingOutputs);
 
                     return false; // INPUT isn't empty
@@ -119,39 +129,18 @@ namespace InvertedTomato.Compression.Integers {
             return true; // INPUT is empty
         }
 
-
-        public long[] Decompress(byte[] raw) {
-#if DEBUG
-            if (null == raw) {
-                throw new ArgumentNullException("raw");
-            }
-#endif
-
-            // Prepare buffers
-            var input = new Buffer<byte>(raw);
-            var output = new Buffer<ulong>(raw.Length);
-
-            // Decompress
-            while (!Decompress(input, output)) {
-                output = output.Resize(output.MaxCapacity * 2);
-            }
-
-            // Perform signed conversion
-            var symbols = new long[output.Used];
-            for (var i = 0; i < symbols.Length; i++) {
-                symbols[i] = ZigZag.Decode(output.Dequeue());
-            }
-
-            return symbols;
+        public override ulong DecompressUnsigned(Buffer<byte> input) {
+            throw new NotSupportedException();
         }
 
-        public bool Decompress(Buffer<byte> input, Buffer<ulong> output) {
+        public override bool DecompressUnsignedBuffer(Buffer<byte> input, Buffer<ulong> symbols) {
+
 #if DEBUG
             if (null == input) {
                 throw new ArgumentNullException("input");
             }
-            if (null == output) {
-                throw new ArgumentNullException("output");
+            if (null == symbols) {
+                throw new ArgumentNullException("symbols");
             }
 #endif
 
@@ -182,17 +171,17 @@ namespace InvertedTomato.Compression.Integers {
                             symbol--;
 
                             // If we've run out of output buffer
-                            if (output.IsFull) {
+                            if (!symbols.IsWritable) {
                                 // Remove partial outputs
                                 input.MoveStart(-pendingInputs);
-                                output.MoveEnd(-pendingOutputs);
+                                symbols.MoveEnd(-pendingOutputs);
 
                                 // Return 
                                 return false;
                             }
 
                             // Add to output
-                            output.Enqueue(symbol);
+                            symbols.Enqueue(symbol);
                             pendingOutputs++;
 
                             // Reset for next symbol
@@ -240,31 +229,6 @@ namespace InvertedTomato.Compression.Integers {
 
             // Return
             return true; // INPUT is empty
-        }
-
-
-        /// <summary>
-        /// The most significant bit in a byte.
-        /// </summary>
-        private const byte MSB = 0x80;
-
-        /// <summary>
-        /// The maximum value of a symbol this codec can support.
-        /// </summary>
-        public static readonly ulong MaxValue = ulong.MaxValue - 1;
-
-        /// <summary>
-        /// Lookup table of Fibonacci numbers that can fit in a ulong.
-        /// </summary>
-        public static readonly ulong[] Lookup = new ulong[92];
-
-        static FibonacciCodec() {
-            // Pre-compute all Fibonacci numbers that can fit in a ulong.
-            Lookup[0] = 1;
-            Lookup[1] = 2;
-            for (var i = 2; i < Lookup.Length; i++) {
-                Lookup[i] = Lookup[i - 1] + Lookup[i - 2];
-            }
         }
     }
 }
