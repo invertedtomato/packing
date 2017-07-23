@@ -2,7 +2,47 @@
 using System;
 
 namespace InvertedTomato.Compression.Integers {
-    public class RawCodec : IIntegerCodec {
+    public class RawCodec : Codec, IUnsignedCompressor, IUnsignedDecompressor {
+        public static readonly ulong MinValue = ulong.MinValue;
+        public static readonly ulong MaxValue = ulong.MaxValue;
+
+
+        public override void CompressUnsigned(ulong symbol, Buffer<byte> output) {
+#if DEBUG
+            if (null == output) {
+                throw new ArgumentNullException("output");
+            }
+#endif
+
+            // Convert to raw byte array
+            var raw = BitConverter.GetBytes(symbol);
+
+            // Add to output
+            output.EnqueueArray(raw);
+        }
+
+        public override ulong DecompressUnsigned(Buffer<byte> input) {
+#if DEBUG
+            if (null == input) {
+                throw new ArgumentNullException("input");
+            }
+#endif
+
+            // Get symbol
+            try {
+                var symbol = BitConverter.ToUInt64(input.GetUnderlying(), input.Start); // Low-level cheat to save allocating unnesscessary memory
+                input.MoveStart(+8);
+
+                // Return symbol
+                return symbol;
+            } catch (ArgumentException) {
+                throw new InsufficentInputException("Input ends with a partial symbol. More bytes required to decode.");
+            }
+        }
+
+
+
+        /*
         public byte[] Compress(long[] symbols) {
 #if DEBUG
             if (null == symbols) {
@@ -115,6 +155,8 @@ namespace InvertedTomato.Compression.Integers {
             return true;
         }
 
-        public static readonly ulong MaxValue = ulong.MaxValue;
+        */
+
+
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace InvertedTomato.Compression.Integers {
     [TestClass]
     public class VLQCodecTests {
-        private readonly VLQCodec Codec = new VLQCodec();
+        private readonly Codec Codec = new VLQCodec();
 
         public string CompressMany(ulong[] set, int outputBufferSize = 8) {
             var input = new Buffer<ulong>(set);
@@ -103,7 +103,7 @@ namespace InvertedTomato.Compression.Integers {
         private ulong[] DecompressMany(string value) {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var output = new Buffer<ulong>(5);
-             Codec.DecompressUnsignedBuffer(input,output);
+            Codec.DecompressUnsignedBuffer(input, output);
             return output.ToArray();
         }
         private ulong DecompressOne(string value) {
@@ -207,24 +207,22 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void CompressDecompress_First1000_Parallel_Basic() {
-            var codec = new VLQCodec();
-
             // Create input
-            var input = new long[1000];
-            for (var i = 0; i < input.Length; i++) {
-                input[i] = i;
-            }
+            var input = new Buffer<ulong>(1000);
+            input.Seed(0, 999);
 
             // Compress
-            var compressed = Codec.CompressArray(input);
+            var compressed = new Buffer<byte>(5000);
+            Assert.IsTrue(Codec.CompressUnsignedBuffer(input, compressed));
 
             // Decompress
-            var output = Codec.DecompressArray(compressed);
+            var output = new Buffer<ulong>(1000);
+            Assert.IsTrue(Codec.DecompressUnsignedBuffer(compressed, output));
 
             // Validate
-            Assert.AreEqual(1000, output.Length);
-            for (long i = 0; i < 1000; i++) {
-                Assert.AreEqual(i, output[i]);
+            Assert.IsFalse(output.IsWritable);
+            for (ulong i = 0; i < 1000; i++) {
+                Assert.AreEqual(i, output.Dequeue());
             }
         }
 

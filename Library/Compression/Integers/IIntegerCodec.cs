@@ -2,6 +2,7 @@
 using InvertedTomato.IO.Buffers;
 
 namespace InvertedTomato.Compression.Integers {
+    [Obsolete]
     public interface IIntegerCodec {
         /// <summary>
         /// Compress a buffer.

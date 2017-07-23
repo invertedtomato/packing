@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 namespace InvertedTomato.Compression.Integers {
     [TestClass]
     public class RawCodecTests {
+        private readonly Codec Codec = new RawCodec();
+
         public string CompressMany(ulong[] set, int outputBufferSize = 8) {
             var input = new Buffer<ulong>(set);
             var output = new Buffer<byte>(outputBufferSize);
-            var codec = new RawCodec();
-            Assert.IsTrue(codec.Compress(input, output));
+            Codec.CompressUnsignedBuffer(input, output);
 
             return output.ToArray().ToBinaryString();
         }
@@ -50,24 +51,13 @@ namespace InvertedTomato.Compression.Integers {
         public void Compress_1_1_1() {
             Assert.AreEqual("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressMany(new ulong[] { 1, 1, 1 }, 3 * 8));
         }
-        [TestMethod]
-        public void Compress_OutputTooSmall() {
-            var input = new Buffer<ulong>(new ulong[] { 128 });
-            var output = new Buffer<byte>(1);
-            var codec = new RawCodec();
-            Assert.IsFalse(codec.Compress(input, output));
-            Assert.AreEqual("", output.ToArray().ToBinaryString());
-            Assert.AreEqual(0, input.Start);
-            Assert.AreEqual(1, input.End);
-        }
-
 
 
         private ulong[] DecompressMany(string value, int count) {
             var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
             var output = new Buffer<ulong>(count);
             var codec = new RawCodec();
-            Assert.IsTrue(codec.Decompress(input, output));
+            Assert.IsTrue(codec.DecompressUnsignedBuffer(input, output));
 
             return output.ToArray();
         }
@@ -109,21 +99,12 @@ namespace InvertedTomato.Compression.Integers {
             Assert.AreEqual((ulong)1, set[2]);
         }
         [TestMethod]
-        public void Decompress_OutputTooSmall() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
-            var output = new Buffer<ulong>(1);
-            var codec = new RawCodec();
-            Assert.IsFalse(codec.Decompress(input, output));
-            Assert.AreEqual(1, output.Used);
-            Assert.AreEqual((ulong)0, output.Dequeue());
-        }
-        [TestMethod]
-        [ExpectedException(typeof(FormatException))]
+        [ExpectedException(typeof(InsufficentInputException))]
         public void Decompress_InputClipped() {
             var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
             var output = new Buffer<ulong>(1);
             var codec = new RawCodec();
-            codec.Decompress(input, output);
+            codec.DecompressUnsignedBuffer(input, output);
         }
 
 
@@ -139,24 +120,22 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void CompressDecompress_First1000_Parallel_Basic() {
-            var codec = new RawCodec();
-
             // Create input
-            var input = new long[1000];
-            for (var i = 0; i < input.Length; i++) {
-                input[i] = i;
-            }
-
+            var input = new Buffer<ulong>(1000);
+            input.Seed(0, 999);
+            
             // Compress
-            var compressed = codec.Compress(input);
+            var compressed = new Buffer<byte>(8000);
+            Assert.IsTrue(Codec.CompressUnsignedBuffer(input, compressed));
 
             // Decompress
-            var output = codec.Decompress(compressed);
+            var output = new Buffer<ulong>(1000);
+            Assert.IsTrue(Codec.DecompressUnsignedBuffer(compressed, output));
 
             // Validate
-            Assert.AreEqual(1000, output.Length);
-            for (long i = 0; i < 1000; i++) {
-                Assert.AreEqual(i, output[i]);
+            Assert.IsFalse(output.IsWritable);
+            for (ulong i = 0; i < 1000; i++) {
+                Assert.AreEqual(i, output.Dequeue());
             }
         }
     }
