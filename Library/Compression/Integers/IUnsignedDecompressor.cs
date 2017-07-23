@@ -5,15 +5,15 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Decompress a unsigned integer from a buffer.
         /// </summary>
-        /// <param name="input"></param>
-        ulong DecompressUnsigned(Buffer<byte> input);
+        /// <param name="raw"></param>
+        ulong DecompressUnsigned(Buffer<byte> raw);
 
         /// <summary>
         /// Decompress an array of unsigned integers from a buffer. If the input buffer runs empty, or the output buffer becomes full the process will halt.
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="raw"></param>
         /// <param name="symbols"></param>
         /// <returns>TRUE if all values fit in output.</returns>
-        bool DecompressUnsignedBuffer(Buffer<byte> input, Buffer<ulong> symbols);
+        bool DecompressUnsignedBuffer(Buffer<byte> raw, Buffer<ulong> symbols);
     }
 }
