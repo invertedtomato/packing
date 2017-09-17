@@ -11,6 +11,27 @@ namespace InvertedTomato.Compression.Integers {
         public abstract void CompressUnsigned(ulong symbol, Buffer<byte> raw);
 
         /// <summary>
+        /// Compress an unsigned interger into a new buffer
+        /// </summary>
+        public virtual Buffer<byte> CompressUnsigned(ulong symbol) {
+            var buffer = new Buffer<byte>(10);
+            CompressUnsigned(symbol, buffer);
+            return buffer;
+        }
+
+        /// <summary>
+        /// Compress an unsigned interger into a new buffer
+        /// </summary>
+        public virtual Buffer<byte> CompressUnsigned(long symbol) {
+#if DEBUG
+            if (symbol < 0) {
+                throw new ArgumentOutOfRangeException();
+            }
+#endif
+            return CompressUnsigned((ulong)symbol);
+        }
+
+        /// <summary>
         /// Compress an array of unsigned integers into a buffer.
         /// </summary>
         /// <param name="symbols">Values to compress</param>
