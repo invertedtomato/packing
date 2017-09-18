@@ -3,12 +3,13 @@ using System;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : Codec{
-        public static readonly ulong MinValue = ulong.MinValue;
-        public static readonly ulong MaxValue = ulong.MaxValue - 1;
-        private const byte MSB = 0x80;  // 10000000
-        private const byte MASK = 0x7f; // 01111111
-        private const int PACKETSIZE = 7;
-        private const ulong MINVAL = ulong.MaxValue >> 64 - PACKETSIZE;
+        public const ulong MinValue = ulong.MinValue;
+        public const ulong MaxValue = ulong.MaxValue - 1;
+        public const byte Nil = 0x80;  // 10000000
+
+        private const byte Mask = 0x7f; // 01111111
+        private const int PacketSize = 7;
+        private const ulong MinPacketValue = ulong.MaxValue >> 64 - PacketSize;
 
         /// <summary>
         /// Compress a UInt to a given buffer.
@@ -21,17 +22,17 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             // Iterate through input, taking X bits of data each time, aborting when less than X bits left
-            while (symbol > MINVAL) {
+            while (symbol > MinPacketValue) {
                 // Write payload, skipping MSB bit
-                output.Enqueue((byte)(symbol & MASK));
+                output.Enqueue((byte)(symbol & Mask));
 
                 // Offset value for next cycle
-                symbol >>= PACKETSIZE;
+                symbol >>= PacketSize;
                 symbol--;
             }
 
             // Write remaining - marking it as the final byte for symbol
-            output.Enqueue((byte)(symbol | MSB));
+            output.Enqueue((byte)(symbol | Nil));
         }
         
         /// <summary>
@@ -52,7 +53,7 @@ namespace InvertedTomato.Compression.Integers {
             byte b;
             while (input.TryDequeue(out b)) {
                 // Add input bits to output
-                var chunk = (ulong)(b & MASK);
+                var chunk = (ulong)(b & Mask);
                 var pre = symbol;
                 symbol += chunk + 1 << bit;
 #if DEBUG
@@ -61,10 +62,10 @@ namespace InvertedTomato.Compression.Integers {
                     throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
                 }
 #endif
-                bit += PACKETSIZE;
+                bit += PacketSize;
 
                 // If last byte in symbol
-                if ((b & MSB) > 0) {
+                if ((b & Nil) > 0) {
                     // Remove zero offset
                     symbol--;
 
