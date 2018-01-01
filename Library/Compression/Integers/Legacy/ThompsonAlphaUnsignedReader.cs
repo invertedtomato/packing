@@ -14,9 +14,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ulong ReadOneDefault(byte[] input) {
+        public static UInt64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -29,7 +29,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -39,7 +39,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// Number of prefix bits used to store length.
         /// </summary>
-        private readonly int LengthBits;
+        private readonly Int32 LengthBits;
 
         /// <summary>
         /// Standard instantiation.
@@ -52,9 +52,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <param name="lengthBits">Number of prefix bits used to store length.</param>
-        public ThompsonAlphaUnsignedReader(Stream input, int lengthBits) {
+        public ThompsonAlphaUnsignedReader(Stream input, Int32 lengthBits) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
             if (lengthBits < 1 || lengthBits > 6) {
                 throw new ArgumentOutOfRangeException("Must be between 1 and 6, not " + lengthBits + ".", "lengthBits");
@@ -69,19 +69,19 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="value"></param>
         /// <returns>If a read was successful.</returns>
-        public ulong Read() {
+        public UInt64 Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // Read length
-            var length = (int)Input.Read(LengthBits);
+            var length = (Int32)Input.Read(LengthBits);
                         
             // Read body
             var value = Input.Read(length);
 
             // Recover implied MSB
-            value |= (ulong)1 << length;
+            value |= (UInt64)1 << length;
 
             // Remove offset to allow zeros
             value--;
@@ -93,7 +93,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

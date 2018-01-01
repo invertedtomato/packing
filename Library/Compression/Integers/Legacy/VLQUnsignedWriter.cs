@@ -14,7 +14,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteOneDefault(ulong value) {
+        public static Byte[] WriteOneDefault(UInt64 value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new VLQUnsignedWriter(stream)) {
                     writer.Write(value);
@@ -29,8 +29,8 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="packetSize">The number of bits to include in each packet.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int CalculateBitLength(int packetSize, ulong value) {
-            var packets = (int)Math.Ceiling((float)BitOperation.CountUsed(value) / (float)packetSize);
+        public static Int32 CalculateBitLength(Int32 packetSize, UInt64 value) {
+            var packets = (Int32)Math.Ceiling((Single)BitOperation.CountUsed(value) / (Single)packetSize);
 
             return packets * (packetSize + 1);
         }
@@ -38,12 +38,12 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// Number of bits to include in each packet.
         /// </summary>
-        private readonly int PacketSize;
+        private readonly Int32 PacketSize;
 
         /// <summary>
         /// The stream to output encoded bytes to.
@@ -61,9 +61,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="output"></param>
         /// <param name="packetSize">The number of bits to include in each packet.</param>
-        public VLQUnsignedWriter(Stream output, int packetSize) {
+        public VLQUnsignedWriter(Stream output, Int32 packetSize) {
             if (null == output) {
-                throw new ArgumentNullException("output");
+                throw new ArgumentNullException(nameof(output));
             }
 
             // Store
@@ -75,13 +75,13 @@ namespace InvertedTomato.Compression.Integers {
         /// Append value to stream.
         /// </summary>
         /// <param name="value"></param>
-        public void Write(ulong value) {
+        public void Write(UInt64 value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // Calculate size of non-final packet
-            var min = ulong.MaxValue >> 64 - PacketSize;
+            var min = UInt64.MaxValue >> 64 - PacketSize;
 
             // Iterate through input, taking X bits of data each time, aborting when less than X bits left
             while (value > min) {
@@ -107,7 +107,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Flush any unwritten bits and dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

@@ -14,9 +14,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ulong ReadOneDefault(byte[] input) {
+        public static UInt64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -29,7 +29,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -42,7 +42,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="input"></param>
         public EliasOmegaUnsignedReader(Stream input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             Input = new BitReader(input);
@@ -52,18 +52,18 @@ namespace InvertedTomato.Compression.Integers {
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
-        public ulong Read() {
+        public UInt64 Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // #1 Start with a variable N, set to a value of 1.
-            ulong value = 1;
+            UInt64 value = 1;
 
             // #2 If the next bit is a "0", stop. The decoded number is N.
             while (Input.PeakBit()) {
                 // #3 If the next bit is a "1", then read it plus N more bits, and use that binary number as the new value of N.
-                value = Input.Read((int)value + 1);
+                value = Input.Read((Int32)value + 1);
             }
 
             // Burn last bit from input
@@ -79,7 +79,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

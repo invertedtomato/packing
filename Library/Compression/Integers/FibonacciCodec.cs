@@ -1,82 +1,80 @@
 ﻿using System;
-using InvertedTomato.IO.Buffers;
+using System.Collections.Generic;
+using System.IO;
 
 namespace InvertedTomato.Compression.Integers {
     public class FibonacciCodec : Codec {
         /// <summary>
         /// The most significant bit in a byte.
         /// </summary>
-        private const byte MSB = 0x80;
+        private const Byte MSB = 0x80;
 
         /// <summary>
         /// Minimum value this codec can support.
         /// </summary>
-        public static readonly ulong MinValue = ulong.MinValue;
+        public static readonly UInt64 MinValue = UInt64.MinValue;
 
         /// <summary>
         /// The maximum value of a symbol this codec can support.
         /// </summary>
-        public static readonly ulong MaxValue = ulong.MaxValue - 1;
+        public static readonly UInt64 MaxValue = UInt64.MaxValue - 1;
 
         /// <summary>
         /// Lookup table of Fibonacci numbers that can fit in a ulong.
         /// </summary>
-        public static readonly ulong[] Lookup = new ulong[92];
+        public static readonly UInt64[] Lookup = new UInt64[92];
 
         static FibonacciCodec() {
             // Pre-compute all Fibonacci numbers that can fit in a ulong.
             Lookup[0] = 1;
             Lookup[1] = 2;
-            for (var i = 2; i < Lookup.Length; i++) {
+            for(var i = 2; i < Lookup.Length; i++) {
                 Lookup[i] = Lookup[i - 1] + Lookup[i - 2];
             }
         }
 
-        public override void CompressUnsigned(ulong symbol, Buffer<byte> output) {
-            throw new NotSupportedException();
-        }
 
-        public override bool CompressUnsignedBuffer(Buffer<ulong> symbols, Buffer<byte> output) {
-            // TODO: rollback if we run out of buffer space part way through a symbol
+        public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
 #if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
+            if(null == output) {
+                throw new ArgumentNullException(nameof(output));
             }
-            if (null == output) {
-                throw new ArgumentNullException("output");
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
             // Initialise pending counters
-            var pendingInputs = 0;
-            var pendingOutputs = 0;
+            //var pendingInputs = 0;
+            //var pendingOutputs = 0;
 
             // Clear currently worked-on byte
-            var current = new byte();
+            var current = new Byte();
             var offset = 0;
 
             // Iterate through all symbols
-            ulong value;
-            while (symbols.TryDequeue(out value)) {
-                pendingInputs++;
+            foreach(var symbol in symbols) {
+                var symbol2 = symbol;
+                //pendingInputs++;
 #if DEBUG
-                if (value > MaxValue) {
+                // Check for overflow
+                if(symbol2 > MaxValue) {
                     throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
                 }
 #endif
 
                 // Fibbonacci doesn't support 0s, so add 1 to allow for them
-                value++;
+                symbol2++;
 
                 // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
                 // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-                bool[] map = null;
-                for (var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
+                Boolean[] map = null;
+                for(var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
                     // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
-                    if (value >= Lookup[fibIdx]) {
+                    if(symbol2 >= Lookup[fibIdx]) {
                         // Detect if this is the largest fib and store
-                        if (null == map) {
-                            map = new bool[fibIdx + 2];
+                        if(null == map) {
+                            map = new Boolean[fibIdx + 2];
                             map[fibIdx + 1] = true; // Termination bit
                         }
 
@@ -84,92 +82,98 @@ namespace InvertedTomato.Compression.Integers {
                         map[fibIdx] = true;
 
                         // Deduct Fibonacci number from value
-                        value -= Lookup[fibIdx];
+                        symbol2 -= Lookup[fibIdx];
                     }
                 }
 
                 // Output the bits of the map in reverse order
-                foreach (var bit in map) {
-                    if (bit) {
-                        current |= (byte)(1 << (7 - offset));
+                foreach(var bit in map) {
+                    if(bit) {
+                        current |= (Byte)(1 << (7 - offset));
                     }
 
                     // Increment offset;
-                    if (++offset == 8) {
+                    if(++offset == 8) {
+                        /*
                         // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                         if (!output.IsWritable) {
                             symbols.MoveStart(-pendingInputs);
                             output.MoveEnd(-pendingOutputs);
 
                             return false; // INPUT isn't empty
-                        }
+                        }*/
 
                         // Add byte to output
-                        output.Enqueue(current);
+                        output.WriteByte(current);
                         current = 0;
                         offset = 0;
-                        pendingOutputs++;
+                        //pendingOutputs++;
                     }
                 }
             }
 
             // Flush bit buffer
-            if (offset > 0) {
+            if(offset > 0) {
+                /*
                 // We were part way through a symbol when we ran out of output space - reset to start of set (we can't go to start of symbol because multiple symbols could be using each byte)
                 if (!output.IsWritable) {
                     symbols.MoveStart(-pendingInputs);
                     output.MoveEnd(-pendingOutputs);
 
                     return false; // INPUT isn't empty
-                }
+                }*/
 
-                output.Enqueue(current);
+                output.WriteByte(current);
             }
 
-            return true; // INPUT is empty
+            //return true; // INPUT is empty
         }
 
-        public override ulong DecompressUnsigned(Buffer<byte> input) {
-            throw new NotSupportedException();
-        }
-
-        public override bool DecompressUnsignedBuffer(Buffer<byte> input, Buffer<ulong> symbols) {
-
+        public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
 #if DEBUG
-            if (null == input) {
-                throw new ArgumentNullException("input");
+            if(null == input) {
+                throw new ArgumentNullException(nameof(input));
             }
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
+            if(count < 0) {
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 #endif
 
             // Initialise pending counters
-            var pendingInputs = 0;
-            var pendingOutputs = 0;
+            //var pendingInputs = 0;
+            //var pendingOutputs = 0;
+            var symbolCount = 0;
 
             // Current symbol being decoded.
-            ulong symbol = 0;
+            UInt64 symbol = 0;
 
             // Next Fibonacci number to test.
-            int nextFibIndex = 0;
+            Int32 nextFibIndex = 0;
 
             // State of the last bit while decoding.
-            bool lastBit = false;
+            Boolean lastBit = false;
 
-            byte b;
-            while (input.TryDequeue(out b)) {
-                pendingInputs++;
+            if(0 == count) {
+                yield break;
+            }
+
+            while(true) {
+                var b = input.ReadByte();
+                if(b < 0) {
+                    throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
+                }
+
+                //pendingInputs++;
 
                 // For each bit of buffer
-                for (var bi = 0; bi < 8; bi++) {
+                for(var bi = 0; bi < 8; bi++) {
                     // If bit is set...
-                    if (((b << bi) & MSB) > 0) {
+                    if(((b << bi) & MSB) > 0) {
                         // If double 1 bits
-                        if (lastBit) {
+                        if(lastBit) {
                             // Remove zero offset
                             symbol--;
-
+                            /*
                             // If we've run out of output buffer
                             if (!symbols.IsWritable) {
                                 // Remove partial outputs
@@ -178,11 +182,18 @@ namespace InvertedTomato.Compression.Integers {
 
                                 // Return 
                                 return false;
-                            }
+                            }*/
 
                             // Add to output
-                            symbols.Enqueue(symbol);
-                            pendingOutputs++;
+                            yield return symbol;
+
+                            // Stop if expected number of symbols have been found
+                            if(++symbolCount == count) {
+                                yield break;
+                            }
+
+                            //symbols.Enqueue(symbol);
+                            //pendingOutputs++;
 
                             // Reset for next symbol
                             symbol = 0;
@@ -193,7 +204,7 @@ namespace InvertedTomato.Compression.Integers {
 
 #if DEBUG
                         // Check for overflow
-                        if (nextFibIndex >= Lookup.Length) {
+                        if(nextFibIndex >= Lookup.Length) {
                             throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
                         }
 #endif
@@ -203,7 +214,7 @@ namespace InvertedTomato.Compression.Integers {
                         symbol += Lookup[nextFibIndex];
 #if DEBUG
                         // Check for overflow
-                        if (symbol < pre) {
+                        if(symbol < pre) {
                             throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
                         }
 #endif
@@ -222,13 +233,13 @@ namespace InvertedTomato.Compression.Integers {
 
 #if DEBUG
             // With fib there will usually be trailing unused "pad" bits - however these will always be zeros - so make sure they were always zeros
-            if (symbol > 0) {
+            if(symbol > 0) {
                 throw new FormatException("Input ends with a partial symbol - bytes are missing or the input is corrupt.");
             }
 #endif
 
             // Return
-            return true; // INPUT is empty
+            //return true; // INPUT is empty
         }
     }
 }

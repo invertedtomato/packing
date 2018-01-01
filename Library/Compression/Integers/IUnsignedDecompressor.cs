@@ -1,19 +1,10 @@
-﻿using InvertedTomato.IO.Buffers;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace InvertedTomato.Compression.Integers {
     public interface IUnsignedDecompressor {
-        /// <summary>
-        /// Decompress a unsigned integer from a buffer.
-        /// </summary>
-        /// <param name="raw"></param>
-        ulong DecompressUnsigned(Buffer<byte> raw);
-
-        /// <summary>
-        /// Decompress an array of unsigned integers from a buffer. If the input buffer runs empty, or the output buffer becomes full the process will halt.
-        /// </summary>
-        /// <param name="raw"></param>
-        /// <param name="symbols"></param>
-        /// <returns>TRUE if all values fit in output.</returns>
-        bool DecompressUnsignedBuffer(Buffer<byte> raw, Buffer<ulong> symbols);
+        IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count);
+        IEnumerable<Int64> DecompressSigned(Stream input, Int32 count);
     }
 }

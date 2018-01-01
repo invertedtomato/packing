@@ -14,7 +14,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteOneDefault(ulong value) {
+        public static Byte[] WriteOneDefault(UInt64 value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new EliasGammaUnsignedWriter(stream)) {
                     writer.Write(value);
@@ -29,7 +29,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int? CalculateBitLength(ulong value) {
+        public static Int32? CalculateBitLength(UInt64 value) {
             // Offset for zero
             value++;
             
@@ -39,7 +39,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// Underlying stream to be writing encoded values to.
@@ -52,7 +52,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="output"></param>
         public EliasGammaUnsignedWriter(Stream output) {
             if (null == output) {
-                throw new ArgumentNullException("output");
+                throw new ArgumentNullException(nameof(output));
             }
 
             Output = new BitWriter(output);
@@ -62,7 +62,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Append value to stream.
         /// </summary>
         /// <param name="value"></param>
-        public void Write(ulong value) {
+        public void Write(UInt64 value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
@@ -84,7 +84,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Flush any unwritten bits and dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

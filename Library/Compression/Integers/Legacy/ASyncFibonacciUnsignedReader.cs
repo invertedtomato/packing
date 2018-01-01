@@ -5,13 +5,13 @@ namespace InvertedTomato.Compression.Integers {
     /// Asynchronous Fibonacci coding reader (experimental).
     /// </summary>
     public class ASyncFibonacciUnsignedReader {
-        private readonly Func<ulong, bool> Output;
-        private ulong Buffer = 0;
-        private int BufferPosition = 0;
-        private bool LastBit = false;
-        private const byte MSB_8BIT = 0x80;
+        private readonly Func<UInt64, Boolean> Output;
+        private UInt64 Buffer = 0;
+        private Int32 BufferPosition = 0;
+        private Boolean LastBit = false;
+        private const Byte MSB_8BIT = 0x80;
 
-        public ASyncFibonacciUnsignedReader(Func<ulong, bool> output) {
+        public ASyncFibonacciUnsignedReader(Func<UInt64, Boolean> output) {
             if (null == output) {
                 throw new ArgumentNullException("callback");
             }
@@ -20,7 +20,7 @@ namespace InvertedTomato.Compression.Integers {
             Output = output;
         }
 
-        public void Insert(byte input) {
+        public void Insert(Byte input) {
             // For each bit of buffer
             for (var inputPosition = 0; inputPosition < 8; inputPosition++) {
                 // If bit is set...

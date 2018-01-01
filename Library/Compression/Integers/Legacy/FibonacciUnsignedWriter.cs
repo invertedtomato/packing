@@ -13,7 +13,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteOneDefault(ulong value) {
+        public static Byte[] WriteOneDefault(UInt64 value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new FibonacciUnsignedWriter(stream)) {
                     writer.Write(value);
@@ -27,7 +27,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int? CalculateBitLength(ulong value) {
+        public static Int32? CalculateBitLength(UInt64 value) {
             // Offset for zero
             value++;
 
@@ -43,7 +43,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// Underlying stream to be writing encoded values to.
@@ -56,7 +56,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="output"></param>
         public FibonacciUnsignedWriter(Stream output) {
             if (null == output) {
-                throw new ArgumentNullException("output");
+                throw new ArgumentNullException(nameof(output));
             }
 
             // Store
@@ -67,7 +67,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Append value to stream.
         /// </summary>
         /// <param name="value"></param>
-        public void Write(ulong value) {
+        public void Write(UInt64 value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
@@ -77,8 +77,8 @@ namespace InvertedTomato.Compression.Integers {
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            ulong[] buffer = new ulong[2];
-            int maxFibIdx = 0;
+            UInt64[] buffer = new UInt64[2];
+            Int32 maxFibIdx = 0;
             for (var fibIdx = FibonacciCodec.Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
                 if (value >= FibonacciCodec.Lookup[fibIdx]) {
@@ -89,11 +89,11 @@ namespace InvertedTomato.Compression.Integers {
 
                     // Write to buffer
                     if (maxFibIdx < 64) {
-                        buffer[0] |= (ulong)1 << maxFibIdx - fibIdx;
+                        buffer[0] |= (UInt64)1 << maxFibIdx - fibIdx;
                     } else if (fibIdx >= 64) {
-                        buffer[1] |= (ulong)1 << maxFibIdx - fibIdx;
+                        buffer[1] |= (UInt64)1 << maxFibIdx - fibIdx;
                     } else {
-                        buffer[0] |= (ulong)1 << 63 - fibIdx;
+                        buffer[0] |= (UInt64)1 << 63 - fibIdx;
                     }
 
                     // Deduct Fibonacci number from value
@@ -117,7 +117,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Flush any unwritten bits and dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

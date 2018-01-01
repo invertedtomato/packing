@@ -15,9 +15,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ulong ReadOneDefault(byte[] input) {
+        public static UInt64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -30,7 +30,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -43,7 +43,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="input"></param>
         public FibonacciUnsignedReader(Stream input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             Input = new BitReader(input);
@@ -53,13 +53,13 @@ namespace InvertedTomato.Compression.Integers {
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
-        public ulong Read() {
+        public UInt64 Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // Set default value
-            ulong value = 0;
+            UInt64 value = 0;
 
             var lastBit = false;
             var fibIdx = 0;
@@ -93,7 +93,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

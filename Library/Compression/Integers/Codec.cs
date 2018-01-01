@@ -1,161 +1,94 @@
-﻿using InvertedTomato.IO.Buffers;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace InvertedTomato.Compression.Integers {
     public abstract class Codec : IUnsignedCompressor, IUnsignedDecompressor {
-        /// <summary>
-        /// Compress a unsigned integer into a buffer.
-        /// </summary>
-        /// <param name="symbol">Value to compress</param>
-        /// <param name="raw">Output buffer</param>
-        public abstract void CompressUnsigned(ulong symbol, Buffer<byte> raw);
+        public abstract void CompressUnsigned(Stream output, params UInt64[] symbols);
 
-        /// <summary>
-        /// Compress an unsigned interger into a new buffer
-        /// </summary>
-        public virtual Buffer<byte> CompressUnsigned(ulong symbol) {
-            var buffer = new Buffer<byte>(10);
-            CompressUnsigned(symbol, buffer);
-            return buffer;
-        }
-
-        /// <summary>
-        /// Compress an unsigned interger into a new buffer
-        /// </summary>
-        public virtual Buffer<byte> CompressUnsigned(long symbol) {
+        public void CompressUnsigned(Stream output, params Int64[] symbols) {
 #if DEBUG
-            if (symbol < 0) {
-                throw new ArgumentOutOfRangeException();
+            if(null == output) {
+                throw new ArgumentNullException(nameof(output));
             }
-#endif
-            return CompressUnsigned((ulong)symbol);
-        }
-
-        /// <summary>
-        /// Compress an array of unsigned integers into a buffer.
-        /// </summary>
-        /// <param name="symbols">Values to compress</param>
-        /// <param name="raw">Output buffer</param>
-        /// <returns>TRUE if all values fit in output.</returns>
-        public virtual bool CompressUnsignedBuffer(Buffer<ulong> symbols, Buffer<byte> raw) {
-#if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
-            }
-            if (null == raw) {
-                throw new ArgumentNullException("output");
-            }
-#endif
-            // Dequeue from input until either the output is full, or the input has run dry
-            while (raw.IsWritable && symbols.TryDequeue(out var symbol)) {
-                CompressUnsigned(symbol, raw);
-            }
-
-            // Return whether the input has run dry
-            return !symbols.IsReadable;
-        }
-
-        /// <summary>
-        /// Compress an array of unsigned integers. This has no buffer control, and will be less memory efficent than CompressUnsignedBuffer.
-        /// </summary>
-        /// <param name="symbols">Values to compress</param>
-        /// <returns>Compressed data</returns>
-        public virtual byte[] CompressUnsignedArray(ulong[] symbols) {
-#if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            // Create buffers
-            var input = new Buffer<ulong>(symbols);
-            var output = new Buffer<byte>(symbols.Length * 10);
-
-            // Compress
-            CompressUnsignedBuffer(input, output);
-
-            // Convert back to array
-            return output.ToArray();
+            CompressUnsigned(output, symbols.Select(symbol => {
+                if(symbol < 0) {
+                    throw new ArgumentOutOfRangeException("symbols");
+                }
+                return (UInt64)symbol;
+            }).ToArray());
         }
 
-        /// <summary>
-        /// Compress an array of signed integers. This has no buffer control, and will be less memory efficent than CompressUnsignedBuffer.
-        /// </summary>
-        /// <param name="symbols"></param>
-        /// <returns></returns>
-        public virtual byte[] CompressSignedArray(long[] symbols) {
+        public void CompressSigned(Stream output, params Int64[] symbols) {
 #if DEBUG
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
+            if(null == output) {
+                throw new ArgumentNullException(nameof(output));
+            }
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            return CompressUnsignedArray(ZigZag.Encode(symbols));
+            CompressUnsigned(output, symbols.Select(symbol => ZigZag.Encode(symbol)).ToArray());
         }
 
-        /// <summary>
-        /// Decompress a unsigned integer from a buffer.
-        /// </summary>
-        /// <param name="raw"></param>
-        public abstract ulong DecompressUnsigned(Buffer<byte> raw);
 
-        /// <summary>
-        /// Decompress an array of unsigned integers from a buffer. If the input buffer runs empty, or the output buffer becomes full the process will halt.
-        /// </summary>
-        /// <param name="raw"></param>
-        /// <param name="symbols"></param>
-        /// <returns>TRUE if all values fit in output.</returns>
-        public virtual bool DecompressUnsignedBuffer(Buffer<byte> raw, Buffer<ulong> symbols) {
+        public MemoryStream CompressUnsigned(params UInt64[] symbols) {
 #if DEBUG
-            if (null == raw) {
-                throw new ArgumentNullException("input");
-            }
-            if (null == symbols) {
-                throw new ArgumentNullException("symbols");
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            // While there is still input, and room to output symbols, keep decompressing
-            while (raw.IsReadable && symbols.IsWritable) {
-                symbols.Enqueue(DecompressUnsigned(raw));
-            }
-
-            // Return whether the input has run dry
-            return !raw.IsReadable;
+            var output = new MemoryStream();
+            CompressUnsigned(output, symbols);
+            return output;
         }
 
-        /// <summary>
-        /// Decompress an array of unsigned integers. This has no buffer control, and will be less memory efficent than DecompressUnsignedBuffer.
-        /// </summary>
-        /// <param name="raw"></param>
-        /// <returns></returns>
-        public virtual ulong[] DecompressUnsignedArray(byte[] raw) {
+        public MemoryStream CompressUnsigned(params Int64[] symbols) {
 #if DEBUG
-            if (null == raw) {
-                throw new ArgumentNullException("raw");
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            // Create buffers
-            var input = new Buffer<byte>(raw);
-            var output = new Buffer<ulong>(raw.Length * 5);
-
-            // Compress
-            DecompressUnsignedBuffer(input, output);
-
-            // Convert back to array
-            return output.ToArray();
+            var output = new MemoryStream();
+            CompressUnsigned(output, symbols);
+            return output;
         }
 
-        /// <summary>
-        /// Decompress an array of signed integers.  This has no buffer control, and will be less memory efficent than DecompressUnsignedBuffer.
-        /// </summary>
-        /// <param name="raw"></param>
-        /// <returns></returns>
-        public virtual long[] DecompressSignedArray(byte[] raw) {
-            var symbols = DecompressUnsignedArray(raw);
+        public MemoryStream CompressSigned(params Int64[] symbols) {
+#if DEBUG
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
+            }
+#endif
 
-            return ZigZag.Decode(symbols);
+            var output = new MemoryStream();
+            CompressSigned(output, symbols);
+            return output;
+        }
+
+
+        public abstract IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count);
+
+        public IEnumerable<Int64> DecompressSigned(Stream input, Int32 count) {
+#if DEBUG
+            if(null == input) {
+                throw new ArgumentNullException(nameof(input));
+            }
+            if(count < 0) {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+#endif
+
+            return DecompressUnsigned(input, count).Select(symbol => ZigZag.Decode(symbol));
         }
     }
 }

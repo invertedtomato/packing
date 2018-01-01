@@ -13,7 +13,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteOneDefault(long value) {
+        public static Byte[] WriteOneDefault(Int64 value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new EliasOmegaSignedWriter(stream)) {
                     writer.Write(value);
@@ -25,7 +25,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying unsigned writer.
@@ -44,7 +44,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Append value to stream.
         /// </summary>
         /// <param name="value"></param>
-        public void Write(long value) {
+        public void Write(Int64 value) {
             Underlying.Write(ZigZag.Encode(value));
         }
 
@@ -52,7 +52,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Flush any unwritten bits and dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

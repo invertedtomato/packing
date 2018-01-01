@@ -12,9 +12,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static long ReadOneDefault(byte[] input) {
+        public static Int64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -27,7 +27,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If it's disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying unsigned reader.
@@ -46,7 +46,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
-        public long Read() {
+        public Int64 Read() {
             return ZigZag.Decode(Underlying.Read());
         }
 
@@ -54,7 +54,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

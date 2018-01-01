@@ -6,26 +6,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Linq;
 
 namespace InvertedTomato.Compression.Integers {
     [TestClass]
     public class RawCodecTests {
         private readonly Codec Codec = new RawCodec();
 
-        public string CompressMany(ulong[] set, int outputBufferSize = 8) {
-            var input = new Buffer<ulong>(set);
-            var output = new Buffer<byte>(outputBufferSize);
-            Codec.CompressUnsignedBuffer(input, output);
+        public String CompressMany(UInt64[] input, Int32 outputBufferSize = 8) {
+            var output = new MemoryStream(outputBufferSize);
+            Codec.CompressUnsigned(output, input);
 
             return output.ToArray().ToBinaryString();
         }
-        public string CompressOne(ulong value, int outputBufferSize = 8) {
-            return CompressMany(new ulong[] { value }, outputBufferSize);
+        public String CompressOne(UInt64 value, Int32 outputBufferSize = 8) {
+            return CompressMany(new UInt64[] { value }, outputBufferSize);
         }
 
         [TestMethod]
         public void Compress_Empty() {
-            Assert.AreEqual("", CompressMany(new ulong[] { }));
+            Assert.AreEqual("", CompressMany(new UInt64[] { }));
         }
         [TestMethod]
         public void Compress_0() {
@@ -45,23 +46,22 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Compress_Max() {
-            Assert.AreEqual("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111", CompressOne(ulong.MaxValue));
+            Assert.AreEqual("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111", CompressOne(UInt64.MaxValue));
         }
         [TestMethod]
         public void Compress_1_1_1() {
-            Assert.AreEqual("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressMany(new ulong[] { 1, 1, 1 }, 3 * 8));
+            Assert.AreEqual("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressMany(new UInt64[] { 1, 1, 1 }, 3 * 8));
         }
 
 
-        private ulong[] DecompressMany(string value, int count) {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes(value));
-            var output = new Buffer<ulong>(count);
+        private UInt64[] DecompressMany(String value, Int32 count) {
+            var input = new MemoryStream(BitOperation.ParseToBytes(value));
             var codec = new RawCodec();
-            Assert.IsTrue(codec.DecompressUnsignedBuffer(input, output));
+            var output = codec.DecompressUnsigned(input, count);
 
             return output.ToArray();
         }
-        private ulong DecompressOne(string value) {
+        private UInt64 DecompressOne(String value) {
             var set = DecompressMany(value, 1);
             return set[0];
         }
@@ -72,19 +72,19 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Decompress_0() {
-            Assert.AreEqual((ulong)0, DecompressOne("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
+            Assert.AreEqual((UInt64)0, DecompressOne("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
         }
         [TestMethod]
         public void Decompress_1() {
-            Assert.AreEqual((ulong)1, DecompressOne("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
+            Assert.AreEqual((UInt64)1, DecompressOne("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
         }
         [TestMethod]
         public void Decompress_2() {
-            Assert.AreEqual((ulong)2, DecompressOne("00000010 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
+            Assert.AreEqual((UInt64)2, DecompressOne("00000010 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
         }
         [TestMethod]
         public void Decompress_3() {
-            Assert.AreEqual((ulong)3, DecompressOne("00000011 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
+            Assert.AreEqual((UInt64)3, DecompressOne("00000011 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
         }
         [TestMethod]
         public void Decompress_Max() {
@@ -94,24 +94,22 @@ namespace InvertedTomato.Compression.Integers {
         public void Decompress_1_1_1() {
             var set = DecompressMany("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", 3);
             Assert.AreEqual(3, set.Length);
-            Assert.AreEqual((ulong)1, set[0]);
-            Assert.AreEqual((ulong)1, set[1]);
-            Assert.AreEqual((ulong)1, set[2]);
+            Assert.AreEqual((UInt64)1, set[0]);
+            Assert.AreEqual((UInt64)1, set[1]);
+            Assert.AreEqual((UInt64)1, set[2]);
         }
         [TestMethod]
-        [ExpectedException(typeof(InsufficentInputException))]
+        [ExpectedException(typeof(EndOfStreamException))]
         public void Decompress_InputClipped() {
-            var input = new Buffer<byte>(BitOperation.ParseToBytes("00000000"));
-            var output = new Buffer<ulong>(1);
-            var codec = new RawCodec();
-            codec.DecompressUnsignedBuffer(input, output);
+            var input = new MemoryStream(BitOperation.ParseToBytes("00000000"));
+            var output = Codec.DecompressUnsigned(input, 1).ToArray();
         }
 
 
 
         [TestMethod]
         public void CompressDecompress_First1000_Series() {
-            for (ulong input = 0; input < 1000; input++) {
+            for(UInt64 input = 0; input < 1000; input++) {
                 var encoded = CompressOne(input);
                 var output = DecompressOne(encoded);
 
@@ -119,23 +117,24 @@ namespace InvertedTomato.Compression.Integers {
             }
         }
         [TestMethod]
-        public void CompressDecompress_First1000_Parallel_Basic() {
+        public void CompressDecompress_First1000_Parallel() {
             // Create input
-            var input = new Buffer<ulong>(1000);
+            var input = new List<UInt64>(1000);
             input.Seed(0, 999);
-            
+
             // Compress
-            var compressed = new Buffer<byte>(8000);
-            Assert.IsTrue(Codec.CompressUnsignedBuffer(input, compressed));
+            var compressed = new MemoryStream();
+            Codec.CompressUnsigned(compressed, input.ToArray());
+
+            // Rewind stream
+            compressed.Seek(0, SeekOrigin.Begin);
 
             // Decompress
-            var output = new Buffer<ulong>(1000);
-            Assert.IsTrue(Codec.DecompressUnsignedBuffer(compressed, output));
+            var output = Codec.DecompressUnsigned(compressed, input.Count).ToList();
 
             // Validate
-            Assert.IsFalse(output.IsWritable);
-            for (ulong i = 0; i < 1000; i++) {
-                Assert.AreEqual(i, output.Dequeue());
+            for(var i = 0; i < 1000; i++) {
+                Assert.AreEqual((UInt64)i, output[i]);
             }
         }
     }

@@ -10,8 +10,8 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static ulong Encode(long value) {
-            return (ulong)((value << 1) ^ (value >> 63));
+        public static UInt64 Encode(Int64 value) {
+            return (UInt64)((value << 1) ^ (value >> 63));
         }
 
         /// <summary>
@@ -19,8 +19,8 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static ulong[] Encode(long[] values) {
-            var output = new ulong[values.Length];
+        public static UInt64[] Encode(Int64[] values) {
+            var output = new UInt64[values.Length];
             for (var i = 0; i < values.Length; i++) {
                 output[i] = ZigZag.Encode(values[i]);
             }
@@ -32,8 +32,8 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static long Decode(ulong value) {
-            var casted = (long)value;
+        public static Int64 Decode(UInt64 value) {
+            var casted = (Int64)value;
             return (casted >> 1) ^ (-(casted & 1));
         }
 
@@ -42,8 +42,8 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static long[] Decode(ulong[] values) {
-            var output = new long[values.Length];
+        public static Int64[] Decode(UInt64[] values) {
+            var output = new Int64[values.Length];
             for (var i = 0; i < values.Length; i++) {
                 output[i] = ZigZag.Decode(values[i]);
             }

@@ -14,9 +14,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ulong ReadOneDefault(byte[] input) {
+        public static UInt64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -29,12 +29,12 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// Number of bits to include in each packet.
         /// </summary>
-        private readonly int PacketSize;
+        private readonly Int32 PacketSize;
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -52,9 +52,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <param name="packetSize">The number of bits to include in each packet.</param>
-        public VLQUnsignedReader(Stream input, int packetSize) {
+        public VLQUnsignedReader(Stream input, Int32 packetSize) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
             if (packetSize < 1 || packetSize > 32) {
                 throw new ArgumentOutOfRangeException("PacketSize must be 1<=x<=32 not " + packetSize + ".", "packetSize");
@@ -69,7 +69,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
-        public ulong Read() {
+        public UInt64 Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
@@ -78,9 +78,9 @@ namespace InvertedTomato.Compression.Integers {
             var outputPosition = 0;
 
             // Set value to 0
-            ulong value = 0;
+            UInt64 value = 0;
 
-            bool final;
+            Boolean final;
             do {
                 // Read if this is the final packet
                 final = Input.Read(1) > 0;
@@ -105,7 +105,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

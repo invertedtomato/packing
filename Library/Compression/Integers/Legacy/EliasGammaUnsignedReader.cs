@@ -14,9 +14,9 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ulong ReadOneDefault(byte[] input) {
+        public static UInt64 ReadOneDefault(Byte[] input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             using (var stream = new MemoryStream(input)) {
@@ -29,7 +29,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// The underlying stream to be reading from.
@@ -42,7 +42,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="input"></param>
         public EliasGammaUnsignedReader(Stream input) {
             if (null == input) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             Input = new BitReader(input);
@@ -52,13 +52,13 @@ namespace InvertedTomato.Compression.Integers {
         /// Read the next value. 
         /// </summary>
         /// <returns></returns>
-        public ulong Read() {
+        public UInt64 Read() {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
 
             // Read length
-            int length = 1;
+            Int32 length = 1;
             while (!Input.PeakBit()) {
                 // Note that length is one bit longer
                 length++;
@@ -81,7 +81,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

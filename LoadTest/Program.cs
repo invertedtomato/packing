@@ -1,12 +1,14 @@
 ﻿using InvertedTomato.Compression.Integers;
 using InvertedTomato.IO.Buffers;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace InvertedTomato.Compression.Integer.LoadTest {
     class Program {
-        static void Main(string[] args) {
+        static void Main(String[] args) {
 
             //#1
             // Write: 7865ms 9.7MB/s
@@ -25,8 +27,8 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             // Compress: 10291ms 7.41MB/s
             // Decompress: 5819ms 13.11MB / s
 
-            ulong min = 100000;
-            ulong count = 10000000;
+            Int32 min = 100000;
+            Int32 count = 10000000;
 
             //////////////////////////////////////////
             Console.WriteLine("FIBONACCI");
@@ -34,40 +36,30 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             Codec codec = new FibonacciCodec();
 
             // Seed
-            var input = new Buffer<ulong>((int)count);
-            for (ulong v = min; v < min + count; v++) {
-                input.Enqueue(v);
+            var input = new List<UInt64>((Int32)count);
+            for (var v = min; v < min + count; v++) {
+                input.Add((UInt64)v);
             }
 
             // Compress
-            var compressed = new Buffer<byte>((int)count * 5);
-            while (!codec.CompressUnsignedBuffer(input, compressed)) {
-                Console.Write("Expanding compression buffer... ");
-                compressed = compressed.Resize(compressed.MaxCapacity * 2);
-                Console.WriteLine(compressed.MaxCapacity);
-            }
+            var compressed = new MemoryStream((Int32)count * 5);
 
             stopWatch.Stop();
-            Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s Total " + (compressed.Used / 1024 / 1024) + "MB");
+            Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s Total " + (compressed.Length / 1024 / 1024) + "MB");
             stopWatch = Stopwatch.StartNew();
 
             // Decompress
-            var output = new Buffer<ulong>((int)count);
-            while (!codec.DecompressUnsignedBuffer(compressed, output)) {
-                Console.Write("Expanding decompression buffer...");
-                output = output.Resize(output.MaxCapacity * 2);
-                Console.WriteLine(output.MaxCapacity);
-            }
+            var output =  codec.DecompressUnsigned(compressed,input.Count).ToList();
 
             // Validate
-            for (ulong v = min; v < min + count; v++) {
-                if (output.Dequeue() != v) {
+            for (var v = min; v < min + count; v++) {
+                if ((int)output[v] != v) {
                     throw new Exception("Incorrect result. Expected " + v + " got " + v + ".");
                 }
             }
 
             stopWatch.Stop();
-            Console.WriteLine("Decompress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
+            Console.WriteLine("Decompress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double)count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
 
 
             //////////////////////////////////////////
@@ -83,7 +75,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
             }
 
             // Compress
-            compressed = new Buffer<byte>((int)count * 5);
+            compressed = new Stream((int)count * 5);
             while (!codec.Compress(input, compressed)) {
                 Console.Write("Expanding compression buffer... ");
                 compressed = compressed.Resize(compressed.MaxCapacity * 2);

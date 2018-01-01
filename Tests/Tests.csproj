@@ -68,6 +68,7 @@
     <Compile Include="Compression\Integers\RawCodecTests.cs" />
     <Compile Include="Compression\Integers\VLQCodecTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ListExtensions.cs" />
     <Compile Include="ULongBufferExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

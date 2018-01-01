@@ -15,7 +15,7 @@ namespace InvertedTomato.Compression.Integers {
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static byte[] WriteOneDefault(ulong value) {
+        public static Byte[] WriteOneDefault(UInt64 value) {
             using (var stream = new MemoryStream()) {
                 using (var writer = new EliasOmegaUnsignedWriter(stream)) {
                     writer.Write(value);
@@ -30,7 +30,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="allowZeros">(non-standard) Support zeros by automatically offsetting all values by one.</param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int? CalculateBitLength(ulong value) {
+        public static Int32? CalculateBitLength(UInt64 value) {
             var result = 1; // Termination bit
 
             // Offset value to allow for 0s
@@ -45,7 +45,7 @@ namespace InvertedTomato.Compression.Integers {
                 result += length;
 
                 // #4 Let N equal the number of bits just prepended, minus one.
-                value = (ulong)length - 1;
+                value = (UInt64)length - 1;
             }
 
             return result;
@@ -54,7 +54,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <summary>
         /// If disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public Boolean IsDisposed { get; private set; }
 
         /// <summary>
         /// Underlying stream to be writing encoded values to.
@@ -67,7 +67,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="output"></param>
         public EliasOmegaUnsignedWriter(Stream output) {
             if (null == output) {
-                throw new ArgumentNullException("output");
+                throw new ArgumentNullException(nameof(output));
             }
 
             Output = new BitWriter(output);
@@ -77,7 +77,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Append value to stream.
         /// </summary>
         /// <param name="value"></param>
-        public void Write(ulong value) {
+        public void Write(UInt64 value) {
             if (IsDisposed) {
                 throw new ObjectDisposedException("this");
             }
@@ -86,10 +86,10 @@ namespace InvertedTomato.Compression.Integers {
             value++;
 
             // Prepare buffer
-            var groups = new Stack<KeyValuePair<ulong, int>>();
+            var groups = new Stack<KeyValuePair<UInt64, Int32>>();
 
             // #1 Place a "0" at the end of the code.
-            groups.Push(new KeyValuePair<ulong, int>(0, 1));
+            groups.Push(new KeyValuePair<UInt64, Int32>(0, 1));
 
             // #2 If N=1, stop; encoding is complete.
             while (value > 1) {
@@ -97,10 +97,10 @@ namespace InvertedTomato.Compression.Integers {
                 var length = BitOperation.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
-                groups.Push(new KeyValuePair<ulong, int>(value, length));
+                groups.Push(new KeyValuePair<UInt64, Int32>(value, length));
 
                 // #4 Let N equal the number of bits just prepended, minus one.
-                value = (ulong)length - 1;
+                value = (UInt64)length - 1;
             }
 
             // Write buffer
@@ -116,7 +116,7 @@ namespace InvertedTomato.Compression.Integers {
         /// Flush any unwritten bits and dispose.
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(Boolean disposing) {
             if (IsDisposed) {
                 return;
             }

@@ -4,10 +4,10 @@ using System.IO;
 
 namespace InvertedTomato.Compression.Integers.Benchmark {
     class Program {
-        static void Main(string[] args) {
+        static void Main(String[] args) {
             using (var writer = new StreamWriter("output.csv", false)) {
                 writer.WriteLine(",min,elias-omega,elias-gamma,elias-delta,fibonacci,vlq(7),thompson-alpha(6)");
-                for (ulong i = 1; i < ulong.MaxValue / 10; i *= 2) {
+                for (UInt64 i = 1; i < UInt64.MaxValue / 10; i *= 2) {
                     writer.Write(i);
                     writer.Write(",");
                     writer.Write(Bits.CountUsed(i));

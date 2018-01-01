@@ -1,81 +1,89 @@
-﻿using InvertedTomato.IO.Buffers;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace InvertedTomato.Compression.Integers {
-    public class VLQCodec : Codec{
-        public const ulong MinValue = ulong.MinValue;
-        public const ulong MaxValue = ulong.MaxValue - 1;
-        public const byte Nil = 0x80;  // 10000000
+    public class VLQCodec : Codec {
+        public const UInt64 MinValue = UInt64.MinValue;
+        public const UInt64 MaxValue = UInt64.MaxValue - 1;
+        public const Byte Nil = 0x80;  // 10000000
 
-        private const byte Mask = 0x7f; // 01111111
-        private const int PacketSize = 7;
-        private const ulong MinPacketValue = ulong.MaxValue >> 64 - PacketSize;
+        private const Byte Mask = 0x7f; // 01111111
+        private const Int32 PacketSize = 7;
+        private const UInt64 MinPacketValue = UInt64.MaxValue >> 64 - PacketSize;
 
-        /// <summary>
-        /// Compress a UInt to a given buffer.
-        /// </summary>
-        public override void CompressUnsigned(ulong symbol, Buffer<byte> output) {
+        public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
 #if DEBUG
-            if (null == output) {
-                throw new ArgumentNullException("output");
+            if(null == output) {
+                throw new ArgumentNullException(nameof(output));
+            }
+            if(null == symbols) {
+                throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            // Iterate through input, taking X bits of data each time, aborting when less than X bits left
-            while (symbol > MinPacketValue) {
-                // Write payload, skipping MSB bit
-                output.Enqueue((byte)(symbol & Mask));
+            foreach(var symbol in symbols) {
+                var symbol2 = symbol;
 
-                // Offset value for next cycle
-                symbol >>= PacketSize;
-                symbol--;
+                // Iterate through input, taking X bits of data each time, aborting when less than X bits left
+                while(symbol2 > MinPacketValue) {
+                    // Write payload, skipping MSB bit
+                    output.WriteByte((Byte)(symbol2 & Mask));
+
+                    // Offset value for next cycle
+                    symbol2 >>= PacketSize;
+                    symbol2--;
+                }
+
+                // Write remaining - marking it as the final byte for symbol
+                output.WriteByte((Byte)(symbol2 | Nil));
             }
-
-            // Write remaining - marking it as the final byte for symbol
-            output.Enqueue((byte)(symbol | Nil));
         }
-        
-        /// <summary>
-        /// Decompress a UInt from a given buffer.
-        /// </summary>
-        public override ulong DecompressUnsigned(Buffer<byte> input) {
+
+        public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
 #if DEBUG
-            if (null == input) {
-                throw new ArgumentNullException("input");
+            if(null == input) {
+                throw new ArgumentNullException(nameof(input));
+            }
+            if(count < 0) {
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 #endif
 
-            // Setup symbol
-            ulong symbol = 0;
-            var bit = 0;
+            for(var i = 0; i < count; i++) {
+                // Setup symbol
+                UInt64 symbol = 0;
+                var bit = 0;
+                
+                Int32 b;
+                do {
+                    // Read byte
+                    if((b = input.ReadByte()) == -1) {
+                        throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
+                    }
 
-            // Iterate through input
-            byte b;
-            while (input.TryDequeue(out b)) {
-                // Add input bits to output
-                var chunk = (ulong)(b & Mask);
-                var pre = symbol;
-                symbol += chunk + 1 << bit;
+                    // Add input bits to output
+                    var chunk = (UInt64)(b & Mask);
+                    var pre = symbol;
+                    symbol += chunk + 1 << bit;
+
 #if DEBUG
-                // Check for overflow
-                if (symbol < pre) {
-                    throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
-                }
+                    // Check for overflow
+                    if(symbol < pre) {
+                        throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
+                    }
 #endif
-                bit += PacketSize;
 
-                // If last byte in symbol
-                if ((b & Nil) > 0) {
-                    // Remove zero offset
-                    symbol--;
+                    // Increment bit offset
+                    bit += PacketSize;
+                } while((b & Nil) == 0); // If not final bit
+                
+                // Remove zero offset
+                symbol--;
 
-                    // Add to output
-                    return symbol;
-                }
+                // Add to output
+                yield return symbol;
             }
-
-            // Insufficent input
-            throw new InsufficentInputException("Input ends with a partial symbol. More bytes required to decode.");
         }
     }
 }
