@@ -73,7 +73,12 @@ namespace InvertedTomato.Compression.Integers {
         }
         [TestMethod]
         public void Compress_Max() {
-            Assert.AreEqual("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(UInt64.MaxValue, 32));
+            Assert.AreEqual("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(VLQCodec.MaxValue, 32));
+        }
+        [TestMethod]
+        [ExpectedException(typeof(OverflowException))]
+        public void Compress_Overflow() {
+             CompressOne(UInt64.MaxValue, 32);
         }
         [TestMethod]
         public void Compress_1_1_1() {

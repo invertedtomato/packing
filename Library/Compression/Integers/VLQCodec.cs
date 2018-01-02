@@ -23,6 +23,11 @@ namespace InvertedTomato.Compression.Integers {
 #endif
 
             foreach(var symbol in symbols) {
+#if DEBUG
+                if(symbol > MaxValue) {
+                    throw new OverflowException($"Symbol is larger than maximum value. See VLQCodec.MaxValue");
+                }
+#endif
                 var symbol2 = symbol;
 
                 // Iterate through input, taking X bits of data each time, aborting when less than X bits left
@@ -54,7 +59,7 @@ namespace InvertedTomato.Compression.Integers {
                 // Setup symbol
                 UInt64 symbol = 0;
                 var bit = 0;
-                
+
                 Int32 b;
                 do {
                     // Read byte
@@ -77,7 +82,7 @@ namespace InvertedTomato.Compression.Integers {
                     // Increment bit offset
                     bit += PacketSize;
                 } while((b & Nil) == 0); // If not final bit
-                
+
                 // Remove zero offset
                 symbol--;
 
