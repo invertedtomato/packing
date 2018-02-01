@@ -93,5 +93,7 @@ namespace InvertedTomato.Compression.Integers {
 
             return DecompressUnsigned(input, count).Select(symbol => ZigZag.Decode(symbol));
         }
+
+        public abstract Int32 CalculateBitLength(UInt64 symbol);
     }
 }

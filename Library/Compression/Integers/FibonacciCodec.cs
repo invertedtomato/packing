@@ -186,5 +186,25 @@ namespace InvertedTomato.Compression.Integers {
                 }
             }
         }
+
+        public override Int32 CalculateBitLength(UInt64 symbol) {
+#if DEBUG
+            // Check for overflow
+            if (symbol > MaxValue) {
+                throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
+            }
+#endif
+
+            // Offset for zero
+            symbol++;
+
+            for (var i = Lookup.Length - 1; i >= 0; i--) {
+                if (symbol >= Lookup[i]) {
+                    return i + 1;
+                }
+            }
+
+            return 0;
+        }
     }
 }

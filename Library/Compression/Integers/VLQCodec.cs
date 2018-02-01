@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InvertedTomato.IO.Bits;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,24 +15,24 @@ namespace InvertedTomato.Compression.Integers {
 
         public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
 #if DEBUG
-            if(null == output) {
+            if (null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if(null == symbols) {
+            if (null == symbols) {
                 throw new ArgumentNullException(nameof(symbols));
             }
 #endif
 
-            foreach(var symbol in symbols) {
+            foreach (var symbol in symbols) {
 #if DEBUG
-                if(symbol > MaxValue) {
+                if (symbol > MaxValue) {
                     throw new OverflowException($"Symbol is larger than maximum value. See VLQCodec.MaxValue");
                 }
 #endif
                 var symbol2 = symbol;
 
                 // Iterate through input, taking X bits of data each time, aborting when less than X bits left
-                while(symbol2 > MinPacketValue) {
+                while (symbol2 > MinPacketValue) {
                     // Write payload, skipping MSB bit
                     output.WriteByte((Byte)(symbol2 & Mask));
 
@@ -47,15 +48,15 @@ namespace InvertedTomato.Compression.Integers {
 
         public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
 #if DEBUG
-            if(null == input) {
+            if (null == input) {
                 throw new ArgumentNullException(nameof(input));
             }
-            if(count < 0) {
+            if (count < 0) {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 #endif
 
-            for(var i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 // Setup symbol
                 UInt64 symbol = 0;
                 var bit = 0;
@@ -63,7 +64,7 @@ namespace InvertedTomato.Compression.Integers {
                 Int32 b;
                 do {
                     // Read byte
-                    if((b = input.ReadByte()) == -1) {
+                    if ((b = input.ReadByte()) == -1) {
                         throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
                     }
 
@@ -74,14 +75,14 @@ namespace InvertedTomato.Compression.Integers {
 
 #if DEBUG
                     // Check for overflow
-                    if(symbol < pre) {
+                    if (symbol < pre) {
                         throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
                     }
 #endif
 
                     // Increment bit offset
                     bit += PacketSize;
-                } while((b & Nil) == 0); // If not final bit
+                } while ((b & Nil) == 0); // If not final bit
 
                 // Remove zero offset
                 symbol--;
@@ -89,6 +90,12 @@ namespace InvertedTomato.Compression.Integers {
                 // Add to output
                 yield return symbol;
             }
+        }
+        
+        public override Int32 CalculateBitLength(UInt64 symbol) {
+            var packets = (Int32)Math.Ceiling((Single)BitOperation.CountUsed(symbol) / (Single)PacketSize);
+
+            return packets * (PacketSize + 1);
         }
     }
 }
