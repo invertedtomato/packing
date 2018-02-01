@@ -48,6 +48,7 @@ namespace InvertedTomato.Compression.Integers {
 
             var output = new MemoryStream();
             CompressUnsigned(output, symbols);
+            output.Seek(0, SeekOrigin.Begin);
             return output;
         }
 
@@ -60,6 +61,7 @@ namespace InvertedTomato.Compression.Integers {
 
             var output = new MemoryStream();
             CompressUnsigned(output, symbols);
+            output.Seek(0, SeekOrigin.Begin);
             return output;
         }
 
@@ -72,6 +74,7 @@ namespace InvertedTomato.Compression.Integers {
 
             var output = new MemoryStream();
             CompressSigned(output, symbols);
+            output.Seek(0, SeekOrigin.Begin);
             return output;
         }
 
