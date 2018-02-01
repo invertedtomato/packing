@@ -3,39 +3,21 @@
 ## TLDR
 Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
 ```C#
-using (var stream = new MemoryStream()) {
-    // Make a writer to encode values onto your stream
-    using (var writer = new FibonacciUnsignedWriter(stream)) { // Fibonacci is just one algorithm
-        // Write 1st value
-        writer.Write(1); // 8 bytes in memory
+// Instantiate the codec ready to compress
+Codec codec = new FibonacciCodec(); // Replace with any codec
 
-        // Write 2nd value
-        writer.Write(2); // 8 bytes in memory
+// Compress data - 3x8 bytes = 24bytes uncompressed
+var compressed = codec.CompressSigned(new int[] { 1, 2, 3 }); // Note: Unsigned compression is more effective than signed
+Console.WriteLine("Compressed data is " + compressed.Length + " bytes"); // Output: Compressed data is 2 bytes
 
-        // Write 3rd value
-        writer.Write(3); // 8 bytes in memory
-    }
-
-    Console.WriteLine("Compressed data is " + stream.Length + " bytes");
-    // Output: Compressed data is 2 bytes
-
-    stream.Position = 0;
-
-    // Make a reader to decode values from your stream
-    using (var reader = new FibonacciUnsignedReader(stream)) {
-        Console.WriteLine(reader.Read());
-        // Output: 1
-        Console.WriteLine(reader.Read());
-        // Output: 2
-        Console.WriteLine(reader.Read());
-        // Output: 3
-    }
-}
+// Decompress data
+var decompressed = codec.DecompressSigned(compressed, 3);
+Console.WriteLine(String.Join(",", decompressed)); // Output: 1,2,3
 ```
 
 ## Introduction
-Modern PCs have stacks of RAM, so it's usually not a problem that integers take 4-8 bytes 
-of RAM each to store in memory. However there are times when this is a problem. Some big ones are:
+Modern PCs have stacks of RAM, so it's usually not a problem that integers take 4-8 bytes each
+to store in memory. There are times however when this is a problem. For exammple:
  - When you want to store a large set of numbers in memory (100 million * 8 bytes = 760MB)
  - When you want to store a large set of numbers on disk
  - When you want to transmit numbers over a network (the Internet?) quickly
@@ -43,33 +25,13 @@ of RAM each to store in memory. However there are times when this is a problem. 
 In almost all cases those numbers can be stored in a much lower number of bytes. Heck, its
 **possible to store three integers in a single byte**.
 
-## Readers and Writers
-Here's how to store those numbers small. It's really simple - wrap an underlying stream in a writer, and write your values in:
-
-```C#
-using (var writer = new VLQUnsignedWriter(stream)) {
-    writer.Write(/* ... */);
-    // ...
-}
-```
-
-When you want the values back, just use a reader:
-
-```C#
-using (var reader = new VLQUnsignedReader(stream)) {
-    var a = reader.Read();
-    // ...
-}
-```
-
-Easy right?
-
 ## Algorithms
-The examples so far are all using VLQ (Variable Length Quantity), but there's other
-algorithms to choose from. VLQ is a great all-rounder algorithm, but consider the others.
-Each has different characteristics, and none is "the best". It just depends what you're
-trying to achieve.
+The example in the **TLDR** section used the Fibonacci codec. Whilst this codec is excellent for small numbers, it's not so 
+great when numbers get larger. You really need to select a codec with your domain in mind. Following is a summary of the 
+codecs available, their strengths and weaknesses.
 
+### Bits required to represent each number with each codec
+Keep in mind that there is a physical minimum possible size for each number. That is displayed in blue.
 ![alt text](https://raw.githubusercontent.com/invertedtomato/integer-compression/master/images/comparison-1.png "Algorithm comparison")
 
 ### Fibonacci *(best for integers <8,000)*
@@ -78,8 +40,6 @@ trying to achieve.
  - **Lossy:** no *(doesn't approximate)*
  - **Universal:** yes *(can handle any number)*
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
- - **Writer:** `FibonacciUnsignedWriter`, `FibonacciSignedWriter`
- - **Reader:** `FibonacciUnsignedReader`, `FibonacciSignedReader`
  - **Options:** 
 
 This is a very interesting algorithm - it encodes the numbers against a Fibonacci sequence. It's the best algorithm in the pack for numbers up to 8,000, It 
@@ -90,20 +50,18 @@ degrades after that point - but not horrendously so. This is my personal favorit
  - **Random access:** no
  - **Universal:** no *(can only handle a predefined range of numbers)*
  - **Details:** N/A
- - **Writer:** `ThompsonAlphaUnsignedWriter`, `ThompsonAlphaSignedWriter`
- - **Reader:** `ThompsonAlphaUnsignedReader`, `ThompsonAlphaSignedReader`
  - **Options:** 
    - Length bits
 
 I couldn't find an algorithm which performed well for large integers (>8,000), so this is my own. In it's default configuration it has a flat 6-bits
 of overhead for each integer, no matter it's size. That makes it excellent if your numbers have a large distribution.
 
+** This uses the legacy interface. See notes below. **
+
 ### Variable Length Quantities (VLQ)
  - **Random access:** no *(can't jump ahead)*
  - **Universal:** yes *(can handle any number)*
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Variable-length_quantity)
- - **Writer:** `VLQUnsignedWriter`, `VLQSignedWriter`
- - **Reader:** `VLQUnsignedReader`, `VLQSignedReader`
  - **Options:** 
    - Packet size
 
@@ -118,12 +76,12 @@ with a very low CPU overhead.
  - **Universal:** yes (can handle any number)
  - **Supported values:** all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_omega_coding)
- - **Writer:** `EliasOmegaUnsignedWriter`, `EliasOmegaSignedWriter`
- - **Reader:** `EliasOmegaUnsignedReader`, `EliasOmegaSignedReader`
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. It does well for tiny integers (under 8), but just doesn't cut the 
 mustard after that. Sorry Omega :-/.
+
+** This uses the legacy interface. See notes below. **
 
 ### Elias-Gamma
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -131,11 +89,11 @@ mustard after that. Sorry Omega :-/.
  - **Universal:** yes *(can handle any number)*
  - **Supported values:**  all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_gamma_coding)
- - **Writer:** `EliasGammaUnsignedWriter`, `EliasGammaSignedWriter`
- - **Reader:** `EliasGammaUnsignedReader`, `EliasGammaSignedReader`
 
 Like Elias-Omega, this is a very interesting algorithm. However it's only really useful for small integers (less than 8). For bigger numbers
 it performs *terribly*.
+
+** This uses the legacy interface. See notes below. **
 
 ### Elias-Delta
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -143,24 +101,58 @@ it performs *terribly*.
  - **Universal:** yes *(can handle any number)*
  - **Supported values:**  all
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_delta_coding)
- - **Writer:** `EliasDeltaUnsignedWriter`, `EliasDeltaSignedWriter`
- - **Reader:** `EliasDeltaUnsignedReader`, `EliasDeltaSignedReader`
 
 I have a lot of respect for this algorithm. It's an all-rounder, doing well on small numbers and large alike. If you knew you 
-were mostly going to have small numbers, but you'd have a lot of larger ones as well, this would be my choice. The algorithm is a little
+were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice. The algorithm is a little
 complex, so you might be cautious if you have extreme CPU limitations.
 
+** This uses the legacy interface. See notes below. **
+
+## Legacy interface
+I've recently started porting the algorithms to a new easier-to-use interface (see **TLDR** above), however there's a few codecs 
+that haven't made the transition yet. To use these with the legacy interface use the reader/writter pattern as below:
+
+```c#
+using (var stream = new MemoryStream()) {
+    // Make a writer to encode values onto your stream
+    using (var writer = new FibonacciUnsignedWriter(stream)) { // Fibonacci is just one algorithm
+        // Write 1st value
+        writer.Write(1); // 8 bytes in memory
+
+        // Write 2nd value
+        writer.Write(2); // 8 bytes in memory
+
+        // Write 3rd value
+        writer.Write(3); // 8 bytes in memory
+    }
+
+    Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
+
+	// Rewind the stream
+    stream.Position = 0;
+
+    // Make a reader to decode values from your stream
+    using (var reader = new FibonacciUnsignedReader(stream)) {
+        Console.WriteLine(reader.Read());
+        // Output: 1
+        Console.WriteLine(reader.Read());
+        // Output: 2
+        Console.WriteLine(reader.Read());
+        // Output: 3
+    }
+}
+```
+
 ## Comparing algorithms
-In order to make an accurate assessment of an algorithm for your purpose, some
-algorithms have a static method `CalculateBitLength` that allows you to know
+In order to make an accurate assessment of a codec for your purpose, some
+algorithms have a method `CalculateBitLength` that allows you to know
 how many bits a given value would consume when encoded. I recommend getting a set
 of your data and running it through the `CalculateBitLength` methods of a few
 algorithms to see which one is best.
 
 ## Signed and unsigned
-If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** readers and 
-writers. That way you'll get the best compression. Obviously fall back to **signed**
-readers and writers if you must.
+If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** encoding. That 
+way you'll get the best compression. Obviously fall back to **signed** if you must.
 
 ## Even better compression
 There are a few techniques you can use to further increase the compression of your integers.
