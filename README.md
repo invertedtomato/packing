@@ -128,7 +128,7 @@ using (var stream = new MemoryStream()) {
 
     Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
 
-	// Rewind the stream
+    // Rewind the stream
     stream.Position = 0;
 
     // Make a reader to decode values from your stream
