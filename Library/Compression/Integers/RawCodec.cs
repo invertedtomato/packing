@@ -7,19 +7,19 @@ namespace InvertedTomato.Compression.Integers {
         public static readonly UInt64 MinValue = UInt64.MinValue;
         public static readonly UInt64 MaxValue = UInt64.MaxValue;
 
-        public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
+        public override void CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
             if (null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if (null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if (null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
-            foreach (var symbol in symbols) {
+            foreach (var value in values) {
                 // Convert to raw byte array
-                var raw = BitConverter.GetBytes(symbol);
+                var raw = BitConverter.GetBytes(value);
 
                 // Add to output
                 output.Write(raw, 0, 8);

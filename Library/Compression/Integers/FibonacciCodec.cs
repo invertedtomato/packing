@@ -34,13 +34,13 @@ namespace InvertedTomato.Compression.Integers {
         }
 
 
-        public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
+        public override void CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
             if (null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if (null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if (null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
@@ -49,24 +49,24 @@ namespace InvertedTomato.Compression.Integers {
             var offset = 0;
 
             // Iterate through all symbols
-            foreach (var symbol in symbols) {
-                var symbol2 = symbol;
+            foreach (var value in values) {
+                var value2 = value;
 #if DEBUG
                 // Check for overflow
-                if (symbol2 > MaxValue) {
+                if (value2 > MaxValue) {
                     throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
                 }
 #endif
 
                 // Fibbonacci doesn't support 0s, so add 1 to allow for them
-                symbol2++;
+                value2++;
 
                 // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
                 // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
                 Boolean[] map = null;
                 for (var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
                     // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
-                    if (symbol2 >= Lookup[fibIdx]) {
+                    if (value2 >= Lookup[fibIdx]) {
                         // Detect if this is the largest fib and store
                         if (null == map) {
                             map = new Boolean[fibIdx + 2];
@@ -77,7 +77,7 @@ namespace InvertedTomato.Compression.Integers {
                         map[fibIdx] = true;
 
                         // Deduct Fibonacci number from value
-                        symbol2 -= Lookup[fibIdx];
+                        value2 -= Lookup[fibIdx];
                     }
                 }
 

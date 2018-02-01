@@ -13,36 +13,36 @@ namespace InvertedTomato.Compression.Integers {
         private const Int32 PacketSize = 7;
         private const UInt64 MinPacketValue = UInt64.MaxValue >> 64 - PacketSize;
 
-        public override void CompressUnsigned(Stream output, params UInt64[] symbols) {
+        public override void CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
             if (null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if (null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if (null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
-            foreach (var symbol in symbols) {
+            foreach (var value in values) {
 #if DEBUG
-                if (symbol > MaxValue) {
+                if (value > MaxValue) {
                     throw new OverflowException($"Symbol is larger than maximum value. See VLQCodec.MaxValue");
                 }
 #endif
-                var symbol2 = symbol;
+                var value2 = value;
 
                 // Iterate through input, taking X bits of data each time, aborting when less than X bits left
-                while (symbol2 > MinPacketValue) {
+                while (value2 > MinPacketValue) {
                     // Write payload, skipping MSB bit
-                    output.WriteByte((Byte)(symbol2 & Mask));
+                    output.WriteByte((Byte)(value2 & Mask));
 
                     // Offset value for next cycle
-                    symbol2 >>= PacketSize;
-                    symbol2--;
+                    value2 >>= PacketSize;
+                    value2--;
                 }
 
                 // Write remaining - marking it as the final byte for symbol
-                output.WriteByte((Byte)(symbol2 | Nil));
+                output.WriteByte((Byte)(value2 | Nil));
             }
         }
 

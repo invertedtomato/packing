@@ -5,19 +5,19 @@ using System.Linq;
 
 namespace InvertedTomato.Compression.Integers {
     public abstract class Codec : IUnsignedCompressor, IUnsignedDecompressor {
-        public abstract void CompressUnsigned(Stream output, params UInt64[] symbols);
+        public abstract void CompressUnsigned(Stream output, params UInt64[] value);
 
-        public void CompressUnsigned(Stream output, params Int64[] symbols) {
+        public void CompressUnsigned(Stream output, params Int64[] values) {
 #if DEBUG
             if(null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if(null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if(null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
-            CompressUnsigned(output, symbols.Select(symbol => {
+            CompressUnsigned(output, values.Select(symbol => {
                 if(symbol < 0) {
                     throw new ArgumentOutOfRangeException("symbols");
                 }
@@ -25,55 +25,55 @@ namespace InvertedTomato.Compression.Integers {
             }).ToArray());
         }
 
-        public void CompressSigned(Stream output, params Int64[] symbols) {
+        public void CompressSigned(Stream output, params Int64[] values) {
 #if DEBUG
             if(null == output) {
                 throw new ArgumentNullException(nameof(output));
             }
-            if(null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if(null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
-            CompressUnsigned(output, symbols.Select(symbol => ZigZag.Encode(symbol)).ToArray());
+            CompressUnsigned(output, values.Select(symbol => ZigZag.Encode(symbol)).ToArray());
         }
 
 
-        public MemoryStream CompressUnsigned(params UInt64[] symbols) {
+        public MemoryStream CompressUnsigned(params UInt64[] values) {
 #if DEBUG
-            if(null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if(null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
             var output = new MemoryStream();
-            CompressUnsigned(output, symbols);
+            CompressUnsigned(output, values);
             output.Seek(0, SeekOrigin.Begin);
             return output;
         }
 
-        public MemoryStream CompressUnsigned(params Int64[] symbols) {
+        public MemoryStream CompressUnsigned(params Int64[] values) {
 #if DEBUG
-            if(null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if(null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
             var output = new MemoryStream();
-            CompressUnsigned(output, symbols);
+            CompressUnsigned(output, values);
             output.Seek(0, SeekOrigin.Begin);
             return output;
         }
 
-        public MemoryStream CompressSigned(params Int64[] symbols) {
+        public MemoryStream CompressSigned(params Int64[] values) {
 #if DEBUG
-            if(null == symbols) {
-                throw new ArgumentNullException(nameof(symbols));
+            if(null == values) {
+                throw new ArgumentNullException(nameof(values));
             }
 #endif
 
             var output = new MemoryStream();
-            CompressSigned(output, symbols);
+            CompressSigned(output, values);
             output.Seek(0, SeekOrigin.Begin);
             return output;
         }
@@ -94,6 +94,6 @@ namespace InvertedTomato.Compression.Integers {
             return DecompressUnsigned(input, count).Select(symbol => ZigZag.Decode(symbol));
         }
 
-        public abstract Int32 CalculateBitLength(UInt64 symbol);
+        public abstract Int32 CalculateBitLength(UInt64 value);
     }
 }
