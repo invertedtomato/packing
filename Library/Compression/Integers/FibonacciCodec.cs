@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace InvertedTomato.Compression.Integers {
     public class FibonacciCodec : Codec {
@@ -186,6 +187,169 @@ namespace InvertedTomato.Compression.Integers {
                 }
             }
         }
+
+
+        public override async Task CompressUnsignedAsync(Stream output, params UInt64[] values) {
+#if DEBUG
+            if (null == output) {
+                throw new ArgumentNullException(nameof(output));
+            }
+            if (null == values) {
+                throw new ArgumentNullException(nameof(values));
+            }
+#endif
+
+            // Clear currently worked-on byte
+            var current = new Byte();
+            var offset = 0;
+
+            // Iterate through all symbols
+            foreach (var value in values) {
+                var value2 = value;
+#if DEBUG
+                // Check for overflow
+                if (value2 > MaxValue) {
+                    throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
+                }
+#endif
+
+                // Fibbonacci doesn't support 0s, so add 1 to allow for them
+                value2++;
+
+                // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
+                // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
+                Boolean[] map = null;
+                for (var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--) {
+                    // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word(counting the left most digit as place 0).
+                    if (value2 >= Lookup[fibIdx]) {
+                        // Detect if this is the largest fib and store
+                        if (null == map) {
+                            map = new Boolean[fibIdx + 2];
+                            map[fibIdx + 1] = true; // Termination bit
+                        }
+
+                        // Write to map
+                        map[fibIdx] = true;
+
+                        // Deduct Fibonacci number from value
+                        value2 -= Lookup[fibIdx];
+                    }
+                }
+
+                // Output the bits of the map in reverse order
+                foreach (var bit in map) {
+                    if (bit) {
+                        current |= (Byte)(1 << (7 - offset));
+                    }
+
+                    // Increment offset;
+                    if (++offset == 8) {
+                        // Add byte to output
+                        await output.WriteAsync(new Byte[] { current }, 0, 1);
+                        current = 0;
+                        offset = 0;
+                    }
+                }
+            }
+
+            // Flush bit buffer
+            if (offset > 0) {
+                await output.WriteAsync(new Byte[] { current }, 0, 1);
+            }
+        }
+
+        public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {
+#if DEBUG
+            if (null == input) {
+                throw new ArgumentNullException(nameof(input));
+            }
+            if (count < 0) {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+#endif
+
+            // Output
+            var output = new List<UInt64>();
+
+            // Don't try to read if no symbols are wanted
+            if (0 == count) {
+                return output;
+            }
+
+            // Current symbol being decoded.
+            UInt64 symbol = 0;
+
+            // Next Fibonacci number to test.
+            Int32 nextFibIndex = 0;
+
+            // State of the last bit while decoding.
+            Boolean lastBit = false;
+
+            Byte b;
+            var buffer = new Byte[1];
+
+            
+            while (true) {
+                // Read byte of input, and throw error if unavailable
+                if ((await input.ReadAsync(buffer, 0, 1)) != 1) {
+                    throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
+                }
+                b = buffer[0];
+
+                // For each bit of buffer
+                for (var bi = 0; bi < 8; bi++) {
+                    // If bit is set...
+                    if (((b << bi) & MSB) > 0) {
+                        // If double 1 bits
+                        if (lastBit) {
+                            // Remove zero offset
+                            symbol--;
+
+                            // Add to output
+                            output.Add( symbol);
+
+                            // Stop if expected number of symbols have been found
+                            if (--count == 0) {
+                                return output;
+                            }
+
+                            // Reset for next symbol
+                            symbol = 0;
+                            nextFibIndex = 0;
+                            lastBit = false;
+                            continue;
+                        }
+
+#if DEBUG
+                        // Check for overflow
+                        if (nextFibIndex >= Lookup.Length) {
+                            throw new OverflowException("Value too large to decode. Max 64bits supported.");  // TODO: Handle this so that it doesn't allow for DoS attacks!
+                        }
+#endif
+
+                        // Add value to current symbol
+                        var pre = symbol;
+                        symbol += Lookup[nextFibIndex];
+#if DEBUG
+                        // Check for overflow
+                        if (symbol < pre) {
+                            throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
+                        }
+#endif
+
+                        // Note bit for next cycle
+                        lastBit = true;
+                    } else {
+                        // Note bit for next cycle
+                        lastBit = false;
+                    }
+
+                    // Increment bit position
+                    nextFibIndex++;
+                }
+            }
+        }
+
 
         public override Int32 CalculateBitLength(UInt64 symbol) {
 #if DEBUG

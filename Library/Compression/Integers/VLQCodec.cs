@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace InvertedTomato.Compression.Integers {
     public class VLQCodec : Codec {
@@ -91,7 +92,94 @@ namespace InvertedTomato.Compression.Integers {
                 yield return symbol;
             }
         }
-        
+
+
+        public override async Task CompressUnsignedAsync(Stream output, params UInt64[] values) {
+#if DEBUG
+            if (null == output) {
+                throw new ArgumentNullException(nameof(output));
+            }
+            if (null == values) {
+                throw new ArgumentNullException(nameof(values));
+            }
+#endif
+
+            foreach (var value in values) {
+#if DEBUG
+                if (value > MaxValue) {
+                    throw new OverflowException($"Symbol is larger than maximum value. See VLQCodec.MaxValue");
+                }
+#endif
+                var value2 = value;
+
+                // Iterate through input, taking X bits of data each time, aborting when less than X bits left
+                while (value2 > MinPacketValue) {
+                    // Write payload, skipping MSB bit
+                    output.WriteByte((Byte)(value2 & Mask));
+
+                    // Offset value for next cycle
+                    value2 >>= PacketSize;
+                    value2--;
+                }
+
+                // Write remaining - marking it as the final byte for symbol
+                await output.WriteAsync(new Byte[] { (Byte)(value2 | Nil) }, 0, 1);
+            }
+        }
+
+        public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {
+#if DEBUG
+            if (null == input) {
+                throw new ArgumentNullException(nameof(input));
+            }
+            if (count < 0) {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+#endif
+
+            Byte b;
+            var buffer = new Byte[1];
+            var output = new List<UInt64>();
+
+            for (var i = 0; i < count; i++) {
+                // Setup symbol
+                UInt64 symbol = 0;
+                var bit = 0;
+
+                do {
+                    // Read byte of input, and throw error if unavailable
+                    if ((await input.ReadAsync(buffer, 0, 1)) != 1) {
+                        throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
+                    }
+                    b = buffer[0];
+
+                    // Add input bits to output
+                    var chunk = (UInt64)(b & Mask);
+                    var pre = symbol;
+                    symbol += chunk + 1 << bit;
+
+#if DEBUG
+                    // Check for overflow
+                    if (symbol < pre) {
+                        throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
+                    }
+#endif
+
+                    // Increment bit offset
+                    bit += PacketSize;
+                } while ((b & Nil) == 0); // If not final bit
+
+                // Remove zero offset
+                symbol--;
+
+                // Add to output
+                output.Add(symbol);
+            }
+
+            return output;
+        }
+
+
         public override Int32 CalculateBitLength(UInt64 symbol) {
             var packets = (Int32)Math.Ceiling((Single)BitOperation.CountUsed(symbol) / (Single)PacketSize);
 

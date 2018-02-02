@@ -78,7 +78,7 @@ namespace InvertedTomato.Compression.Integers {
         [TestMethod]
         [ExpectedException(typeof(OverflowException))]
         public void Compress_Overflow() {
-             CompressOne(UInt64.MaxValue, 32);
+            CompressOne(UInt64.MaxValue, 32);
         }
         [TestMethod]
         public void Compress_1_1_1() {
@@ -195,7 +195,7 @@ namespace InvertedTomato.Compression.Integers {
 
         [TestMethod]
         public void CompressDecompress_First1000_Series() {
-            for(UInt64 input = 0; input < 1000; input++) {
+            for (UInt64 input = 0; input < 1000; input++) {
                 var encoded = CompressOne(input);
                 var output = DecompressOne(encoded);
 
@@ -219,7 +219,32 @@ namespace InvertedTomato.Compression.Integers {
             var output = Codec.DecompressUnsigned(compressed, input.Count).ToList();
 
             // Validate
-            for(var i = 0; i < 1000; i++) {
+            for (var i = 0; i < 1000; i++) {
+                Assert.AreEqual((UInt64)i, output[i]);
+            }
+        }
+
+        [TestMethod]
+        public void CompressDecompressAsync_First1000_Parallel() {
+            // Create input
+            var input = new List<UInt64>(1000);
+            input.Seed(0, 999);
+
+            // Compress
+            var compressed = new MemoryStream();
+            var a = Codec.CompressUnsignedAsync(compressed, input.ToArray());
+            a.Wait();
+
+            // Rewind stream
+            compressed.Seek(0, SeekOrigin.Begin);
+
+            // Decompress
+            var b = Codec.DecompressUnsignedAsync(compressed, input.Count);
+            b.Wait();
+            var output = b.Result.ToList();
+
+            // Validate
+            for (var i = 0; i < 1000; i++) {
                 Assert.AreEqual((UInt64)i, output[i]);
             }
         }
