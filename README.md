@@ -1,12 +1,12 @@
 # Integer Compression
 
 ## TLDR
-Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
+Here's how to compress 12 bytes of data down to 2 using Fibonacci coding:
 ```C#
 // Instantiate the codec ready to compress
 Codec codec = new FibonacciCodec(); // Replace with any codec
 
-// Compress data - 3x8 bytes = 24bytes uncompressed
+// Compress data - 3x4 bytes = 12bytes uncompressed
 var compressed = codec.CompressSigned(new int[] { 1, 2, 3 }); // Note: Unsigned compression is more effective than signed
 Console.WriteLine("Compressed data is " + compressed.Length + " bytes"); // Output: Compressed data is 2 bytes
 
