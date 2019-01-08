@@ -7,7 +7,7 @@ Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
 Codec codec = new FibonacciCodec(); // Replace with any codec
 
 // Compress data - 3x8 bytes = 24bytes uncompressed
-var compressed = codec.CompressSigned(new int[] { 1, 2, 3 }); // Note: Unsigned compression is more effective than signed
+var compressed = codec.CompressSigned(new long[] { 1, 2, 3 }); // Note: Unsigned compression is more effective than signed
 Console.WriteLine("Compressed data is " + compressed.Length + " bytes"); // Output: Compressed data is 2 bytes
 
 // Decompress data
