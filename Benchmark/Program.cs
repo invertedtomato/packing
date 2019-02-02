@@ -18,9 +18,13 @@ namespace InvertedTomato.Compression.Integers.Benchmark {
 					writer.Write(",");
 					writer.Write(EliasDeltaUnsignedWriter.CalculateBitLength(i));
 					writer.Write(",");
+#pragma warning disable 618
 					writer.Write(FibonacciUnsignedWriter.CalculateBitLength(i));
+#pragma warning restore 618
 					writer.Write(",");
+#pragma warning disable 618
 					writer.Write(VLQUnsignedWriter.CalculateBitLength(7, i));
+#pragma warning restore 618
 					writer.Write(",");
 					writer.Write(ThompsonAlphaUnsignedWriter.CalculateBitLength(6, i));
 					writer.WriteLine();
