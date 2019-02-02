@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.0</TargetFramework>
     <AssemblyName>InvertedTomato.IntegerCompression</AssemblyName>
     <RootNamespace>InvertedTomato</RootNamespace>
-    <PackageLicenseUrl>https://github.com/invertedtomato/integer-compression/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/integer-compression/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/invertedtomato/integer-compression</PackageProjectUrl>
     <RepositoryUrl>https://github.com/invertedtomato/integer-compression</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -17,6 +17,8 @@
     <Company>Inverted Tomato</Company>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
     <FileVersion>1.2.3.0</FileVersion>
+    <PackageVersion>1.2.4</PackageVersion>
+    <Title>InvertedTomato.IntegerCompression</Title>
   </PropertyGroup>
 
   <ItemGroup>
