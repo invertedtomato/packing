@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers {
 		public static readonly UInt64 MinValue = UInt64.MinValue;
 		public static readonly UInt64 MaxValue = UInt64.MaxValue;
 
-		public override void CompressUnsigned(Stream output, params UInt64[] values) {
+		public override Int32 CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -19,13 +19,17 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
+			var count = 0;
 			foreach (var value in values) {
 				// Convert to raw byte array
 				var raw = BitConverter.GetBytes(value);
 
 				// Add to output
 				output.Write(raw, 0, 8);
+				count += 8;
 			}
+
+			return count;
 		}
 
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
@@ -59,7 +63,7 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		public override async Task CompressUnsignedAsync(Stream output, params UInt64[] values) {
+		public override async Task<Int32> CompressUnsignedAsync(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -70,13 +74,17 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
+			var count = 0;
 			foreach (var value in values) {
 				// Convert to raw byte array
 				var raw = BitConverter.GetBytes(value);
 
 				// Add to output
 				await output.WriteAsync(raw, 0, 8);
+				count += 8;
 			}
+
+			return count;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {

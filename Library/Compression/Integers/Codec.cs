@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace InvertedTomato.Compression.Integers {
 	public abstract class Codec : IUnsignedCompressor, IUnsignedDecompressor {
-		public abstract void CompressUnsigned(Stream output, params UInt64[] value);
+		public abstract Int32 CompressUnsigned(Stream output, params UInt64[] value);
 
-		public void CompressSigned(Stream output, params Int64[] values) {
+		public Int32 CompressSigned(Stream output, params Int64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -19,7 +19,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			CompressUnsigned(output, values.Select(symbol => ZigZag.Encode(symbol)).ToArray());
+			return CompressUnsigned(output, values.Select(ZigZag.Encode).ToArray());
 		}
 
 
@@ -36,10 +36,10 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			return DecompressUnsigned(input, count).Select(symbol => ZigZag.Decode(symbol));
+			return DecompressUnsigned(input, count).Select(ZigZag.Decode);
 		}
 
-		public void CompressUnsigned(Stream output, params Int64[] values) {
+		public Int32 CompressUnsigned(Stream output, params Int64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -50,9 +50,9 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			CompressUnsigned(output, values.Select(symbol => {
+			return CompressUnsigned(output, values.Select(symbol => {
 				if (symbol < 0) {
-					throw new ArgumentOutOfRangeException("symbols");
+					throw new ArgumentOutOfRangeException("symbols"); // TODO: Replace with more appropriate exception
 				}
 
 				return (UInt64) symbol;
@@ -100,9 +100,9 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		public abstract Task CompressUnsignedAsync(Stream output, params UInt64[] value);
+		public abstract Task<Int32> CompressUnsignedAsync(Stream output, params UInt64[] value);
 
-		public async Task CompressUnsignedAsync(Stream output, params Int64[] values) {
+		public async Task<Int32> CompressUnsignedAsync(Stream output, params Int64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -113,7 +113,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			await CompressUnsignedAsync(output, values.Select(symbol => {
+			return await CompressUnsignedAsync(output, values.Select(symbol => {
 				if (symbol < 0) {
 					throw new ArgumentOutOfRangeException("symbols");
 				}
@@ -122,7 +122,7 @@ namespace InvertedTomato.Compression.Integers {
 			}).ToArray());
 		}
 
-		public async Task CompressSignedAsync(Stream output, params Int64[] values) {
+		public async Task<Int32> CompressSignedAsync(Stream output, params Int64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -133,7 +133,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			await CompressUnsignedAsync(output, values.Select(symbol => ZigZag.Encode(symbol)).ToArray());
+			return await CompressUnsignedAsync(output, values.Select(ZigZag.Encode).ToArray());
 		}
 
 

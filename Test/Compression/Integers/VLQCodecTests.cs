@@ -9,80 +9,81 @@ namespace InvertedTomato.Compression.Integers {
 	public class VLQCodecTests {
 		private readonly Codec Codec = new VLQCodec();
 
-		public String CompressMany(UInt64[] set, Int32 outputBufferSize = 8) {
-			var output = new MemoryStream(outputBufferSize);
-			Codec.CompressUnsigned(output, set);
+		public String CompressMany(UInt64[] set, Int32 expectedCount) {
+			var output = new MemoryStream(expectedCount);
+			var count = Codec.CompressUnsigned(output, set);
+			Assert.Equal(expectedCount, count);
 
 			return output.ToArray().ToBinaryString();
 		}
 
-		public String CompressOne(UInt64 value, Int32 outputBufferSize = 8) {
-			return CompressMany(new[] {value}, outputBufferSize);
+		public String CompressOne(UInt64 value, Int32 expectedCount) {
+			return CompressMany(new[] {value}, expectedCount);
 		}
 
 		[Fact]
 		public void Compress_Empty() {
-			Assert.Equal("", CompressMany(new UInt64[] { }));
+			Assert.Equal("", CompressMany(new UInt64[] { }, 0));
 		}
 
 		[Fact]
 		public void Compress_0() {
-			Assert.Equal("10000000", CompressOne(0));
+			Assert.Equal("10000000", CompressOne(0, 1));
 		}
 
 		[Fact]
 		public void Compress_1() {
-			Assert.Equal("10000001", CompressOne(1));
+			Assert.Equal("10000001", CompressOne(1, 1));
 		}
 
 		[Fact]
 		public void Compress_2() {
-			Assert.Equal("10000010", CompressOne(2));
+			Assert.Equal("10000010", CompressOne(2, 1));
 		}
 
 		[Fact]
 		public void Compress_3() {
-			Assert.Equal("10000011", CompressOne(3));
+			Assert.Equal("10000011", CompressOne(3, 1));
 		}
 
 		[Fact]
 		public void Compress_127() {
-			Assert.Equal("11111111", CompressOne(127));
+			Assert.Equal("11111111", CompressOne(127, 1));
 		}
 
 		[Fact]
 		public void Compress_128() {
-			Assert.Equal("00000000 10000000", CompressOne(128));
+			Assert.Equal("00000000 10000000", CompressOne(128, 2));
 		}
 
 		[Fact]
 		public void Compress_129() {
-			Assert.Equal("00000001 10000000", CompressOne(129));
+			Assert.Equal("00000001 10000000", CompressOne(129, 2));
 		}
 
 		[Fact]
 		public void Compress_16511() {
-			Assert.Equal("01111111 11111111", CompressOne(16511));
+			Assert.Equal("01111111 11111111", CompressOne(16511, 2));
 		}
 
 		[Fact]
 		public void Compress_16512() {
-			Assert.Equal("00000000 00000000 10000000", CompressOne(16512));
+			Assert.Equal("00000000 00000000 10000000", CompressOne(16512, 3));
 		}
 
 		[Fact]
 		public void Compress_2113663() {
-			Assert.Equal("01111111 01111111 11111111", CompressOne(2113663));
+			Assert.Equal("01111111 01111111 11111111", CompressOne(2113663, 3));
 		}
 
 		[Fact]
 		public void Compress_2113664() {
-			Assert.Equal("00000000 00000000 00000000 10000000", CompressOne(2113664));
+			Assert.Equal("00000000 00000000 00000000 10000000", CompressOne(2113664, 4));
 		}
 
 		[Fact]
 		public void Compress_Max() {
-			Assert.Equal("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(VLQCodec.MaxValue, 32));
+			Assert.Equal("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(VLQCodec.MaxValue, 10));
 		}
 
 		[Fact]
@@ -92,12 +93,12 @@ namespace InvertedTomato.Compression.Integers {
 
 		[Fact]
 		public void Compress_1_1_1() {
-			Assert.Equal("10000001 10000001 10000001", CompressMany(new UInt64[] {1, 1, 1}));
+			Assert.Equal("10000001 10000001 10000001", CompressMany(new UInt64[] {1, 1, 1}, 3));
 		}
 
 		[Fact]
 		public void Compress_128_128_128() {
-			Assert.Equal("00000000 10000000 00000000 10000000 00000000 10000000", CompressMany(new UInt64[] {128, 128, 128}));
+			Assert.Equal("00000000 10000000 00000000 10000000 00000000 10000000", CompressMany(new UInt64[] {128, 128, 128}, 6));
 		}
 
 		[Fact]
@@ -222,8 +223,15 @@ namespace InvertedTomato.Compression.Integers {
 
 		[Fact]
 		public void CompressDecompress_First1000_Series() {
-			for (UInt64 input = 0; input < 1000; input++) {
-				var encoded = CompressOne(input);
+			for (UInt64 input = 0; input <= 127; input++) {
+				var encoded = CompressOne(input, 1);
+				var output = DecompressOne(encoded);
+
+				Assert.Equal(input, output);
+			}
+
+			for (UInt64 input = 128; input < 1000; input++) {
+				var encoded = CompressOne(input, 2);
 				var output = DecompressOne(encoded);
 
 				Assert.Equal(input, output);

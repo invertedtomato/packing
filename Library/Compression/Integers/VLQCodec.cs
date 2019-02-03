@@ -14,7 +14,7 @@ namespace InvertedTomato.Compression.Integers {
 		private const Int32 PacketSize = 7;
 		private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
 
-		public override void CompressUnsigned(Stream output, params UInt64[] values) {
+		public override Int32 CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -25,6 +25,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
+			var count = 0;
 			foreach (var value in values) {
 #if DEBUG
 				if (value > MaxValue) {
@@ -37,6 +38,7 @@ namespace InvertedTomato.Compression.Integers {
 				while (value2 > MinPacketValue) {
 					// Write payload, skipping MSB bit
 					output.WriteByte((Byte) (value2 & Mask));
+					count++;
 
 					// Offset value for next cycle
 					value2 >>= PacketSize;
@@ -45,7 +47,10 @@ namespace InvertedTomato.Compression.Integers {
 
 				// Write remaining - marking it as the final byte for symbol
 				output.WriteByte((Byte) (value2 | Nil));
+				count++;
 			}
+
+			return count;
 		}
 
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
@@ -96,7 +101,7 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		public override async Task CompressUnsignedAsync(Stream output, params UInt64[] values) {
+		public override async Task<Int32> CompressUnsignedAsync(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -107,6 +112,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
+			var count = 0;
 			foreach (var value in values) {
 #if DEBUG
 				if (value > MaxValue) {
@@ -118,7 +124,8 @@ namespace InvertedTomato.Compression.Integers {
 				// Iterate through input, taking X bits of data each time, aborting when less than X bits left
 				while (value2 > MinPacketValue) {
 					// Write payload, skipping MSB bit
-					output.WriteByte((Byte) (value2 & Mask));
+					output.WriteByte((Byte) (value2 & Mask)); // TODO: Make this call async?
+					count++;
 
 					// Offset value for next cycle
 					value2 >>= PacketSize;
@@ -127,7 +134,10 @@ namespace InvertedTomato.Compression.Integers {
 
 				// Write remaining - marking it as the final byte for symbol
 				await output.WriteAsync(new[] {(Byte) (value2 | Nil)}, 0, 1);
+				count++;
 			}
+
+			return count;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {

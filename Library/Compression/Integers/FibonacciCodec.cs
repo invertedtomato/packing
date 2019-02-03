@@ -35,7 +35,7 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		public override void CompressUnsigned(Stream output, params UInt64[] values) {
+		public override Int32 CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -51,6 +51,7 @@ namespace InvertedTomato.Compression.Integers {
 			var offset = 0;
 
 			// Iterate through all symbols
+			var count = 0;
 			foreach (var value in values) {
 				var value2 = value;
 #if DEBUG
@@ -60,7 +61,7 @@ namespace InvertedTomato.Compression.Integers {
 				}
 #endif
 
-				// Fibbonacci doesn't support 0s, so add 1 to allow for them
+				// Fibonacci doesn't support 0s, so add 1 to allow for them
 				value2++;
 
 				// #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
@@ -93,6 +94,7 @@ namespace InvertedTomato.Compression.Integers {
 					if (++offset == 8) {
 						// Add byte to output
 						output.WriteByte(current);
+						count++;
 						current = 0;
 						offset = 0;
 					}
@@ -102,7 +104,10 @@ namespace InvertedTomato.Compression.Integers {
 			// Flush bit buffer
 			if (offset > 0) {
 				output.WriteByte(current);
+				count++;
 			}
+
+			return count;
 		}
 
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
@@ -191,7 +196,7 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		public override async Task CompressUnsignedAsync(Stream output, params UInt64[] values) {
+		public override async Task<Int32> CompressUnsignedAsync(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
 				throw new ArgumentNullException(nameof(output));
@@ -207,6 +212,7 @@ namespace InvertedTomato.Compression.Integers {
 			var offset = 0;
 
 			// Iterate through all symbols
+			var count = 0;
 			foreach (var value in values) {
 				var value2 = value;
 #if DEBUG
@@ -216,7 +222,7 @@ namespace InvertedTomato.Compression.Integers {
 				}
 #endif
 
-				// Fibbonacci doesn't support 0s, so add 1 to allow for them
+				// Fibonacci doesn't support 0s, so add 1 to allow for them
 				value2++;
 
 				// #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
@@ -249,6 +255,7 @@ namespace InvertedTomato.Compression.Integers {
 					if (++offset == 8) {
 						// Add byte to output
 						await output.WriteAsync(new[] {current}, 0, 1);
+						count++;
 						current = 0;
 						offset = 0;
 					}
@@ -258,7 +265,10 @@ namespace InvertedTomato.Compression.Integers {
 			// Flush bit buffer
 			if (offset > 0) {
 				await output.WriteAsync(new[] {current}, 0, 1);
+				count++;
 			}
+
+			return count;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {

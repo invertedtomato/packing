@@ -6,7 +6,7 @@ using InvertedTomato.IO.Bits;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers {
-	public class RawCodecTests {
+	public class RawCodecTests { // TODO: Check Compress's returned count is correct
 		private readonly Codec Codec = new RawCodec();
 
 		public String CompressMany(UInt64[] input, Int32 outputBufferSize = 8) {
