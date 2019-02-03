@@ -2,6 +2,8 @@
 using System.IO;
 using InvertedTomato.IO.Bits;
 
+#pragma warning disable 612
+
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     ///     Reader for Variable-length Quantity (VLQ) unsigned numbers.

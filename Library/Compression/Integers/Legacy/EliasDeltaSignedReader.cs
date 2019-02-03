@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+#pragma warning disable 612
+
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     ///     Reader for Elias Delta universal coding adapted for signed values.

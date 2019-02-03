@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+#pragma warning disable 612
+
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     ///     Writer for Thompson-Alpha for signed values.

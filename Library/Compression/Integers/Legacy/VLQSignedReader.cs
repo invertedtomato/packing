@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 
+#pragma warning disable 612
+#pragma warning disable 618
+
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     ///     Reader for VLQ signed numbers. Values are translated to unsigned values using ProtoBuffer's ZigZag algorithm.

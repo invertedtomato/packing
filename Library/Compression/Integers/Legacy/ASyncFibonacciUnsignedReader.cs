@@ -1,5 +1,7 @@
 ﻿using System;
 
+#pragma warning disable 612
+
 namespace InvertedTomato.Compression.Integers {
     /// <summary>
     ///     Asynchronous Fibonacci coding reader (experimental).
