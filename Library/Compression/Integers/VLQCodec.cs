@@ -8,7 +8,14 @@ namespace InvertedTomato.Compression.Integers {
 	public class VLQCodec : Codec {
 		public const UInt64 MinValue = UInt64.MinValue;
 		public const UInt64 MaxValue = UInt64.MaxValue - 1;
-		public const Byte Nil = 0x80; // 10000000
+		[Obsolete("Use 'Zero' instead.")]
+		public const Byte Nil = 0x80;   // 10000000
+		public const Byte Zero = 0x80;  // 10000000
+		public const Byte One = 0x81;   // 10000001
+		public const Byte Two = 0x82;   // 10000010
+		public const Byte Three = 0x83; // 10000011
+		public const Byte Four = 0x84;  // 10000100
+		public const Byte Eight = 0x88; 
 
 		private const Byte Mask = 0x7f; // 01111111
 		private const Int32 PacketSize = 7;

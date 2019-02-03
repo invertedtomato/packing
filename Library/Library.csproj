@@ -17,9 +17,9 @@
     <Company>Inverted Tomato</Company>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
     <FileVersion>1.2.3.0</FileVersion>
-    <PackageVersion>1.2.5</PackageVersion>
+    <PackageVersion>1.2.6</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
-    <PackageReleaseNotes>Compress methods now return the number of bytes written.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added precomputed values for 0, 1, 2, 3, 4, 8 for downstream optimisation.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
