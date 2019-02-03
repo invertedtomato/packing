@@ -17,9 +17,9 @@
     <Company>Inverted Tomato</Company>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
     <FileVersion>1.2.3.0</FileVersion>
-    <PackageVersion>1.3.0</PackageVersion>
+    <PackageVersion>1.3.2</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
-    <PackageReleaseNotes>Added ability to determine number of bytes used in both compression and decompression.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
