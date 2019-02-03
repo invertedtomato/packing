@@ -19,6 +19,7 @@ namespace InvertedTomato.Compression.Integers {
 		private const Byte Mask = 0x7f; // 01111111
 		private const Int32 PacketSize = 7;
 		private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
+		
 
 		public override Int32 CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
@@ -31,7 +32,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 #if DEBUG
 				if (value > MaxValue) {
@@ -44,7 +45,7 @@ namespace InvertedTomato.Compression.Integers {
 				while (value2 > MinPacketValue) {
 					// Write payload, skipping MSB bit
 					output.WriteByte((Byte) (value2 & Mask));
-					count++;
+					used++;
 
 					// Offset value for next cycle
 					value2 >>= PacketSize;
@@ -53,12 +54,13 @@ namespace InvertedTomato.Compression.Integers {
 
 				// Write remaining - marking it as the final byte for symbol
 				output.WriteByte((Byte) (value2 | Nil));
-				count++;
+				used++;
 			}
 
-			return count;
+			return used;
 		}
 
+		
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
 #if DEBUG
 			if (null == input) {
@@ -118,7 +120,7 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 #if DEBUG
 				if (value > MaxValue) {
@@ -131,7 +133,7 @@ namespace InvertedTomato.Compression.Integers {
 				while (value2 > MinPacketValue) {
 					// Write payload, skipping MSB bit
 					output.WriteByte((Byte) (value2 & Mask)); // TODO: Make this call async?
-					count++;
+					used++;
 
 					// Offset value for next cycle
 					value2 >>= PacketSize;
@@ -140,10 +142,10 @@ namespace InvertedTomato.Compression.Integers {
 
 				// Write remaining - marking it as the final byte for symbol
 				await output.WriteAsync(new[] {(Byte) (value2 | Nil)}, 0, 1);
-				count++;
+				used++;
 			}
 
-			return count;
+			return used;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {

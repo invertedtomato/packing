@@ -19,17 +19,17 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 				// Convert to raw byte array
 				var raw = BitConverter.GetBytes(value);
 
 				// Add to output
 				output.Write(raw, 0, 8);
-				count += 8;
+				used += 8;
 			}
 
-			return count;
+			return used;
 		}
 
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
@@ -74,17 +74,17 @@ namespace InvertedTomato.Compression.Integers {
 			}
 #endif
 
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 				// Convert to raw byte array
 				var raw = BitConverter.GetBytes(value);
 
 				// Add to output
 				await output.WriteAsync(raw, 0, 8);
-				count += 8;
+				used += 8;
 			}
 
-			return count;
+			return used;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {

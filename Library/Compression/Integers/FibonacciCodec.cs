@@ -51,7 +51,7 @@ namespace InvertedTomato.Compression.Integers {
 			var offset = 0;
 
 			// Iterate through all symbols
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 				var value2 = value;
 #if DEBUG
@@ -94,7 +94,7 @@ namespace InvertedTomato.Compression.Integers {
 					if (++offset == 8) {
 						// Add byte to output
 						output.WriteByte(current);
-						count++;
+						used++;
 						current = 0;
 						offset = 0;
 					}
@@ -104,10 +104,10 @@ namespace InvertedTomato.Compression.Integers {
 			// Flush bit buffer
 			if (offset > 0) {
 				output.WriteByte(current);
-				count++;
+				used++;
 			}
 
-			return count;
+			return used;
 		}
 
 		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
@@ -212,7 +212,7 @@ namespace InvertedTomato.Compression.Integers {
 			var offset = 0;
 
 			// Iterate through all symbols
-			var count = 0;
+			var used = 0;
 			foreach (var value in values) {
 				var value2 = value;
 #if DEBUG
@@ -255,7 +255,7 @@ namespace InvertedTomato.Compression.Integers {
 					if (++offset == 8) {
 						// Add byte to output
 						await output.WriteAsync(new[] {current}, 0, 1);
-						count++;
+						used++;
 						current = 0;
 						offset = 0;
 					}
@@ -265,10 +265,10 @@ namespace InvertedTomato.Compression.Integers {
 			// Flush bit buffer
 			if (offset > 0) {
 				await output.WriteAsync(new[] {current}, 0, 1);
-				count++;
+				used++;
 			}
 
-			return count;
+			return used;
 		}
 
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {
