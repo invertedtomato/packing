@@ -22,8 +22,17 @@ namespace InvertedTomato.Compression.Integers {
 			return CompressUnsigned(output, values.Select(ZigZag.Encode).ToArray());
 		}
 
+		public abstract Int32 DecompressUnsigned(Stream input, ref UInt64[] output, Int32 offset, Int32 count);
 
-		public abstract IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count);
+		public  Int32 DecompressUnsigned(Stream input, ref UInt64[] output) {
+			return DecompressUnsigned(input, ref output, 0, output.Length);
+		}
+		
+		public IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
+			var output = new UInt64[count];
+			DecompressUnsigned(input, ref output, 0, count);
+			return output;
+		}
 
 		public IEnumerable<Int64> DecompressSigned(Stream input, Int32 count) {
 #if DEBUG

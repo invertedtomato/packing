@@ -6,7 +6,7 @@ using InvertedTomato.IO.Bits;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers.Tests {
-	public class FibonacciCodecTests { // TODO: Check Compress's returned count is correct
+	public class FibonacciCodecTests { // TODO: Check Compress and Decompress's "used" value is correct
 		public readonly Codec Codec = new FibonacciCodec();
 
 		public String CompressMany(UInt64[] input, Int32 outputBufferSize = 8) {

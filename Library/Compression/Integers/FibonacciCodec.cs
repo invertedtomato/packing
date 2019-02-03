@@ -110,36 +110,51 @@ namespace InvertedTomato.Compression.Integers {
 			return used;
 		}
 
-		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
+		public override Int32 DecompressUnsigned(Stream input, ref UInt64[] output, Int32 offset, Int32 count) {
 #if DEBUG
+			
 			if (null == input) {
 				throw new ArgumentNullException(nameof(input));
 			}
 
-			if (count < 0) {
+			if (null == output) {
+				throw new ArgumentNullException(nameof(output));
+			}
+
+			if (offset < 0 || offset > output.Length) {
+				throw new ArgumentOutOfRangeException(nameof(offset));
+			}
+
+			if (count < 0 || offset + count > output.Length) {
 				throw new ArgumentOutOfRangeException(nameof(count));
 			}
 #endif
 
-			// Current symbol being decoded.
+			// Number of input bytes consumed
+			var used = 0;
+			
+			// Current symbol being decoded
 			UInt64 symbol = 0;
 
-			// Next Fibonacci number to test.
+			// Next Fibonacci number to test
 			var nextFibIndex = 0;
 
-			// State of the last bit while decoding.
+			// State of the last bit while decoding
 			var lastBit = false;
 
 			if (0 == count) {
-				yield break;
+				return used;
 			}
 
+			var pos = offset;
 			while (true) {
 				// Read byte of input, and throw error if unavailable
 				var b = input.ReadByte();
 				if (b < 0) {
 					throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
 				}
+
+				used++;
 
 				// For each bit of buffer
 				for (var bi = 0; bi < 8; bi++) {
@@ -151,11 +166,11 @@ namespace InvertedTomato.Compression.Integers {
 							symbol--;
 
 							// Add to output
-							yield return symbol;
+							output[pos++] = symbol;
 
 							// Stop if expected number of symbols have been found
 							if (--count == 0) {
-								yield break;
+								return used;
 							}
 
 							// Reset for next symbol

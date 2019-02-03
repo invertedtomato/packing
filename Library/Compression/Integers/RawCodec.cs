@@ -32,24 +32,36 @@ namespace InvertedTomato.Compression.Integers {
 			return used;
 		}
 
-		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
+		public override Int32 DecompressUnsigned(Stream input, ref UInt64[] output, Int32 offset, Int32 count) {
 #if DEBUG
+			
 			if (null == input) {
 				throw new ArgumentNullException(nameof(input));
 			}
 
-			if (count < 0) {
+			if (null == output) {
+				throw new ArgumentNullException(nameof(output));
+			}
+
+			if (offset < 0 || offset > output.Length) {
+				throw new ArgumentOutOfRangeException(nameof(offset));
+			}
+
+			if (count < 0 || offset + count > output.Length) {
 				throw new ArgumentOutOfRangeException(nameof(count));
 			}
 #endif
 
-			for (var i = 0; i < count; i++) {
+			var used = 0;
+			for (var i = offset; i < offset+count; i++) {
 				// Get next 8 bytes
 				var buffer = new Byte[8];
 				try {
 					if (input.Read(buffer, 0, 8) != 8) {
 						throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
 					}
+
+					used+=8;
 				} catch (ArgumentException) {
 					throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
 				}
@@ -58,8 +70,10 @@ namespace InvertedTomato.Compression.Integers {
 				var symbol = BitConverter.ToUInt64(buffer, 0);
 
 				// Return symbol
-				yield return symbol;
+				output[i] = symbol;
 			}
+
+			return used;
 		}
 
 

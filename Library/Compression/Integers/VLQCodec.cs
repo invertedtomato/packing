@@ -19,8 +19,15 @@ namespace InvertedTomato.Compression.Integers {
 		private const Byte Mask = 0x7f; // 01111111
 		private const Int32 PacketSize = 7;
 		private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
-		
 
+		/// <summary>
+		/// Encode an array of values and write them to a stream.
+		/// </summary>
+		/// <param name="output">Stream to write encoded values to.</param>
+		/// <param name="values">Values to encode.</param>
+		/// <returns>Total number of bytes values encoded as.</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="OverflowException"></exception>
 		public override Int32 CompressUnsigned(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
@@ -36,7 +43,7 @@ namespace InvertedTomato.Compression.Integers {
 			foreach (var value in values) {
 #if DEBUG
 				if (value > MaxValue) {
-					throw new OverflowException("Symbol is larger than maximum value. See VLQCodec.MaxValue");
+					throw new OverflowException("Symbol is larger than maximum supported value. See VLQCodec.MaxValue");
 				}
 #endif
 				var value2 = value;
@@ -60,19 +67,39 @@ namespace InvertedTomato.Compression.Integers {
 			return used;
 		}
 
-		
-		public override IEnumerable<UInt64> DecompressUnsigned(Stream input, Int32 count) {
+		/// <summary>
+		/// Decompress a number of VLQ-encoded values from a given stream.
+		/// </summary>
+		/// <param name="input">Stream to decode from.</param>
+		/// <param name="output">Pre-sized array to output decoded values to.</param>
+		/// <param name="offset">Starting position in the output array.</param>
+		/// <param name="count">Number of values to decode.</param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		/// <exception cref="EndOfStreamException"></exception>
+		/// <exception cref="OverflowException"></exception>
+		public override Int32 DecompressUnsigned(Stream input, ref UInt64[] output, Int32 offset, Int32 count) {
 #if DEBUG
 			if (null == input) {
 				throw new ArgumentNullException(nameof(input));
 			}
 
-			if (count < 0) {
+			if (null == output) {
+				throw new ArgumentNullException(nameof(output));
+			}
+
+			if (offset < 0 || offset > output.Length) {
+				throw new ArgumentOutOfRangeException(nameof(offset));
+			}
+
+			if (count < 0 || offset + count > output.Length) {
 				throw new ArgumentOutOfRangeException(nameof(count));
 			}
 #endif
 
-			for (var i = 0; i < count; i++) {
+			var used = 0;
+			for (var i = offset; i < offset + count; i++) {
 				// Setup symbol
 				UInt64 symbol = 0;
 				var bit = 0;
@@ -83,6 +110,8 @@ namespace InvertedTomato.Compression.Integers {
 					if ((b = input.ReadByte()) == -1) {
 						throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
 					}
+
+					used++;
 
 					// Add input bits to output
 					var chunk = (UInt64) (b & Mask);
@@ -104,11 +133,20 @@ namespace InvertedTomato.Compression.Integers {
 				symbol--;
 
 				// Add to output
-				yield return symbol;
+				output[i] = symbol;
 			}
+
+			return used;
 		}
 
-
+		/// <summary>
+		/// Encode an array of values and write them to a stream.
+		/// </summary>
+		/// <param name="output">Stream to write encoded values to.</param>
+		/// <param name="values">Values to encode.</param>
+		/// <returns>Total number of bytes values encoded as.</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="OverflowException"></exception>
 		public override async Task<Int32> CompressUnsignedAsync(Stream output, params UInt64[] values) {
 #if DEBUG
 			if (null == output) {
@@ -148,6 +186,16 @@ namespace InvertedTomato.Compression.Integers {
 			return used;
 		}
 
+		/// <summary>
+		/// Decompress a number of VLQ-encoded values from a given stream.
+		/// </summary>
+		/// <param name="input">Stream to decode from.</param>
+		/// <param name="count">Number of values to decode.</param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		/// <exception cref="EndOfStreamException"></exception>
+		/// <exception cref="OverflowException"></exception>
 		public override async Task<IEnumerable<UInt64>> DecompressUnsignedAsync(Stream input, Int32 count) {
 #if DEBUG
 			if (null == input) {

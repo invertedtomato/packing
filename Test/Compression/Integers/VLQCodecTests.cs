@@ -110,91 +110,94 @@ namespace InvertedTomato.Compression.Integers {
 		}
 
 
-		private UInt64[] DecompressMany(String value, Int32 count) {
+		private UInt64[] DecompressMany(String value, Int32 count, Int32 expectedUsed) {
 			var input = new MemoryStream(BitOperation.ParseToBytes(value));
-			var output = Codec.DecompressUnsigned(input, count);
+			var output = new UInt64[count];
+			var used = Codec.DecompressUnsigned(input, ref output);
+
+			Assert.Equal(expectedUsed, used);
 			return output.ToArray();
 		}
 
-		private UInt64 DecompressOne(String value) {
-			var output = DecompressMany(value, 1);
+		private UInt64 DecompressOne(String value, Int32 expectedUsed) {
+			var output = DecompressMany(value, 1, expectedUsed);
 			Assert.Single(output);
 			return output[0];
 		}
 
 		[Fact]
 		public void Decompress_Empty() {
-			Assert.Empty(DecompressMany("", 0));
+			Assert.Empty(DecompressMany("", 0, 0));
 		}
 
 		[Fact]
 		public void Decompress_0() {
-			Assert.Equal((UInt64) 0, DecompressOne("10000000"));
+			Assert.Equal((UInt64) 0, DecompressOne("10000000", 1));
 		}
 
 		[Fact]
 		public void Decompress_1() {
-			Assert.Equal((UInt64) 1, DecompressOne("10000001"));
+			Assert.Equal((UInt64) 1, DecompressOne("10000001", 1));
 		}
 
 		[Fact]
 		public void Decompress_2() {
-			Assert.Equal((UInt64) 2, DecompressOne("10000010"));
+			Assert.Equal((UInt64) 2, DecompressOne("10000010", 1));
 		}
 
 		[Fact]
 		public void Decompress_3() {
-			Assert.Equal((UInt64) 3, DecompressOne("10000011"));
+			Assert.Equal((UInt64) 3, DecompressOne("10000011", 1));
 		}
 
 		[Fact]
 		public void Decompress_127() {
-			Assert.Equal((UInt64) 127, DecompressOne("11111111"));
+			Assert.Equal((UInt64) 127, DecompressOne("11111111", 1));
 		}
 
 		[Fact]
 		public void Decompress_128() {
-			Assert.Equal((UInt64) 128, DecompressOne("00000000 10000000"));
+			Assert.Equal((UInt64) 128, DecompressOne("00000000 10000000", 2));
 		}
 
 		[Fact]
 		public void Decompress_129() {
-			Assert.Equal((UInt64) 129, DecompressOne("00000001 10000000"));
+			Assert.Equal((UInt64) 129, DecompressOne("00000001 10000000", 2));
 		}
 
 		[Fact]
 		public void Decompress_16511() {
-			Assert.Equal((UInt64) 16511, DecompressOne("01111111 11111111"));
+			Assert.Equal((UInt64) 16511, DecompressOne("01111111 11111111", 2));
 		}
 
 		[Fact]
 		public void Decompress_16512() {
-			Assert.Equal((UInt64) 16512, DecompressOne("00000000 00000000 10000000"));
+			Assert.Equal((UInt64) 16512, DecompressOne("00000000 00000000 10000000", 3));
 		}
 
 		[Fact]
 		public void Decompress_16513() {
-			Assert.Equal((UInt64) 16513, DecompressOne("00000001 00000000 10000000"));
+			Assert.Equal((UInt64) 16513, DecompressOne("00000001 00000000 10000000", 3));
 		}
 
 		[Fact]
 		public void Decompress_2113663() {
-			Assert.Equal((UInt64) 2113663, DecompressOne("01111111 01111111 11111111"));
+			Assert.Equal((UInt64) 2113663, DecompressOne("01111111 01111111 11111111", 3));
 		}
 
 		[Fact]
 		public void Decompress_2113664() {
-			Assert.Equal((UInt64) 2113664, DecompressOne("00000000 00000000 00000000 10000000"));
+			Assert.Equal((UInt64) 2113664, DecompressOne("00000000 00000000 00000000 10000000", 4));
 		}
 
 		[Fact]
 		public void Decompress_Max() {
-			Assert.Equal(VLQCodec.MaxValue, DecompressOne("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000"));
+			Assert.Equal(VLQCodec.MaxValue, DecompressOne("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", 10));
 		}
 
 		[Fact]
 		public void Decompress_1_1_1() {
-			var set = DecompressMany("10000001 10000001 10000001", 3);
+			var set = DecompressMany("10000001 10000001 10000001", 3, 3);
 			Assert.Equal(3, set.Length);
 			Assert.Equal((UInt64) 1, set[0]);
 			Assert.Equal((UInt64) 1, set[1]);
@@ -211,7 +214,7 @@ namespace InvertedTomato.Compression.Integers {
 
 		[Fact]
 		public void Decompress_Overflow() {
-			Assert.Throws<OverflowException>(() => { DecompressOne("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000"); });
+			Assert.Throws<OverflowException>(() => { DecompressOne("01111111 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", 11); });
 		}
 
 		[Fact]
@@ -225,14 +228,14 @@ namespace InvertedTomato.Compression.Integers {
 		public void CompressDecompress_First1000_Series() {
 			for (UInt64 input = 0; input <= 127; input++) {
 				var encoded = CompressOne(input, 1);
-				var output = DecompressOne(encoded);
+				var output = DecompressOne(encoded, 1);
 
 				Assert.Equal(input, output);
 			}
 
 			for (UInt64 input = 128; input < 1000; input++) {
 				var encoded = CompressOne(input, 2);
-				var output = DecompressOne(encoded);
+				var output = DecompressOne(encoded, 2);
 
 				Assert.Equal(input, output);
 			}
