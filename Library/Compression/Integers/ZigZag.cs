@@ -35,8 +35,7 @@ namespace InvertedTomato.Compression.Integers {
         /// <param name="value"></param>
         /// <returns></returns>
         public static Int64 Decode(UInt64 value) {
-			var casted = (Int64) value;
-			return (casted >> 1) ^ -(casted & 1);
+	        return (Int64) ((value >> 1) ^ (~(value & 1) + 1));
 		}
 
 		// <summary>
