@@ -30,9 +30,9 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 			}
 		}
 
-		public override void DecodeMany(IByteReader input, UInt64[] values, Int32 offset, Int32 count){
+		public override void DecodeMany(IByteReader input, UInt64[] values, Int32 offset, Int32 count) {
 #if DEBUG
-			
+
 			if (null == input) {
 				throw new ArgumentNullException(nameof(input));
 			}
@@ -50,12 +50,12 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 			}
 #endif
 
-			for (var i = offset; i < offset+count; i++) {
+			for (var i = offset; i < offset + count; i++) {
 				// Get next 8 bytes
 				var buffer = new Byte[8];
 				try {
 					for (var j = 0; j < buffer.Length; j++) {
-						buffer[i]=input.ReadByte();
+						buffer[j] = input.ReadByte();
 					}
 				} catch (ArgumentException) {
 					throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");

@@ -40,7 +40,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 		}
 
 		public virtual UInt64 DecodeSingle(IByteReader input) {
-			var v = new UInt64[0];
+			var v = new UInt64[1];
 			DecodeMany(input, v, 0, 1);
 			return v[0];
 		}
