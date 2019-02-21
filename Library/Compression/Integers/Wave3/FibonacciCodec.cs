@@ -34,10 +34,10 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 			}
 		}
 
-		public override void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count){
+		public override void EncodeMany(IByteWriter stream, UInt64[] values, Int32 offset, Int32 count){
 #if DEBUG
-			if (null == output) {
-				throw new ArgumentNullException(nameof(output));
+			if (null == stream) {
+				throw new ArgumentNullException(nameof(stream));
 			}
 
 			if (null == values) {
@@ -99,7 +99,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 					// Increment offset;
 					if (++bitOffset == 8) {
 						// Add byte to output
-						output.WriteByte(current);
+						stream.WriteByte(current);
 						current = 0;
 						bitOffset = 0;
 					}
@@ -108,7 +108,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 
 			// Flush bit buffer
 			if (bitOffset > 0) {
-				output.WriteByte(current);
+				stream.WriteByte(current);
 			}
 		}
 

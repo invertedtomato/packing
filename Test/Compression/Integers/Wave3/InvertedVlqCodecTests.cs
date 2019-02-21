@@ -6,8 +6,8 @@ using InvertedTomato.IO.Bits;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers.Wave3 {
-	public class VLQCodecTests {
-		private readonly Codec Codec = new VlqCodec();
+	public class InvertedVlqCodecTests {
+		private readonly Codec Codec = new InvertedVlqCodec();
 
 		public String CompressMany(UInt64[] set, Int32 expectedCount) {
 			var output = new MemoryStream(expectedCount);
@@ -82,7 +82,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 
 		[Fact]
 		public void Compress_Max() {
-			Assert.Equal("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(VlqCodec.MaxValue, 10));
+			Assert.Equal("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", CompressOne(InvertedVlqCodec.MaxValue, 10));
 		}
 
 		[Fact]
@@ -189,7 +189,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 
 		[Fact]
 		public void Decompress_Max() {
-			Assert.Equal(VlqCodec.MaxValue, DecompressOne("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", 10));
+			Assert.Equal(InvertedVlqCodec.MaxValue, DecompressOne("01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 01111110 10000000", 10));
 		}
 
 		[Fact]

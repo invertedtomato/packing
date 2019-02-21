@@ -8,10 +8,10 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 		public static readonly UInt64 MinValue = UInt64.MinValue;
 		public static readonly UInt64 MaxValue = UInt64.MaxValue;
 
-		public override void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count) {
+		public override void EncodeMany(IByteWriter stream, UInt64[] values, Int32 offset, Int32 count) {
 #if DEBUG
-			if (null == output) {
-				throw new ArgumentNullException(nameof(output));
+			if (null == stream) {
+				throw new ArgumentNullException(nameof(stream));
 			}
 
 			if (null == values) {
@@ -25,7 +25,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 
 				// Add to output
 				foreach (var b in raw) {
-					output.WriteByte(b);
+					stream.WriteByte(b);
 				}
 			}
 		}
