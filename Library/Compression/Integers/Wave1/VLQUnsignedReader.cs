@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Reader for Variable-length Quantity (VLQ) unsigned numbers.
     /// </summary>
-    [Obsolete("Consider using VLQCodec instead. It's faster and easier.")]
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.VlqCodec instead. It's faster and easier.")]
 	public class VLQUnsignedReader : IUnsignedReader {
         /// <summary>
         ///     The underlying stream to be reading from.

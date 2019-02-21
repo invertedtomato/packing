@@ -9,7 +9,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Reader for Fibonacci for unsigned values.
     /// </summary>
-    [Obsolete("Consider using FibonacciCodec instead. It's faster and easier.")]
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.FibonacciCodec instead. It's faster and easier.")]
 	public class FibonacciUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         ///     Underlying stream to be writing encoded values to.

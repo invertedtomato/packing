@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using InvertedTomato.IO.Bits;
 
 namespace InvertedTomato.Compression.Integers.Wave2 {
+	[Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.VlqCodec instead. It's faster!")]
 	public class VLQCodec : Codec {
 		public const UInt64 MinValue = UInt64.MinValue;
 		public const UInt64 MaxValue = UInt64.MaxValue - 1;

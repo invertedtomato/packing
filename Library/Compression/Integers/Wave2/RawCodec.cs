@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace InvertedTomato.Compression.Integers.Wave2 {
+	[Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.RawCodec instead. It's faster!")]
 	public class RawCodec : Codec {
 		public static readonly UInt64 MinValue = UInt64.MinValue;
 		public static readonly UInt64 MaxValue = UInt64.MaxValue;

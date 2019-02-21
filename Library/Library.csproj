@@ -19,7 +19,7 @@
     <FileVersion>1.2.3.0</FileVersion>
     <PackageVersion>2.0.0</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
-    <PackageReleaseNotes>Improved codec interface allowing faster implementations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved codec interface allowing faster implementations (namespace InvertedTomato.Compression.Integers.Wave3). Old interface still available in InvertedTomato.Compression.Integers.Wave2.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace InvertedTomato.Compression.Integers.Wave2 {
+	[Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.FibonacciCodec instead. It's faster!")]
 	public class FibonacciCodec : Codec {
         /// <summary>
         ///     The most significant bit in a byte.

@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Writer for Variable-length Quantity (VLQ) unsigned numbers.
     /// </summary>
-    [Obsolete("Consider using VLQCodec instead. It's faster and easier.")]
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.VlqCodec instead. It's faster and easier.")]
 	public class VLQUnsignedWriter : IUnsignedWriter {
         /// <summary>
         ///     The stream to output encoded bytes to.
