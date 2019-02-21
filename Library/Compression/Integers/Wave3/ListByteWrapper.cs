@@ -4,9 +4,9 @@ using System.IO;
 
 namespace InvertedTomato.Compression.Integers.Wave3 {
 	public class ListByteWrapper : IByteWriter {
-		private readonly List<Byte> Underlying;
+		private readonly IList<Byte> Underlying;
 
-		public ListByteWrapper(List<Byte> underlying) {
+		public ListByteWrapper(IList<Byte> underlying) {
 			if (null == underlying) {
 				throw new ArgumentNullException(nameof(underlying));
 			}
