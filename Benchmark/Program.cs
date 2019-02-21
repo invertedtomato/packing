@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using InvertedTomato.Compression.Integers.Wave1;
 using InvertedTomato.IO;
 
 namespace InvertedTomato.Compression.Integers.Benchmark {

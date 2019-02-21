@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using InvertedTomato.Compression.Integers;
+using InvertedTomato.Compression.Integers.Wave2;
 
 namespace InvertedTomato.Compression.Integer.LoadTest {
 	internal class Program {
@@ -44,12 +45,12 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
 			//////////////////////////////////////////
 			Console.WriteLine("FIBONACCI");
-			Codec codec = new FibonacciCodec();
+			Codec wave2Codec = new FibonacciCodec();
 			var compressed = new MemoryStream(count * 5);
 
 			// Compress
 			var stopWatch = Stopwatch.StartNew();
-			codec.CompressUnsigned(compressed, input.ToArray());
+			wave2Codec.CompressUnsigned(compressed, input.ToArray());
 			stopWatch.Stop();
 			Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double) count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s Total " + compressed.Length / 1024 / 1024 + "MB");
 
@@ -58,7 +59,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
 			// Decompress
 			stopWatch = Stopwatch.StartNew();
-			var output = codec.DecompressUnsigned(compressed, input.Count).ToList();
+			var output = wave2Codec.DecompressUnsigned(compressed, input.Count).ToList();
 			stopWatch.Stop();
 			Console.WriteLine("Decompress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double) count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
 
@@ -73,12 +74,12 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
 			//////////////////////////////////////////
 			Console.WriteLine("VLQ");
-			codec = new VLQCodec();
+			wave2Codec = new VLQCodec();
 			compressed = new MemoryStream(count * 5);
 
 			// Compress
 			stopWatch = Stopwatch.StartNew();
-			codec.CompressUnsigned(compressed, input.ToArray());
+			wave2Codec.CompressUnsigned(compressed, input.ToArray());
 			stopWatch.Stop();
 			Console.WriteLine("Compress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double) count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s Total " + compressed.Length / 1024 / 1024 + "MB");
 
@@ -87,7 +88,7 @@ namespace InvertedTomato.Compression.Integer.LoadTest {
 
 			// Decompress
 			stopWatch = Stopwatch.StartNew();
-			output = codec.DecompressUnsigned(compressed, input.Count).ToList();
+			output = wave2Codec.DecompressUnsigned(compressed, input.Count).ToList();
 			stopWatch.Stop();
 			Console.WriteLine("Decompress: " + stopWatch.ElapsedMilliseconds + "ms " + Math.Round((Double) count * 1000 * 8 / 1024 / 1024 / stopWatch.ElapsedMilliseconds, 2) + "MB/s");
 
