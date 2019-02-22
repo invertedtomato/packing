@@ -69,8 +69,8 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 			}
 		}
 
-		public override Int32 CalculateBitLength(UInt64 symbol) {
-			return 8;
+		public override Int32? CalculateEncodedBits(UInt64 value) {
+			return 8 * 8;
 		}
 	}
 }

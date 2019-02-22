@@ -142,8 +142,8 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 		}
 
 
-		public override Int32 CalculateBitLength(UInt64 symbol) {
-			var packets = (Int32) Math.Ceiling(BitOperation.CountUsed(symbol) / (Single) PacketSize);
+		public override Int32? CalculateEncodedBits(UInt64 value) {
+			var packets = (Int32) Math.Ceiling(BitOperation.CountUsed(value) / (Single) PacketSize);
 
 			return packets * (PacketSize + 1);
 		}

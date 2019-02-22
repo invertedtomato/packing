@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 
 		public abstract void DecodeMany(IByteReader input, UInt64[] values, Int32 offset, Int32 count);
 
-		public abstract Int32 CalculateBitLength(UInt64 symbol);
+		public abstract Int32? CalculateEncodedBits(UInt64 value);
 
 
 		public void EncodeMany(Stream output, UInt64[] values) {

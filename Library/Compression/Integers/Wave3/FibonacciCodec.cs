@@ -207,19 +207,19 @@ namespace InvertedTomato.Compression.Integers.Wave3 {
 			}
 		}
 
-		public override Int32 CalculateBitLength(UInt64 symbol) {
+		public override Int32? CalculateEncodedBits(UInt64 value) {
 #if DEBUG
 			// Check for overflow
-			if (symbol > MaxValue) {
+			if (value > MaxValue) {
 				throw new OverflowException("Exceeded FibonacciCodec's maximum supported symbol value of " + MaxValue + ".");
 			}
 #endif
 
 			// Offset for zero
-			symbol++;
+			value++;
 
 			for (var i = Lookup.Length - 1; i >= 0; i--) {
-				if (symbol >= Lookup[i]) {
+				if (value >= Lookup[i]) {
 					return i + 1;
 				}
 			}
