@@ -60,19 +60,26 @@ degrades after that point - but not horrendously so. This is my personal favorit
 I couldn't find an algorithm which performed well for large integers (>8,000), so this is my own. In it's default configuration it has a flat 6-bits
 of overhead for each integer, no matter it's size. That makes it excellent if your numbers have a large distribution.
 
-** This uses the legacy interface. See notes below. **
-
 ### Variable Length Quantities (VLQ)
  - **Random access:** no *(can't jump ahead)*
  - **Universal:** yes *(can handle any number)*
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Variable-length_quantity)
  - **Options:** 
-   - Packet size
 
 It seems VLQ was originally invented by the designers of MIDI (you know, the old-school
 MP3). The algorithm is really retro, there's stacks of variations of it's spec and
 it smells a little musty, but it's awesome! It produces pretty good results for all numbers
 with a very low CPU overhead.
+
+### Inverted Variable Length Quantities (VLQ)
+ - **Random access:** no *(can't jump ahead)*
+ - **Universal:** yes *(can handle any number)*
+ - **Details:** N/A
+ - **Options:** 
+
+Similar to VLQ, Inverted-VLQ is a slight variation which uses a final-byte flag, rather than a
+more-bit flag. Theoretically this has slightly better CPU performance for numbers
+that encode to more than three bytes.
 
 ### Elias-Omega
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -83,9 +90,7 @@ with a very low CPU overhead.
 
 Elias Omega is a sexy algorithm. It's well thought out and utterly brilliant. But I
 wouldn't use it. It does well for tiny integers (under 8), but just doesn't cut the 
-mustard after that. Sorry Omega :-/.
-
-** This uses the legacy interface. See notes below. **
+mustard for larger values - all other algorithms do better. Sorry Omega :-/.
 
 ### Elias-Gamma
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -96,8 +101,6 @@ mustard after that. Sorry Omega :-/.
 
 Like Elias-Omega, this is a very interesting algorithm. However it's only really useful for small integers (less than 8). For bigger numbers
 it performs *terribly*.
-
-** This uses the legacy interface. See notes below. **
 
 ### Elias-Delta
  - **Family:** [universal code](https://en.wikipedia.org/wiki/Universal_code_(data_compression))
@@ -110,48 +113,11 @@ I have a lot of respect for this algorithm. It's an all-rounder, doing well on s
 were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice. The algorithm is a little
 complex, so you might be cautious if you have extreme CPU limitations.
 
-** This uses the legacy interface. See notes below. **
-
-## Legacy interface
-I've recently started porting the algorithms to a new easier-to-use interface (see **TLDR** above), however there's a few codecs 
-that haven't made the transition yet. To use these with the legacy interface use the reader/writter pattern as below:
-
-```c#
-using (var stream = new MemoryStream()) {
-    // Make a writer to encode values onto your stream
-    using (var writer = new FibonacciUnsignedWriter(stream)) { // Fibonacci is just one algorithm
-        // Write 1st value
-        writer.Write(1); // 8 bytes in memory
-
-        // Write 2nd value
-        writer.Write(2); // 8 bytes in memory
-
-        // Write 3rd value
-        writer.Write(3); // 8 bytes in memory
-    }
-
-    Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
-
-    // Rewind the stream
-    stream.Position = 0;
-
-    // Make a reader to decode values from your stream
-    using (var reader = new FibonacciUnsignedReader(stream)) {
-        Console.WriteLine(reader.Read());
-        // Output: 1
-        Console.WriteLine(reader.Read());
-        // Output: 2
-        Console.WriteLine(reader.Read());
-        // Output: 3
-    }
-}
-```
-
 ## Comparing algorithms
 In order to make an accurate assessment of a codec for your purpose, some
-algorithms have a method `CalculateBitLength` that allows you to know
+algorithms have a method `CalculateEncodedBits` that allows you to know
 how many bits a given value would consume when encoded. I recommend getting a set
-of your data and running it through the `CalculateBitLength` methods of a few
+of your data and running it through the `CalculateEncodedBits` methods of a few
 algorithms to see which one is best.
 
 ## Signed and unsigned
