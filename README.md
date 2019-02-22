@@ -113,6 +113,22 @@ I have a lot of respect for this algorithm. It's an all-rounder, doing well on s
 were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice. The algorithm is a little
 complex, so you might be cautious if you have extreme CPU limitations.
 
+## What about signed integers? These only support `ulong`s!
+Indeed they do! There's a good reason for that - most times an integer is
+wanted to be compressed it's unsigned. And indeed it's not nearly
+as efficient to allow for signed integers unless it's really required.
+So by default these are all unsigned.
+
+For those cases where you do want signed integers, convert it to
+unsigned using the ZigZag algorithm, like this:
+
+```c#
+var signed = -3;
+var unsigned = ZigZag.Encode(signed);
+```
+
+And then pop the converted unsigned integer into the compression algorithm. When you're ready to decompress, use the `ZigZag.Decode` to reverse the effect.
+
 ## Comparing algorithms
 In order to make an accurate assessment of a codec for your purpose, some
 algorithms have a method `CalculateEncodedBits` that allows you to know
