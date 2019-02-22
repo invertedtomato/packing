@@ -8,6 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Reader for Elias Gamma universal coding for unsigned values.
     /// </summary>
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.EliasGammaCodec instead. It's faster and easier.")]
     public class EliasGammaUnsignedWriter : IUnsignedWriter, IDisposable {
         /// <summary>
         ///     Underlying stream to be writing encoded values to.

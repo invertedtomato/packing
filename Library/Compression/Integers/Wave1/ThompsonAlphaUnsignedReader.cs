@@ -8,6 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Writer for Thompson-Alpha for unsigned values.
     /// </summary>
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.ThompsonAlphaCodec instead. It's faster and easier.")]
     public class ThompsonAlphaUnsignedReader : IUnsignedReader {
         /// <summary>
         ///     The underlying stream to be reading from.

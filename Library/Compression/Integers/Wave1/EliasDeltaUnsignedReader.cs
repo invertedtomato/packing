@@ -8,6 +8,7 @@ namespace InvertedTomato.Compression.Integers.Wave1 {
     /// <summary>
     ///     Reader for Elias Delta universal coding for unsigned values.
     /// </summary>
+    [Obsolete("Consider using InvertedTomato.Compression.Integers.Wave3.EliasDeltaCodec instead. It's faster and easier.")]
     public class EliasDeltaUnsignedReader : IUnsignedReader {
         /// <summary>
         ///     The underlying stream to be reading from.
