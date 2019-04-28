@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using InvertedTomato.Compression.Integers.Wave3;
+using InvertedTomato.Compression.Integers;
 
 namespace InvertedTomato.Compression.Integers.Sample {
 	internal class Program {

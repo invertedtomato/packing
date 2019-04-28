@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using InvertedTomato.Compression.Integers.Wave1;
 using InvertedTomato.IO;
 
 namespace InvertedTomato.Compression.Integers.Benchmark {
@@ -13,21 +12,17 @@ namespace InvertedTomato.Compression.Integers.Benchmark {
 					writer.Write(",");
 					writer.Write(Bits.CountUsed(i));
 					writer.Write(",");
-					writer.Write(EliasOmegaUnsignedWriter.CalculateBitLength(i));
+					writer.Write(new EliasOmegaCodec().CalculateEncodedBits(i));
 					writer.Write(",");
-					writer.Write(EliasGammaUnsignedWriter.CalculateBitLength(i));
+					writer.Write(new EliasGammaCodec().CalculateEncodedBits(i));
 					writer.Write(",");
-					writer.Write(EliasDeltaUnsignedWriter.CalculateBitLength(i));
+					writer.Write(new EliasDeltaCodec().CalculateEncodedBits(i));
 					writer.Write(",");
-#pragma warning disable 618
-					writer.Write(FibonacciUnsignedWriter.CalculateBitLength(i));
-#pragma warning restore 618
+					writer.Write(new FibonacciCodec().CalculateEncodedBits(i));
 					writer.Write(",");
-#pragma warning disable 618
-					writer.Write(VLQUnsignedWriter.CalculateBitLength(7, i));
-#pragma warning restore 618
+					writer.Write(new VlqCodec().CalculateEncodedBits( i));
 					writer.Write(",");
-					writer.Write(ThompsonAlphaUnsignedWriter.CalculateBitLength(6, i));
+					writer.Write(new ThompsonAlphaCodec().CalculateEncodedBits(i));
 					writer.WriteLine();
 				}
 			}

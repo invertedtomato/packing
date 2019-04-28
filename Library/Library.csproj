@@ -22,8 +22,4 @@
     <PackageReleaseNotes>Converted EliasDelta, EliasGamma, EliasOmega and ThompsonAlpha to Wave3 interface.</PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="InvertedTomato.Buffers" Version="1.0.15" />
-  </ItemGroup>
-
 </Project>
