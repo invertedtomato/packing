@@ -17,9 +17,9 @@
     <Company>Inverted Tomato</Company>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
     <FileVersion>1.2.3.0</FileVersion>
-    <PackageVersion>2.2.0</PackageVersion>
+    <PackageVersion>3.0.0</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
-    <PackageReleaseNotes>Converted EliasDelta, EliasGamma, EliasOmega and ThompsonAlpha to Wave3 interface.</PackageReleaseNotes>
+    <PackageReleaseNotes>Removed legacy interfaces. Removed dependancy on external library.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
