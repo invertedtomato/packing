@@ -111,8 +111,9 @@ namespace InvertedTomato.Compression.Integers {
 				) {
 					stream.WriteByte(buffer[maxByte]);
 					buffer[maxByte] = 0;
-				} else {
+				} else if (maxByte > 0) {
 					buffer[0] = buffer[maxByte];
+					buffer[maxByte] = 0;
 				}
 
 				bitOffset = residualBits;
