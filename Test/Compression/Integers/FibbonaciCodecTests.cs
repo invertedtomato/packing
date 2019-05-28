@@ -94,7 +94,40 @@ namespace InvertedTomato.Compression.Integers {
 		public void Compress_13() {
 			Assert.Equal("10000110", CompressOne(13));
 		}
-
+		
+		
+		[Fact]
+		public void Compress_20() {
+			Assert.Equal("00000011", CompressOne(20)); // Exactly one byte
+		}
+		
+		[Fact]
+		public void Compress_33() {
+			Assert.Equal("00000001 10000000", CompressOne(33)); // Termination bit is on next byte
+		}
+		
+		[Fact]
+		public void Compress_54() {
+			Assert.Equal("00000000 11000000", CompressOne(54)); // Final and termination bits on next byte
+		}
+		
+		
+		[Fact]
+		public void Compress_986() {
+			Assert.Equal("00000000 00000011", CompressOne(986)); // Exactly one byte
+		}
+		
+		[Fact]
+		public void Compress_1596() {
+			Assert.Equal("00000000 00000001 10000000", CompressOne(1596)); // Termination bit is on next byte
+		}
+		
+		[Fact]
+		public void Compress_2583() {
+			Assert.Equal("00000000 00000000 11000000", CompressOne(2583)); // Final and termination bits on next byte
+		}
+		
+		
 		[Fact]
 		public void Compress_Max() {
 			Assert.Equal("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000", CompressOne(FibonacciCodec.MaxValue, 32)); // Not completely sure about this value
@@ -199,7 +232,40 @@ namespace InvertedTomato.Compression.Integers {
 		public void Decompress_11() {
 			Assert.Equal((UInt64) 11, DecompressOne("101011 00"));
 		}
+		
+		
+		[Fact]
+		public void Decompress_20() {
+			Assert.Equal((UInt64) 20, DecompressOne("00000011")); // Exactly one byte
+		}
+		
+		[Fact]
+		public void Decompress_33() {
+			Assert.Equal((UInt64) 33, DecompressOne("000000011 0000000")); // Termination bit is on next byte
+		}
+		
+		[Fact]
+		public void Decompress_54() {
+			Assert.Equal((UInt64) 54, DecompressOne("0000000011 000000")); // Final and termination bits on next byte
+		}
 
+		
+		[Fact]
+		public void Decompress_986() {
+			Assert.Equal((UInt64) 986, DecompressOne("00000000 00000011")); // Exactly two bytes
+		}
+		
+		[Fact]
+		public void Decompress_1596() {
+			Assert.Equal((UInt64) 1596, DecompressOne("00000000 000000011 0000000")); // Termination bit is on next byte
+		}
+		
+		[Fact]
+		public void Decompress_2583() {
+			Assert.Equal((UInt64) 2583, DecompressOne("00000000 0000000011 000000")); // Final and termination bits on next byte
+		}
+		
+		
 		[Fact]
 		public void Decompress_Max() {
 			Assert.Equal(FibonacciCodec.MaxValue, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
