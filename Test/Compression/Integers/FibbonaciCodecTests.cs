@@ -175,6 +175,12 @@ namespace InvertedTomato.Compression.Integers {
 		public void Compress_0_1_2_3_4_5_6() {
 			Assert.Equal("11011001 11011000 11100110 10110000", CompressMany(new UInt64[] {0, 1, 2, 3, 4, 5, 6}));
 		}
+		
+		
+		[Fact]
+		public void Compress_1_2_3_4_5_6() {
+			Assert.Equal("01100111 01100011 10011010 11000000", CompressMany(new UInt64[] {1, 2, 3, 4, 5, 6}));
+		}
 
 		[Fact]
 		public void Compress_10x1() {

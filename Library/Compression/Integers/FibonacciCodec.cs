@@ -48,18 +48,17 @@ namespace InvertedTomato.Compression.Integers {
 
 			// Allocate working buffer the max length of an encoded UInt64 + 1 byte
 			var buffer = new Byte[MAX_ENCODED_LENGTH + 1];
-			var maxByte = 0;
 			var bitOffset = 0;
 
 			// Iterate through all symbols
 			for (var valueIdx = offset; valueIdx < offset + count; valueIdx++) {
 				var value = values[valueIdx];
 				var residualBits = 0;
+				var maxByte = 0;
 
 #if DEBUG
 				// Check for overflow
 				if (value > MaxValue) {
-					// TODO: Write manually calculated value
 					throw new OverflowException("Exceeded FibonacciCodec maximum supported symbol value of " + MaxValue + ".");
 				}
 #endif
@@ -100,24 +99,23 @@ namespace InvertedTomato.Compression.Integers {
 					}
 				}
 
-				// Write output
+				// Write n-1 output bytes
 				for (var j = 0; j < maxByte; j++) {
 					stream.WriteByte(buffer[j]);
 					buffer[j] = 0;
 				}
 
-				if (residualBits == 0) {
+				// Write last byte if complete, or no more symbols to encode
+				if (residualBits == 0 || // No residual bits
+				    valueIdx == offset + count - 1 // No more symbols to process
+				) {
 					stream.WriteByte(buffer[maxByte]);
 					buffer[maxByte] = 0;
-					bitOffset = 0;
 				} else {
 					buffer[0] = buffer[maxByte];
-					bitOffset = residualBits;
 				}
-			}
 
-			if (bitOffset > 0) {
-				stream.WriteByte(buffer[0]);
+				bitOffset = residualBits;
 			}
 		}
 
