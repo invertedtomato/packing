@@ -6,7 +6,8 @@ using InvertedTomato.IO.Bits;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers {
-	public class FibonacciCodecTests { // TODO: Check Compress and Decompress's "used" value is correct
+	public class FibonacciCodecTests {
+		// TODO: Check Compress and Decompress's "used" value is correct
 		public readonly Codec Codec = new FibonacciCodec();
 
 		public String CompressMany(UInt64[] input, Int32 outputBufferSize = 8) {
@@ -94,40 +95,72 @@ namespace InvertedTomato.Compression.Integers {
 		public void Compress_13() {
 			Assert.Equal("10000110", CompressOne(13));
 		}
-		
-		
+
+
 		[Fact]
 		public void Compress_20() {
 			Assert.Equal("00000011", CompressOne(20)); // Exactly one byte
 		}
-		
+
 		[Fact]
 		public void Compress_33() {
 			Assert.Equal("00000001 10000000", CompressOne(33)); // Termination bit is on next byte
 		}
-		
+
 		[Fact]
 		public void Compress_54() {
 			Assert.Equal("00000000 11000000", CompressOne(54)); // Final and termination bits on next byte
 		}
-		
-		
+
+
 		[Fact]
 		public void Compress_986() {
 			Assert.Equal("00000000 00000011", CompressOne(986)); // Exactly one byte
 		}
-		
+
 		[Fact]
 		public void Compress_1596() {
 			Assert.Equal("00000000 00000001 10000000", CompressOne(1596)); // Termination bit is on next byte
 		}
-		
+
 		[Fact]
 		public void Compress_2583() {
 			Assert.Equal("00000000 00000000 11000000", CompressOne(2583)); // Final and termination bits on next byte
 		}
-		
-		
+
+
+		[Fact]
+		public void Compress_20_0_1() {
+			Assert.Equal("00000011 11011000", CompressMany(new UInt64[] {20, 0, 1})); // Exactly one byte
+		}
+
+		[Fact]
+		public void Compress_33_0_1() {
+			Assert.Equal("00000001 11101100", CompressMany(new UInt64[] {33, 0, 1})); // Termination bit is on next byte
+		}
+
+		[Fact]
+		public void Compress_54_0_1() {
+			Assert.Equal("00000000 11110110", CompressMany(new UInt64[] {54, 0, 1})); // Final and termination bits on next byte
+		}
+
+
+		[Fact]
+		public void Compress_986_0_1() {
+			Assert.Equal("00000000 00000011 11011000", CompressMany(new UInt64[] {986, 0, 1})); // Exactly one byte
+		}
+
+		[Fact]
+		public void Compress_1596_0_1() {
+			Assert.Equal("00000000 00000001 11101100", CompressMany(new UInt64[] {1596, 0, 1})); // Termination bit is on next byte
+		}
+
+		[Fact]
+		public void Compress_2583_0_1() {
+			Assert.Equal("00000000 00000000 11110110", CompressMany(new UInt64[] {2583, 0, 1})); // Final and termination bits on next byte
+		}
+
+
 		[Fact]
 		public void Compress_Max() {
 			Assert.Equal("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000", CompressOne(FibonacciCodec.MaxValue, 32)); // Not completely sure about this value
@@ -136,6 +169,11 @@ namespace InvertedTomato.Compression.Integers {
 		[Fact]
 		public void Compress_0_1_2() {
 			Assert.Equal("11011001 10000000", CompressMany(new UInt64[] {0, 1, 2}));
+		}
+
+		[Fact]
+		public void Compress_0_1_2_3_4_5_6() {
+			Assert.Equal("11011001 11011000 11100110 10110000", CompressMany(new UInt64[] {0, 1, 2, 3, 4, 5, 6}));
 		}
 
 		[Fact]
@@ -232,40 +270,91 @@ namespace InvertedTomato.Compression.Integers {
 		public void Decompress_11() {
 			Assert.Equal((UInt64) 11, DecompressOne("101011 00"));
 		}
-		
-		
+
+
 		[Fact]
 		public void Decompress_20() {
 			Assert.Equal((UInt64) 20, DecompressOne("00000011")); // Exactly one byte
 		}
-		
+
 		[Fact]
 		public void Decompress_33() {
 			Assert.Equal((UInt64) 33, DecompressOne("000000011 0000000")); // Termination bit is on next byte
 		}
-		
+
 		[Fact]
 		public void Decompress_54() {
 			Assert.Equal((UInt64) 54, DecompressOne("0000000011 000000")); // Final and termination bits on next byte
 		}
 
-		
+
 		[Fact]
 		public void Decompress_986() {
 			Assert.Equal((UInt64) 986, DecompressOne("00000000 00000011")); // Exactly two bytes
 		}
-		
+
 		[Fact]
 		public void Decompress_1596() {
 			Assert.Equal((UInt64) 1596, DecompressOne("00000000 000000011 0000000")); // Termination bit is on next byte
 		}
-		
+
 		[Fact]
 		public void Decompress_2583() {
 			Assert.Equal((UInt64) 2583, DecompressOne("00000000 0000000011 000000")); // Final and termination bits on next byte
 		}
+
 		
 		
+		[Fact]
+		public void Decompress_20_0_1() {
+			var symbols = DecompressMany("00000011 11011000", 3); 
+			Assert.Equal((UInt64) 20, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+		
+		[Fact]
+		public void Decompress_33_0_1() {
+			var symbols = DecompressMany("00000001 11101100", 3); 
+			Assert.Equal((UInt64) 33, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+
+		[Fact]
+		public void Decompress_54_0_1() {
+			var symbols = DecompressMany("00000000 11110110", 3); 
+			Assert.Equal((UInt64) 54, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+		
+
+		[Fact]
+		public void Decompress_986_0_1() {
+			var symbols = DecompressMany("00000000 00000011 11011000", 3); 
+			Assert.Equal((UInt64) 986, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+
+		[Fact]
+		public void Decompress_1596_0_1() {
+			var symbols = DecompressMany("00000000 00000001 11101100", 3); 
+			Assert.Equal((UInt64) 1596, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+		
+		[Fact]
+		public void Decompress_2583_0_1() {
+			var symbols = DecompressMany("00000000 00000000 11110110", 3); 
+			Assert.Equal((UInt64) 2583, symbols[0]);
+			Assert.Equal((UInt64) 0, symbols[1]);
+			Assert.Equal((UInt64) 1, symbols[2]);
+		}
+
+
 		[Fact]
 		public void Decompress_Max() {
 			Assert.Equal(FibonacciCodec.MaxValue, DecompressOne("01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011 000"));
@@ -289,6 +378,18 @@ namespace InvertedTomato.Compression.Integers {
 			Assert.Equal((UInt64) 0, symbols[0]);
 			Assert.Equal((UInt64) 1, symbols[1]);
 			Assert.Equal((UInt64) 2, symbols[2]);
+		}
+		
+		[Fact]
+		public void Decompress_0_1_2_4_5_6() {
+			var symbols = DecompressMany("11 011 0011 1011 00011 10011 01011 0000", 7); // 0 1 2 3 4 5 6
+			Assert.Equal((UInt64) 0, symbols[0]);
+			Assert.Equal((UInt64) 1, symbols[1]);
+			Assert.Equal((UInt64) 2, symbols[2]);
+			Assert.Equal((UInt64) 3, symbols[3]);
+			Assert.Equal((UInt64) 4, symbols[4]);
+			Assert.Equal((UInt64) 5, symbols[5]);
+			Assert.Equal((UInt64) 6, symbols[6]);
 		}
 
 		[Fact]
