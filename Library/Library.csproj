@@ -20,6 +20,8 @@
     <PackageVersion>3.0.0</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
     <PackageReleaseNotes>Removed legacy interfaces. Removed dependancy on external library.</PackageReleaseNotes>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>
