@@ -9,9 +9,6 @@ public class BitWriter : IDisposable
     private readonly Boolean OwnUnderlying;
     
     public Boolean IsDisposed { get; private set; }
-    public Int64 WastedBits { get; private set; }
-    public Int64 OverheadBits { get; private set; }
-    public Int64 DataBits { get; private set; }
     
     public BitWriter(Stream underlying)
     {
@@ -23,6 +20,25 @@ public class BitWriter : IDisposable
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
     }
+    
+    
+    public void WriteUInt8(Byte value, ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
+    public void WriteUInt16(UInt16 value, ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
+    public void WriteUInt32(UInt32 value, ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
+    public void WriteUInt64(UInt64 value, ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
+    
     
     public void WriteInt8(SByte value, ICodec codec)
     {
@@ -41,22 +57,6 @@ public class BitWriter : IDisposable
         throw new NotImplementedException();
     }
     
-    public void WriteUInt8(Byte value, ICodec codec)
-    {
-        throw new NotImplementedException();
-    }
-    public void WriteUInt16(UInt16 value, ICodec codec)
-    {
-        throw new NotImplementedException();
-    }
-    public void WriteUInt32(UInt32 value, ICodec codec)
-    {
-        throw new NotImplementedException();
-    }
-    public void WriteUInt64(UInt64 value, ICodec codec)
-    {
-        throw new NotImplementedException();
-    }
 
     public void AlignByte()
     {

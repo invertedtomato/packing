@@ -5,7 +5,7 @@ var td = new ThompsonAlphaCodec();
 
 using var stream = new MemoryStream();
 
-// Compress
+// Encode
 using (var writer = new BitWriter(stream))
 {
     writer.WriteInt32(1, td);
@@ -19,7 +19,7 @@ using (var writer = new BitWriter(stream))
 Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
 stream.Seek(0, SeekOrigin.Begin);
 
-// Decompress
+// Decode
 using (var reader = new BitReader(stream))
 {
     reader.ReadInt32(td);
