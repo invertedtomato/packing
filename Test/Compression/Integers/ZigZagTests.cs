@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class ZigZagTests {
 		[Fact]
 		public void EncodeDecodeMax() {

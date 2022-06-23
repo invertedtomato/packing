@@ -5,7 +5,7 @@ using System.Linq;
 using InvertedTomato.IO.Bits;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class FibonacciCodecTests {
 		// TODO: Check Compress and Decompress's "used" value is correct
 		public readonly Codec Codec = new FibonacciCodec();

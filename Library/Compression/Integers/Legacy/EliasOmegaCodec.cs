@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class EliasOmegaCodec:Codec {
 		public override void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count) {
 #if DEBUG

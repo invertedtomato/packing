@@ -5,7 +5,7 @@ using System.Linq;
 using InvertedTomato.IO.Bits;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class InvertedVlqCodecTests {
 		private readonly Codec Codec = new InvertedVlqCodec();
 

@@ -23,7 +23,7 @@
 // Decompress: 874ms 87.29MB / s
 
 using System.Diagnostics;
-using InvertedTomato.Compression.Integers;
+using InvertedTomato.Compression.Integers.Legacy;
 
 var min = 100000;
 var count = 10000000;

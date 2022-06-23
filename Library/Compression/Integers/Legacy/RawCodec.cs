@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class RawCodec : Codec {
 		public static readonly UInt64 MinValue = UInt64.MinValue;
 		public static readonly UInt64 MaxValue = UInt64.MaxValue;

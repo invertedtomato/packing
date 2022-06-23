@@ -1,6 +1,6 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class ByteArraySegmentWrapper : IByteReader { // Based on work by Vicente Penades
 		public ByteArraySegmentWrapper(Byte[] underlying) {
 			if (null == underlying) {

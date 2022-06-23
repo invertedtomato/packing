@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Legacy {
 	public class EliasGammaTests {
 		private readonly Codec EliasGamma = new EliasGammaCodec();
 		
