@@ -22,26 +22,26 @@ public class BitReader : IDisposable
         OwnUnderlying = ownUnderlying;
     }
 
+    public Boolean ReadBit(ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
     public SByte ReadInt8(ICodec codec)
     {
         throw new NotImplementedException();
     }
-
     public Int16 ReadInt16(ICodec codec)
     {
         throw new NotImplementedException();
     }
-
     public Int32 ReadInt32(ICodec codec)
     {
         throw new NotImplementedException();
     }
-
     public Int64 ReadInt64(ICodec codec)
     {
         throw new NotImplementedException();
     }
-
     public Byte ReadUInt8(ICodec codec)
     {
         throw new NotImplementedException();

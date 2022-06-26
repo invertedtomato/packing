@@ -21,7 +21,10 @@ public class BitWriter : IDisposable
         OwnUnderlying = ownUnderlying;
     }
     
-    
+    public void WriteBit(Boolean value, ICodec codec)
+    {
+        throw new NotImplementedException();
+    }
     public void WriteUInt8(Byte value, ICodec codec)
     {
         throw new NotImplementedException();
@@ -38,8 +41,6 @@ public class BitWriter : IDisposable
     {
         throw new NotImplementedException();
     }
-    
-    
     public void WriteInt8(SByte value, ICodec codec)
     {
         throw new NotImplementedException();
@@ -59,6 +60,15 @@ public class BitWriter : IDisposable
     
 
     public void AlignByte()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>Implicitly causes AlignBytes</remarks>
+    public void Flush()
     {
         throw new NotImplementedException();
     }
