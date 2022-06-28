@@ -25,7 +25,7 @@ public class VlqCodec : ICodec
         while (value > MinPacketValue)
         {
             // Write payload, skipping MSB bit
-            BufferUtil.WriteBits((value & Mask) | More, 8, ref buffers, ref offset);
+            BufferUtil.WriteBits((value & Mask) | More, ref buffers, ref offset, 8);
 
             // Offset value for next cycle
             value >>= PacketSize;
@@ -33,7 +33,7 @@ public class VlqCodec : ICodec
         }
 
         // Write remaining - marking it as the final byte for symbol
-        BufferUtil.WriteBits(value & Mask, 8, ref buffers, ref offset);
+        BufferUtil.WriteBits(value & Mask, ref buffers, ref offset, 8);
     }
 
     private UInt64 Decode(UInt64[] buffers, ref Int32 offset)
