@@ -12,7 +12,7 @@ public class VlqCodec : ICodec
     private const Int32 PacketSize = 7;
     private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
 
-    private void Encode(UInt64 value, ref UInt64[] buffers, ref Int32 offset)
+    private void Encode(UInt64 value, IBitWriterBuffer buffer)
     {
 #if DEBUG
         if (value > MaxValue)
@@ -25,7 +25,7 @@ public class VlqCodec : ICodec
         while (value > MinPacketValue)
         {
             // Write payload, skipping MSB bit
-            BufferUtil.WriteBits((value & Mask) | More, ref buffers, ref offset, 8);
+            buffer.Write64((value & Mask) | More, 8);
 
             // Offset value for next cycle
             value >>= PacketSize;
@@ -33,10 +33,10 @@ public class VlqCodec : ICodec
         }
 
         // Write remaining - marking it as the final byte for symbol
-        BufferUtil.WriteBits(value & Mask, ref buffers, ref offset, 8);
+        buffer.Write64(value & Mask, 8);
     }
 
-    private UInt64 Decode(UInt64[] buffers, ref Int32 offset)
+    private UInt64 Decode(IBitReaderBuffer buffer)
     {
         // Setup symbol
         UInt64 symbol = 0;
@@ -45,7 +45,7 @@ public class VlqCodec : ICodec
         do
         {
             // Read byte
-            b = BufferUtil.ReadByte(buffers, ref offset);
+            b = buffer.Read8(8);
 
             // Add input bits to output
             var chunk = (UInt64) (b & Mask);
@@ -71,23 +71,23 @@ public class VlqCodec : ICodec
         return symbol;
     }
 
-    public void EncodeBit(bool value, ref ulong[] buffers, ref Int32 offset) => Encode(1, ref buffers, ref offset);
-    public void EncodeUInt8(byte value, ref ulong[] buffers, ref Int32 offset) => Encode(value, ref buffers, ref offset);
-    public void EncodeUInt16(ushort value, ref ulong[] buffers, ref Int32 offset) => Encode(value, ref buffers, ref offset);
-    public void EncodeUInt32(uint value, ref ulong[] buffers, ref Int32 offset) => Encode(value, ref buffers, ref offset);
-    public void EncodeUInt64(ulong value, ref ulong[] buffers, ref Int32 offset) => Encode(value, ref buffers, ref offset);
-    public void EncodeInt8(sbyte value, ref ulong[] buffers, ref Int32 offset) => Encode(ZigZag.Encode(value), ref buffers, ref offset);
-    public void EncodeInt16(short value, ref ulong[] buffers, ref Int32 offset) => Encode(ZigZag.Encode(value), ref buffers, ref offset);
-    public void EncodeInt32(int value, ref ulong[] buffers, ref Int32 offset) => Encode(ZigZag.Encode(value), ref buffers, ref offset);
-    public void EncodeInt64(long value, ref ulong[] buffers, ref Int32 offset) => Encode(ZigZag.Encode(value), ref buffers, ref offset);
+    public void EncodeBit(bool value, IBitWriterBuffer buffer) => Encode(1, buffer);
+    public void EncodeUInt8(byte value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt16(ushort value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt32(uint value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt64(ulong value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeInt8(sbyte value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt16(short value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt32(int value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt64(long value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
 
-    public Boolean DecodeBit(ref ulong[] buffers, ref Int32 offset) => Decode(buffers, ref offset) > 0;
-    public Byte DecodeUInt8(ref ulong[] buffers, ref Int32 offset) => (Byte) Decode(buffers, ref offset);
-    public UInt16 DecodeUInt16(ref ulong[] buffers, ref Int32 offset) => (UInt16) Decode(buffers, ref offset);
-    public UInt32 DecodeUInt32(ref ulong[] buffers, ref Int32 offset) => (UInt32) Decode(buffers, ref offset);
-    public UInt64 DecodeUInt64(ref ulong[] buffers, ref Int32 offset) => Decode(buffers, ref offset);
-    public SByte DecodeInt8(ref ulong[] buffers, ref Int32 offset) => (SByte) ZigZag.Decode(Decode(buffers, ref offset));
-    public Int16 DecodeInt16(ref ulong[] buffers, ref Int32 offset) => (Int16) ZigZag.Decode(Decode(buffers, ref offset));
-    public Int32 DecodeInt32(ref ulong[] buffers, ref Int32 offset) => (Int32) ZigZag.Decode(Decode(buffers, ref offset));
-    public Int64 DecodeInt64(ref ulong[] buffers, ref Int32 offset) => ZigZag.Decode(Decode(buffers, ref offset));
+    public Boolean DecodeBit(IBitReaderBuffer buffer) => Decode(buffer) > 0;
+    public Byte DecodeUInt8(IBitReaderBuffer buffer) => (Byte) Decode(buffer);
+    public UInt16 DecodeUInt16(IBitReaderBuffer buffer) => (UInt16) Decode(buffer);
+    public UInt32 DecodeUInt32(IBitReaderBuffer buffer) => (UInt32) Decode(buffer);
+    public UInt64 DecodeUInt64(IBitReaderBuffer buffer) => Decode(buffer);
+    public SByte DecodeInt8(IBitReaderBuffer buffer) => (SByte) ZigZag.Decode(Decode(buffer));
+    public Int16 DecodeInt16(IBitReaderBuffer buffer) => (Int16) ZigZag.Decode(Decode(buffer));
+    public Int32 DecodeInt32(IBitReaderBuffer buffer) => (Int32) ZigZag.Decode(Decode(buffer));
+    public Int64 DecodeInt64(IBitReaderBuffer buffer) => ZigZag.Decode(Decode(buffer));
 }

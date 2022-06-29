@@ -1,94 +1,105 @@
+using System;
+
 namespace InvertedTomato.Compression.Integers;
 
-public class ThompsonAlphaCodec:ICodec
+public class ThompsonAlphaCodec : ICodec
 {
-    public void EncodeBit(bool value, ref ulong[] buffers, ref int offset)
+    private readonly Int32 LengthBits;
+
+    public ThompsonAlphaCodec() : this(6)
     {
-        throw new System.NotImplementedException();
     }
 
-    public void EncodeUInt8(byte value, ref ulong[] buffers, ref int offset)
+    /// <summary>
+    /// Instantiate with options
+    /// </summary>
+    /// <param name="lengthBits">Number of prefix bits used to store length.</param>
+    public ThompsonAlphaCodec(Int32 lengthBits)
     {
-        throw new System.NotImplementedException();
+        if (lengthBits is < 1 or > 6)
+        {
+            throw new ArgumentOutOfRangeException($"Must be between 1 and 6, not {lengthBits}.", nameof(lengthBits));
+        }
+
+        LengthBits = lengthBits;
     }
 
-    public void EncodeUInt16(ushort value, ref ulong[] buffers, ref int offset)
+    private void Encode(UInt64 value, IBitWriterBuffer buffer)
     {
-        throw new System.NotImplementedException();
+        // Offset value to allow zeros
+        value++;
+
+        // Count length
+        var length = CountUsed(value);
+
+        // Check not too large
+        if (length > (LengthBits + 2) * 8)
+        {
+            throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - LengthBits - 1)}. Increase length bits to support larger numbers.");
+        }
+
+        // Clip MSB, it's redundant
+        length--;
+
+        // Write length
+        buffer.Write64((UInt64) length, LengthBits);
+
+        // Write number
+        buffer.Write64(value, length);
     }
 
-    public void EncodeUInt32(uint value, ref ulong[] buffers, ref int offset)
+    private UInt64 Decode(IBitReaderBuffer buffer)
     {
-        throw new System.NotImplementedException();
+        // Read length
+        var length = (Int32) buffer.Read64(LengthBits);
+
+        // Read body
+        var value = buffer.Read64(length);
+
+        // Recover implied MSB
+        value |= (UInt64) 1 << length;
+
+        // Remove offset to allow zeros
+        value--;
+
+        return value;
     }
 
-    public void EncodeUInt64(ulong value, ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
+    public void EncodeBit(bool value, IBitWriterBuffer buffer) => Encode(1, buffer);
+    public void EncodeUInt8(byte value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt16(ushort value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt32(uint value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeUInt64(ulong value, IBitWriterBuffer buffer) => Encode(value, buffer);
+    public void EncodeInt8(sbyte value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt16(short value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt32(int value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt64(long value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
 
-    public void EncodeInt8(sbyte value, ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
+    public Boolean DecodeBit(IBitReaderBuffer buffer) => Decode(buffer) > 0;
+    public Byte DecodeUInt8(IBitReaderBuffer buffer) => (Byte) Decode(buffer);
+    public UInt16 DecodeUInt16(IBitReaderBuffer buffer) => (UInt16) Decode(buffer);
+    public UInt32 DecodeUInt32(IBitReaderBuffer buffer) => (UInt32) Decode(buffer);
+    public UInt64 DecodeUInt64(IBitReaderBuffer buffer) => Decode(buffer);
+    public SByte DecodeInt8(IBitReaderBuffer buffer) => (SByte) ZigZag.Decode(Decode(buffer));
+    public Int16 DecodeInt16(IBitReaderBuffer buffer) => (Int16) ZigZag.Decode(Decode(buffer));
+    public Int32 DecodeInt32(IBitReaderBuffer buffer) => (Int32) ZigZag.Decode(Decode(buffer));
+    public Int64 DecodeInt64(IBitReaderBuffer buffer) => ZigZag.Decode(Decode(buffer));
 
-    public void EncodeInt16(short value, ref ulong[] buffers, ref int offset)
+    /// <summary>
+    ///     Count the number of bits used to express number
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private static Int32 CountUsed(UInt64 value)
     {
-        throw new System.NotImplementedException();
-    }
+        Byte bits = 0;
 
-    public void EncodeInt32(int value, ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
+        do
+        {
+            bits++;
+            value >>= 1;
+        } while (value > 0);
 
-    public void EncodeInt64(long value, ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public bool DecodeBit(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public byte DecodeUInt8(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public ushort DecodeUInt16(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public uint DecodeUInt32(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public ulong DecodeUInt64(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public sbyte DecodeInt8(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public short DecodeInt16(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public int DecodeInt32(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public long DecodeInt64(ref ulong[] buffers, ref int offset)
-    {
-        throw new System.NotImplementedException();
+        return bits;
     }
 }
