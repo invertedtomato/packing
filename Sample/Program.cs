@@ -6,28 +6,26 @@ var td = new ThompsonAlphaCodec();
 using var stream = new MemoryStream();
 
 // Encode
-using (var writer = new BitWriter(stream))
+using (var writer = new StreamBitWriter(stream))
 {
-    writer.WriteInt32(1, td);
-    writer.WriteInt32(2, td);
-    writer.WriteInt32(3, vlq);
-    writer.WriteInt32(4, td);
-    writer.AlignByte();
-    writer.WriteInt32(2, td);
+    td.EncodeInt32(1, writer);
+    td.EncodeInt32(2, writer);
+    vlq.EncodeInt32(3, writer);
+    writer.Align();
+    td.EncodeInt32(4, writer);
 }
 
 Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
 stream.Seek(0, SeekOrigin.Begin);
 
 // Decode
-using (var reader = new BitReader(stream))
+using (var reader = new StreamBitReader(stream))
 {
-    reader.ReadInt32(td);
-    reader.ReadInt32(td);
-    reader.ReadInt32(vlq);
-    reader.ReadInt32(td);
-    reader.AlignByte();
-    reader.ReadInt32(td);
+    td.DecodeInt32(reader);
+    td.DecodeInt32(reader);
+    vlq.DecodeInt32(reader);
+    reader.Align();
+    td.DecodeInt32(reader);
 }
 
 Console.WriteLine("Done.");

@@ -12,7 +12,7 @@ public class VlqCodec : ICodec
     private const Int32 PacketSize = 7;
     private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
 
-    private void Encode(UInt64 value, IBitWriterBuffer buffer)
+    private void Encode(UInt64 value, IBitWriter buffer)
     {
 #if DEBUG
         if (value > MaxValue)
@@ -25,7 +25,7 @@ public class VlqCodec : ICodec
         while (value > MinPacketValue)
         {
             // Write payload, skipping MSB bit
-            buffer.Write64((value & Mask) | More, 8);
+            buffer.Write((value & Mask) | More, 8);
 
             // Offset value for next cycle
             value >>= PacketSize;
@@ -33,10 +33,10 @@ public class VlqCodec : ICodec
         }
 
         // Write remaining - marking it as the final byte for symbol
-        buffer.Write64(value & Mask, 8);
+        buffer.Write(value & Mask, 8);
     }
 
-    private UInt64 Decode(IBitReaderBuffer buffer)
+    private UInt64 Decode(IBitReader buffer)
     {
         // Setup symbol
         UInt64 symbol = 0;
@@ -45,7 +45,7 @@ public class VlqCodec : ICodec
         do
         {
             // Read byte
-            b = buffer.Read8(8);
+            b = (Byte)buffer.Read(8);
 
             // Add input bits to output
             var chunk = (UInt64) (b & Mask);
@@ -71,23 +71,23 @@ public class VlqCodec : ICodec
         return symbol;
     }
 
-    public void EncodeBit(bool value, IBitWriterBuffer buffer) => Encode(1, buffer);
-    public void EncodeUInt8(byte value, IBitWriterBuffer buffer) => Encode(value, buffer);
-    public void EncodeUInt16(ushort value, IBitWriterBuffer buffer) => Encode(value, buffer);
-    public void EncodeUInt32(uint value, IBitWriterBuffer buffer) => Encode(value, buffer);
-    public void EncodeUInt64(ulong value, IBitWriterBuffer buffer) => Encode(value, buffer);
-    public void EncodeInt8(sbyte value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt16(short value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt32(int value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt64(long value, IBitWriterBuffer buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);
+    public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt16(ushort value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt32(uint value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt64(ulong value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeInt8(sbyte value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt16(short value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt32(int value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt64(long value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
 
-    public Boolean DecodeBit(IBitReaderBuffer buffer) => Decode(buffer) > 0;
-    public Byte DecodeUInt8(IBitReaderBuffer buffer) => (Byte) Decode(buffer);
-    public UInt16 DecodeUInt16(IBitReaderBuffer buffer) => (UInt16) Decode(buffer);
-    public UInt32 DecodeUInt32(IBitReaderBuffer buffer) => (UInt32) Decode(buffer);
-    public UInt64 DecodeUInt64(IBitReaderBuffer buffer) => Decode(buffer);
-    public SByte DecodeInt8(IBitReaderBuffer buffer) => (SByte) ZigZag.Decode(Decode(buffer));
-    public Int16 DecodeInt16(IBitReaderBuffer buffer) => (Int16) ZigZag.Decode(Decode(buffer));
-    public Int32 DecodeInt32(IBitReaderBuffer buffer) => (Int32) ZigZag.Decode(Decode(buffer));
-    public Int64 DecodeInt64(IBitReaderBuffer buffer) => ZigZag.Decode(Decode(buffer));
+    public Boolean DecodeBit(IBitReader buffer) => Decode(buffer) > 0;
+    public Byte DecodeUInt8(IBitReader buffer) => (Byte) Decode(buffer);
+    public UInt16 DecodeUInt16(IBitReader buffer) => (UInt16) Decode(buffer);
+    public UInt32 DecodeUInt32(IBitReader buffer) => (UInt32) Decode(buffer);
+    public UInt64 DecodeUInt64(IBitReader buffer) => Decode(buffer);
+    public SByte DecodeInt8(IBitReader buffer) => (SByte) ZigZag.Decode(Decode(buffer));
+    public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
+    public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
+    public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
 }

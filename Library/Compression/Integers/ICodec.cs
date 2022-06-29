@@ -13,23 +13,23 @@ public interface ICodec
     void ResetStatistics();
     */
 
-    void EncodeBit(Boolean value, IBitWriterBuffer buffer);
-    void EncodeUInt8(Byte value, IBitWriterBuffer buffer);
-    void EncodeUInt16(UInt16 value, IBitWriterBuffer buffer);
-    void EncodeUInt32(UInt32 value, IBitWriterBuffer buffer);
-    void EncodeUInt64(UInt64 value, IBitWriterBuffer buffer);
-    void EncodeInt8(SByte value, IBitWriterBuffer buffer);
-    void EncodeInt16(Int16 value, IBitWriterBuffer buffer);
-    void EncodeInt32(Int32 value, IBitWriterBuffer buffer);
-    void EncodeInt64(Int64 value, IBitWriterBuffer buffer);
+    void EncodeBit(Boolean value, IBitWriter buffer);
+    void EncodeUInt8(Byte value, IBitWriter buffer);
+    void EncodeUInt16(UInt16 value, IBitWriter buffer);
+    void EncodeUInt32(UInt32 value, IBitWriter buffer);
+    void EncodeUInt64(UInt64 value, IBitWriter buffer);
+    void EncodeInt8(SByte value, IBitWriter buffer);
+    void EncodeInt16(Int16 value, IBitWriter buffer);
+    void EncodeInt32(Int32 value, IBitWriter buffer);
+    void EncodeInt64(Int64 value, IBitWriter buffer);
 
-    Boolean DecodeBit(IBitReaderBuffer buffer);
-    Byte DecodeUInt8(IBitReaderBuffer buffer);
-    UInt16 DecodeUInt16(IBitReaderBuffer buffer);
-    UInt32 DecodeUInt32(IBitReaderBuffer buffer);
-    UInt64 DecodeUInt64(IBitReaderBuffer buffer);
-    SByte DecodeInt8(IBitReaderBuffer buffer);
-    Int16 DecodeInt16(IBitReaderBuffer buffer);
-    Int32 DecodeInt32(IBitReaderBuffer buffer);
-    Int64 DecodeInt64(IBitReaderBuffer buffer);
+    Boolean DecodeBit(IBitReader buffer);
+    Byte DecodeUInt8(IBitReader buffer);
+    UInt16 DecodeUInt16(IBitReader buffer);
+    UInt32 DecodeUInt32(IBitReader buffer);
+    UInt64 DecodeUInt64(IBitReader buffer);
+    SByte DecodeInt8(IBitReader buffer);
+    Int16 DecodeInt16(IBitReader buffer);
+    Int32 DecodeInt32(IBitReader buffer);
+    Int64 DecodeInt64(IBitReader buffer);
 }
