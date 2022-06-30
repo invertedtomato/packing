@@ -115,6 +115,7 @@ public class StreamBitReaderTests
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111});
         using var reader = new StreamBitReader(stream);
+        
         Assert.Equal((ulong) 0b00000000, reader.ReadBits(0));
     }
 
@@ -123,6 +124,7 @@ public class StreamBitReaderTests
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111});
         using var reader = new StreamBitReader(stream);
+        
         reader.ReadBits(8);
         Assert.Throws<EndOfStreamException>(() => reader.ReadBits(1));
     }
@@ -132,9 +134,8 @@ public class StreamBitReaderTests
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111});
         using var reader = new StreamBitReader(stream);
+        
         reader.ReadBits(8);
         Assert.Throws<EndOfStreamException>(() => reader.PeakBit());
     }
-
-    // TODO: align
 }
