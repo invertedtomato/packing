@@ -51,7 +51,7 @@ public class StreamBitReader : IBitReader, IDisposable
         var buffer = Buffer;
         
         // Mask out extract buffer
-        buffer |= UInt64.MaxValue >> (64 - count);
+        buffer &= UInt64.MaxValue >> (64 - count);
 
         // Update references
         Count -= count;
