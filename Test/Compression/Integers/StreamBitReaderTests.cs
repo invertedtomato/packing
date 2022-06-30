@@ -25,11 +25,10 @@ public class StreamBitReaderTests
         using var reader = new StreamBitReader(stream);
         Assert.Equal((ulong)0b00001111, reader.ReadBits(4));
         Assert.True(reader.PeakBit());
-        Assert.Equal((ulong)0b11110000, reader.ReadBits(8));
+        Assert.Equal((ulong)0b00001111, reader.ReadBits(8));
         Assert.False(reader.PeakBit());
         Assert.Equal((ulong)0b00000000, reader.ReadBits(4));
     }
-    
     
     [Fact]
     public void Read_4_Align_4()
