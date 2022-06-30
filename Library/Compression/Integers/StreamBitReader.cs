@@ -30,8 +30,32 @@ public class StreamBitReader : IBitReader, IDisposable
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
     }
+    
+    public bool PeakBit()
+    {
+        // Ensure we have at least one bit loaded
+        EnsureLoad(1);
 
-    public ulong ReadBits(int count)
+        // Return that bit
+        return (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
+    }
+    
+    public Boolean ReadBit()
+    {
+        // Ensure we have at least one bit loaded
+        EnsureLoad(1);
+
+        // Return that bit
+        var bit = (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
+        
+        // Update references
+        Count -= 1;
+        Buffer >>= 1;
+
+        return bit;
+    }
+    
+    public UInt64 ReadBits(int count)
     {
         if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
         {
@@ -61,13 +85,21 @@ public class StreamBitReader : IBitReader, IDisposable
         return buffer;
     }
 
-    public bool PeakBit()
-    {
-        // Ensure we have at least one bit loaded
-        EnsureLoad(1);
 
-        // Return that bit
-        return (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
+    public Byte ReadByte()
+    {
+        if (Count > 0)
+        {
+            throw new InvalidOperationException("ReadByte cannot be used while bits are buffered - avoid using ReadBits before");
+        }
+        
+        var b = Underlying.ReadByte();
+        if (b < 0)
+        {
+            throw new EndOfStreamException();
+        }
+
+        return (Byte) b;
     }
 
     public void Align()

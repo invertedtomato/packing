@@ -4,7 +4,11 @@ namespace InvertedTomato.Compression.Integers;
 
 public interface IBitReader
 {
-     UInt64 ReadBits(Int32 count);
-
      Boolean PeakBit();
+     Boolean ReadBit();
+     UInt64 ReadBits(Int32 count);
+     
+     Byte ReadByte();
+     
+     void Align();
 }
