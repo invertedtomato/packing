@@ -5,8 +5,12 @@ namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitReader : IBitReader, IDisposable
 {
-    private const Int32 MAX_READ = 32; // bits
-
+    // Lowest bit is always on the right
+    
+    private const Int32 BUFFER_MIN_BITS = 0;
+    private const Int32 BUFFER_MAX_BITS = 64-8; // There must always be room for another byte to be loaded, else bits must be lost
+    private const Int32 BITS_PER_BYTE = 8;
+    
     private readonly Stream Underlying;
     private readonly Boolean OwnUnderlying;
 
@@ -27,11 +31,17 @@ public class StreamBitReader : IBitReader, IDisposable
         OwnUnderlying = ownUnderlying;
     }
 
-    public ulong Read(int count)
+    public ulong ReadBits(int count)
     {
-        if (count is < 1 or > MAX_READ)
+        if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 1 and {MAX_READ}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {BUFFER_MAX_BITS}");
+        }
+
+        // You'd expect `UInt64.MaxValue >> 64` would result in 0, but alas, nope, it's the same as `UInt64.MaxValue >> 0` - so let's avoid this by not doing anything for count=0
+        if (count == 0)
+        {
+            return 0;
         }
 
         // Ensure we have enough bits loaded
@@ -39,10 +49,13 @@ public class StreamBitReader : IBitReader, IDisposable
 
         // Copy buffer
         var buffer = Buffer;
+        
+        // Mask out extract buffer
+        buffer |= UInt64.MaxValue >> (64 - count);
 
         // Update references
         Count -= count;
-        Buffer <<= count;
+        Buffer >>= count;
 
         // Return
         return buffer;
@@ -54,16 +67,15 @@ public class StreamBitReader : IBitReader, IDisposable
         EnsureLoad(1);
 
         // Return that bit
-        return (Buffer & 1) > 0;
+        return (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
     }
 
     public void Align()
     {
         // Burn bits remaining in current byte
-        Read(Count % 8);
+        ReadBits(Count % BITS_PER_BYTE);
     }
-
-
+    
     public void Dispose()
     {
         if (IsDisposed)
@@ -87,9 +99,9 @@ public class StreamBitReader : IBitReader, IDisposable
     private void EnsureLoad(int count)
     {
 #if DEBUG
-        if (count > MAX_READ)
+        if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
         {
-            throw new ArgumentOutOfRangeException(nameof(count));
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {BUFFER_MAX_BITS}");
         }
 #endif
         
@@ -102,8 +114,13 @@ public class StreamBitReader : IBitReader, IDisposable
                 throw new EndOfStreamException();
             }
 
-            Buffer |= (Byte) (b >> count);
-            Count += 8;
+            var a = (UInt64)b << Count;
+            
+            // Add bits to buffer
+            Buffer |= a;
+            
+            // Increment count
+            Count += BITS_PER_BYTE;
         }
     }
 }

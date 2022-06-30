@@ -23,4 +23,8 @@
       <ProjectReference Include="..\Library\Library.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Compression\Integers\BufferUtilTests.cs" />
+    </ItemGroup>
+
 </Project>

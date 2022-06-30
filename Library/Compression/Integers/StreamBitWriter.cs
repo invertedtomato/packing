@@ -22,7 +22,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
     }
     
     
-    public void Write(UInt64 bits, int count)
+    public void WriteBits(UInt64 bits, int count)
     {
         throw new NotImplementedException();
     }

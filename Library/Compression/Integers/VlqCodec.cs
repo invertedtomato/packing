@@ -25,7 +25,7 @@ public class VlqCodec : ICodec
         while (value > MinPacketValue)
         {
             // Write payload, skipping MSB bit
-            buffer.Write((value & Mask) | More, 8);
+            buffer.WriteBits((value & Mask) | More, 8);
 
             // Offset value for next cycle
             value >>= PacketSize;
@@ -33,7 +33,7 @@ public class VlqCodec : ICodec
         }
 
         // Write remaining - marking it as the final byte for symbol
-        buffer.Write(value & Mask, 8);
+        buffer.WriteBits(value & Mask, 8);
     }
 
     private UInt64 Decode(IBitReader buffer)
@@ -45,7 +45,7 @@ public class VlqCodec : ICodec
         do
         {
             // Read byte
-            b = (Byte)buffer.Read(8);
+            b = (Byte)buffer.ReadBits(8);
 
             // Add input bits to output
             var chunk = (UInt64) (b & Mask);

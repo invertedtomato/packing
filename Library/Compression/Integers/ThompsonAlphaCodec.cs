@@ -42,19 +42,19 @@ public class ThompsonAlphaCodec : ICodec
         length--;
 
         // Write length
-        buffer.Write((UInt64) length, LengthBits);
+        buffer.WriteBits((UInt64) length, LengthBits);
 
         // Write number
-        buffer.Write(value, length);
+        buffer.WriteBits(value, length);
     }
 
     private UInt64 Decode(IBitReader buffer)
     {
         // Read length
-        var length = (Int32) buffer.Read(LengthBits);
+        var length = (Int32) buffer.ReadBits(LengthBits);
 
         // Read body
-        var value = buffer.Read(length);
+        var value = buffer.ReadBits(length);
 
         // Recover implied MSB
         value |= (UInt64) 1 << length;
