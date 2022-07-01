@@ -20,14 +20,18 @@ public class StreamBitWriter : IBitWriter, IDisposable
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
     }
-    
+
+    public void WriteBit(Boolean bit)
+    {
+        throw new NotImplementedException();
+    }
     
     public void WriteBits(UInt64 bits, int count)
     {
         throw new NotImplementedException();
     }
 
-    public void Align()
+    public void WriteByte(Byte b)
     {
         throw new NotImplementedException();
     }
@@ -36,7 +40,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
     /// 
     /// </summary>
     /// <remarks>Implicitly causes AlignBytes</remarks>
-    public void Flush()
+    public void Align()
     {
         throw new NotImplementedException();
     }
