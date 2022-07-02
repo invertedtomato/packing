@@ -33,7 +33,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public void WriteBit(Boolean value)
     {
-        WriteBits(value ? (UInt64)1 : 0,1);
+        WriteBits(value ? (UInt64) 1 : 0, 1);
     }
 
     public void WriteBits(UInt64 buffer, int count)
@@ -96,7 +96,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
         while (Count >= BITS_PER_BYTE)
         {
             // Extract byte from buffer and write to underlying
-            var b = (Byte) Buffer;
+            var b = (Byte) (Buffer >> BITS_PER_ULONG - BITS_PER_BYTE);
             Underlying.WriteByte(b);
 
             // Reduce buffer
