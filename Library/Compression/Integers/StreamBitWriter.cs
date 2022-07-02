@@ -15,6 +15,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
     private const Int32 BUFFER_MIN_BITS = 0;
     private const Int32 BUFFER_MAX_BITS = 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
     private const Int32 BITS_PER_BYTE = 8;
+    private const Int32 BITS_PER_ULONG = 64;
 
     public Boolean IsDisposed { get; private set; }
 
@@ -54,12 +55,15 @@ public class StreamBitWriter : IBitWriter, IDisposable
             return;
         }
 
-        // Mask out extract buffer
-        buffer &= UInt64.MaxValue >> (64 - count);  // TODO: faster to shift the buffer left and right again to truncate bits?
+        // Remove any stray bits from the provided buffer (ie, if provided with buffer=00000011 and count=1, we need to remove that left-most '1' bit)
+        buffer <<= BITS_PER_ULONG - count;
+
+        // Align the buffer ready to be merged
+        buffer >>= BITS_PER_ULONG - count - Count;
 
         // Add to buffer
-        Count += count;
         Buffer |= buffer;
+        Count += count;
 
         Push();
     }
@@ -115,7 +119,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
             // Extract byte from buffer and write to underlying
             var b = (Byte) (Buffer >> (Count - BITS_PER_BYTE));
             Underlying.WriteByte(b);
-            
+
             // Reduce buffer
             Buffer >>= BITS_PER_BYTE;
             Count -= BITS_PER_BYTE;

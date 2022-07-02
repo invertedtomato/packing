@@ -78,8 +78,8 @@ public class StreamBitReader : IBitReader, IDisposable
         buffer &= UInt64.MaxValue >> (64 - count); // TODO: faster to shift the buffer left and right again to truncate bits?
 
         // Update references
-        Count -= count;
         Buffer >>= count;
+        Count -= count;
 
         // Return
         return buffer;
@@ -147,12 +147,12 @@ public class StreamBitReader : IBitReader, IDisposable
             }
 
             var a = (UInt64)b << Count;
+
+            // Increment count
+            Count += BITS_PER_BYTE;
             
             // Add bits to buffer
             Buffer |= a;
-            
-            // Increment count
-            Count += BITS_PER_BYTE;
         }
     }
 }

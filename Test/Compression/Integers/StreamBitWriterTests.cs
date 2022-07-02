@@ -58,6 +58,19 @@ public class StreamBitWriterTests
     }
 
     [Fact]
+    public void WriteBits_10_1()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b10, 2);
+            writer.WriteBits(0b1, 1);
+        }
+
+        Assert.Equal(new Byte[] {0b00000101,}, stream.ToArray());
+    }
+    
+    [Fact]
     public void WriteBits_1_0_1_0_1_0()
     {
         using var stream = new MemoryStream();
