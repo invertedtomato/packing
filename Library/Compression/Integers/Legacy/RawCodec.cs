@@ -23,6 +23,12 @@ namespace InvertedTomato.Compression.Integers.Legacy {
 				// Convert to raw byte array
 				var raw = BitConverter.GetBytes(value);
 
+				// Standardise endian
+				if (!BitConverter.IsLittleEndian)
+				{
+					Array.Reverse(raw);
+				}
+				
 				// Add to output
 				foreach (var b in raw) {
 					stream.WriteByte(b);
@@ -61,6 +67,12 @@ namespace InvertedTomato.Compression.Integers.Legacy {
 					throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
 				}
 
+				// Standardise endian
+				if (!BitConverter.IsLittleEndian)
+				{
+					Array.Reverse(buffer);
+				}
+				
 				// Convert to symbol
 				var symbol = BitConverter.ToUInt64(buffer, 0);
 
