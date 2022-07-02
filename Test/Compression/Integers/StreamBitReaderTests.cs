@@ -6,6 +6,32 @@ namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitReaderTests
 {
+
+
+    [Fact]
+    public void ReadBits_8()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.True(reader.PeakBit());
+        Assert.Equal((ulong) 0b11111111, reader.ReadBits(8));
+    }
+
+    [Fact]
+    public void ReadBits_8_8_0()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.True(reader.PeakBit());
+        Assert.Equal((ulong) 0b11111111, reader.ReadBits(8));
+
+        Assert.False(reader.PeakBit());
+        Assert.Equal((ulong) 0b00000000, reader.ReadBits(8));
+        Assert.Equal((ulong) 0b00000000, reader.ReadBits(0));
+    }
+    
     [Fact]
     public void ReadBit_1_1_1_1_1_1_1_1_0_0_0_0_0_0_0_0()
     {
@@ -29,20 +55,6 @@ public class StreamBitReaderTests
         Assert.False(reader.ReadBit());
         Assert.False(reader.ReadBit());
         Assert.False(reader.ReadBit());
-    }
-
-    [Fact]
-    public void ReadBits_8_8_0()
-    {
-        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
-        using var reader = new StreamBitReader(stream);
-
-        Assert.True(reader.PeakBit());
-        Assert.Equal((ulong) 0b11111111, reader.ReadBits(8));
-
-        Assert.False(reader.PeakBit());
-        Assert.Equal((ulong) 0b00000000, reader.ReadBits(8));
-        Assert.Equal((ulong) 0b00000000, reader.ReadBits(0));
     }
 
     [Fact]

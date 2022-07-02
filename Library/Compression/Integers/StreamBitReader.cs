@@ -118,13 +118,12 @@ public class StreamBitReader : IBitReader, IDisposable
                 throw new EndOfStreamException();
             }
 
-            var a = (UInt64)b << Count;
-
-            // Increment count
-            Count += BITS_PER_BYTE;
+            // Make space in buffer
+            Buffer >>= BITS_PER_BYTE;
             
-            // Add bits to buffer
-            Buffer |= a;
+            // Add to buffer
+            Buffer |= (UInt64)b << BITS_PER_ULONG - BITS_PER_BYTE;
+            Count += BITS_PER_BYTE;
         }
     }
 }
