@@ -75,7 +75,7 @@ public class StreamBitReader : IBitReader, IDisposable
         var buffer = Buffer;
         
         // Mask out extract buffer
-        buffer &= UInt64.MaxValue >> (64 - count);
+        buffer &= UInt64.MaxValue >> (64 - count); // TODO: faster to shift the buffer left and right again to truncate bits?
 
         // Update references
         Count -= count;

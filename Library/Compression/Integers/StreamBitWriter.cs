@@ -54,9 +54,8 @@ public class StreamBitWriter : IBitWriter, IDisposable
             return;
         }
 
-
         // Mask out extract buffer
-        buffer &= UInt64.MaxValue >> (64 - count);
+        buffer &= UInt64.MaxValue >> (64 - count);  // TODO: faster to shift the buffer left and right again to truncate bits?
 
         // Add to buffer
         Count += count;
@@ -113,12 +112,13 @@ public class StreamBitWriter : IBitWriter, IDisposable
     {
         while (Count >= BITS_PER_BYTE)
         {
-            // Extract byte from buffer
+            // Extract byte from buffer and write to underlying
             var b = (Byte) (Buffer >> (Count - BITS_PER_BYTE));
-            Count -= BITS_PER_BYTE;
-
-            // Write byte to underlying
             Underlying.WriteByte(b);
+            
+            // Reduce buffer
+            Buffer >>= BITS_PER_BYTE;
+            Count -= BITS_PER_BYTE;
         }
     }
 }
