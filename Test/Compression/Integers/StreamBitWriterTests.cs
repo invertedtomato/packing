@@ -114,9 +114,10 @@ public class StreamBitWriterTests
         using (var writer = new StreamBitWriter(stream))
         {
             writer.WriteByte(0b11111111);
+            writer.WriteByte(0b00000000);
         }
 
-        Assert.Equal(new Byte[] {0b10101010, 0b00000001,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b11111111, 0b00000000,}, stream.ToArray());
     }
 
     [Fact]
