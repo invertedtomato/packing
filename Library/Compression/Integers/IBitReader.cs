@@ -8,7 +8,5 @@ public interface IBitReader
      Boolean ReadBit();
      UInt64 ReadBits(Int32 count);
      
-     Byte ReadByte();
-     
      void Align();
 }

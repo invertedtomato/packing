@@ -7,7 +7,7 @@ namespace InvertedTomato.Compression.Integers;
 public class StreamBitReaderTests
 {
     [Fact]
-    public void ReadBit_1_1_1_1()
+    public void ReadBit_1_1_1_1_1_1_1_1_0_0_0_0_0_0_0_0()
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
@@ -51,13 +51,13 @@ public class StreamBitReaderTests
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
 
-        Assert.Equal((ulong) 0b00001111, reader.ReadBits(4));
+        Assert.Equal((ulong) 0b1111, reader.ReadBits(4));
 
         Assert.True(reader.PeakBit());
-        Assert.Equal((ulong) 0b00001111, reader.ReadBits(8));
+        Assert.Equal((ulong) 0b11110000, reader.ReadBits(8));
 
         Assert.False(reader.PeakBit());
-        Assert.Equal((ulong) 0b00000000, reader.ReadBits(4));
+        Assert.Equal((ulong) 0b0000, reader.ReadBits(4));
     }
 
     [Fact]
@@ -66,23 +66,13 @@ public class StreamBitReaderTests
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
 
-        Assert.Equal((ulong) 0b00001111, reader.ReadBits(4));
+        Assert.Equal((ulong) 0b1111, reader.ReadBits(4));
         Assert.True(reader.PeakBit());
         reader.Align();
 
         Assert.False(reader.PeakBit());
-        Assert.Equal((ulong) 0b00000000, reader.ReadBits(4));
-        Assert.Equal((ulong) 0b00000000, reader.ReadBits(4));
-    }
-
-    [Fact]
-    public void ReadByte()
-    {
-        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
-        using var reader = new StreamBitReader(stream);
-
-        Assert.Equal((ulong) 0b11111111, reader.ReadByte());
-        Assert.Equal((ulong) 0b00000000, reader.ReadByte());
+        Assert.Equal((ulong) 0b0000, reader.ReadBits(4));
+        Assert.Equal((ulong) 0b0000, reader.ReadBits(4));
     }
 
     [Fact]
@@ -138,4 +128,6 @@ public class StreamBitReaderTests
         reader.ReadBits(8);
         Assert.Throws<EndOfStreamException>(() => reader.PeakBit());
     }
+    
+    // TODO: Reading 64 bits
 }

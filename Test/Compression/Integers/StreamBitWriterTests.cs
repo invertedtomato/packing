@@ -15,7 +15,7 @@ public class StreamBitWriterTests
             writer.WriteBit(true);
         }
 
-        Assert.Equal(new Byte[] {0b00000001,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b10000000,}, stream.ToArray());
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class StreamBitWriterTests
             writer.WriteBit(true);
         }
 
-        Assert.Equal(new Byte[] {0b11111111, 0b00000001}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b11111111, 0b10000000}, stream.ToArray());
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class StreamBitWriterTests
             writer.WriteBits(0b1, 1);
         }
 
-        Assert.Equal(new Byte[] {0b00000101,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b10100000,}, stream.ToArray());
     }
     
     [Fact]
@@ -102,7 +102,7 @@ public class StreamBitWriterTests
             writer.WriteBits(0b101, 3);
         }
 
-        Assert.Equal(new Byte[] {0b10101010, 0b00000001,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b10101010, 0b10000000,}, stream.ToArray());
     }
 
 
@@ -117,20 +117,7 @@ public class StreamBitWriterTests
             writer.WriteBits(0b11, 2);
         }
 
-        Assert.Equal(new Byte[] {0b00000010, 0b00000011,}, stream.ToArray());
-    }
-
-    [Fact]
-    public void WriteByte()
-    {
-        using var stream = new MemoryStream();
-        using (var writer = new StreamBitWriter(stream))
-        {
-            writer.WriteByte(0b11111111);
-            writer.WriteByte(0b00000000);
-        }
-
-        Assert.Equal(new Byte[] {0b11111111, 0b00000000,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b10000000,0b11000000}, stream.ToArray());
     }
 
     [Fact]
@@ -156,6 +143,6 @@ public class StreamBitWriterTests
         Assert.True(writer.IsDisposed);
         Assert.Throws<ObjectDisposedException>(() => stream.ReadByte());
     }
-
-    // TODO: Check dispose flushes partial byte
+    
+    // TODO: Writing 64bits
 }

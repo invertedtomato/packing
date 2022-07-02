@@ -33,14 +33,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public void WriteBit(Boolean value)
     {
-        Count++;
-        Buffer <<= 1;
-        if (value)
-        {
-            Buffer |= 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001;
-        }
-
-        Push();
+        WriteBits(value ? (UInt64)1 : 0,1);
     }
 
     public void WriteBits(UInt64 buffer, int count)
@@ -59,7 +52,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
         buffer <<= BITS_PER_ULONG - count;
 
         // Align the buffer ready to be merged
-        buffer >>= BITS_PER_ULONG - count - Count;
+        buffer >>= Count;
 
         // Add to buffer
         Buffer |= buffer;
@@ -68,20 +61,6 @@ public class StreamBitWriter : IBitWriter, IDisposable
         Push();
     }
 
-    public void WriteByte(Byte buffer)
-    {
-        if (Count > 0)
-        {
-            throw new InvalidOperationException("ReadByte cannot be used while bits are buffered - avoid using ReadBits before");
-        }
-
-        Underlying.WriteByte(buffer);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <remarks>Implicitly causes AlignBytes</remarks>
     public void Align()
     {
         // If already aligned, do nothing
@@ -103,7 +82,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
         IsDisposed = true;
 
-        // Flush partial byte
+        // Flush any partial byte
         Align();
 
         if (OwnUnderlying)
@@ -117,11 +96,11 @@ public class StreamBitWriter : IBitWriter, IDisposable
         while (Count >= BITS_PER_BYTE)
         {
             // Extract byte from buffer and write to underlying
-            var b = (Byte) (Buffer >> (Count - BITS_PER_BYTE));
+            var b = (Byte) Buffer;
             Underlying.WriteByte(b);
 
             // Reduce buffer
-            Buffer >>= BITS_PER_BYTE;
+            Buffer <<= BITS_PER_BYTE;
             Count -= BITS_PER_BYTE;
         }
     }

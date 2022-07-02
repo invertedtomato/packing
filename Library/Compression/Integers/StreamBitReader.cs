@@ -10,6 +10,8 @@ public class StreamBitReader : IBitReader, IDisposable
     private const Int32 BUFFER_MIN_BITS = 0;
     private const Int32 BUFFER_MAX_BITS = 64-8; // There must always be room for another byte to be loaded, else bits must be lost
     private const Int32 BITS_PER_BYTE = 8;
+    private const Int32 BITS_PER_ULONG = 64;
+    private const UInt64 TOP_BITMASK = 0b10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
     
     private readonly Stream Underlying;
     private readonly Boolean OwnUnderlying;
@@ -37,22 +39,12 @@ public class StreamBitReader : IBitReader, IDisposable
         EnsureLoad(1);
 
         // Return that bit
-        return (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
+        return (Buffer & TOP_BITMASK) > 0;
     }
     
     public Boolean ReadBit()
     {
-        // Ensure we have at least one bit loaded
-        EnsureLoad(1);
-
-        // Return that bit
-        var bit = (Buffer & 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001) > 0;
-        
-        // Update references
-        Count -= 1;
-        Buffer >>= 1;
-
-        return bit;
+        return ReadBits(1) > 0;
     }
     
     public UInt64 ReadBits(int count)
@@ -71,35 +63,15 @@ public class StreamBitReader : IBitReader, IDisposable
         // Ensure we have enough bits loaded
         EnsureLoad(count);
 
-        // Copy buffer
-        var buffer = Buffer;
-        
-        // Mask out extract buffer
-        buffer &= UInt64.MaxValue >> (64 - count); // TODO: faster to shift the buffer left and right again to truncate bits?
+        // Extract value
+        var buffer = Buffer >> BITS_PER_ULONG - count;
 
         // Update references
-        Buffer >>= count;
+        Buffer <<= count;
         Count -= count;
 
         // Return
         return buffer;
-    }
-
-
-    public Byte ReadByte()
-    {
-        if (Count > 0)
-        {
-            throw new InvalidOperationException("ReadByte cannot be used while bits are buffered - avoid using ReadBits before");
-        }
-        
-        var b = Underlying.ReadByte();
-        if (b < 0)
-        {
-            throw new EndOfStreamException();
-        }
-
-        return (Byte) b;
     }
 
     public void Align()
