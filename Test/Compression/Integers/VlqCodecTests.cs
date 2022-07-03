@@ -10,9 +10,10 @@ namespace InvertedTomato.Compression.Integers
         {
             var codec = new VlqCodec();
             using var stream = new MemoryStream();
-            using var writer = new StreamBitWriter(stream);
-
-            codec.EncodeUInt64(value, writer);
+            using (var writer = new StreamBitWriter(stream))
+            {
+                codec.EncodeUInt64(value, writer);
+            }
 
             return stream.ToArray();
         }

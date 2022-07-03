@@ -10,9 +10,10 @@ namespace InvertedTomato.Compression.Integers
         {
             var codec = new FibonacciCodec();
             using var stream = new MemoryStream();
-            using var writer = new StreamBitWriter(stream);
-
-            codec.EncodeUInt64(value, writer);
+            using (var writer = new StreamBitWriter(stream))
+            {
+                codec.EncodeUInt64(value, writer);
+            }
 
             return stream.ToArray();
         }
@@ -22,7 +23,7 @@ namespace InvertedTomato.Compression.Integers
             var codec = new FibonacciCodec();
             using var stream = new MemoryStream(encoded);
             using var reader = new StreamBitReader(stream);
-
+            
             return codec.DecodeUInt64(reader);
         }
         
