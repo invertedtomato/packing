@@ -4,6 +4,10 @@ namespace InvertedTomato.Compression.Integers;
 
 public class ThompsonAlphaCodec : ICodec
 {
+    
+    public UInt64 MinValue => UInt64.MinValue;
+    public UInt64 MaxValue => UInt64.MaxValue >> BitOperation.BITS_PER_ULONG- LengthBits + 1; // TODO: Check logic
+    
     private readonly Int32 LengthBits;
 
     public ThompsonAlphaCodec() : this(6)
@@ -30,7 +34,7 @@ public class ThompsonAlphaCodec : ICodec
         value++;
 
         // Count length
-        var length = CountUsed(value);
+        var length = BitOperation.CountUsed(value);
 
         // Check not too large
         if (length > (LengthBits + 2) * 8)
@@ -96,22 +100,24 @@ public class ThompsonAlphaCodec : ICodec
     public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
     public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
     public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
-
-    /// <summary>
-    ///     Count the number of bits used to express number
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    private static Int32 CountUsed(UInt64 value)
+    
+    public int? CalculateEncodedBits(ulong value)
     {
-        Byte bits = 0;
+        // Offset value to allow zeros
+        value++;
 
-        do
+        // Count length
+        var length = BitOperation.CountUsed(value);
+
+        // Check not too large
+        if (length > (LengthBits + 2) * 8)
         {
-            bits++;
-            value >>= 1;
-        } while (value > 0);
+            return null;
+        }
 
-        return bits;
+        // Clip MSB, it's redundant
+        length--;
+
+        return LengthBits + length;
     }
 }

@@ -5,18 +5,14 @@ namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitWriter : IBitWriter, IDisposable
 {
+    public Int32 MaxBits => 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
+
     private readonly Stream Underlying;
     private readonly Boolean OwnUnderlying;
-
-
+    
     private UInt64 Buffer;
     private Int32 Count;
     
-    public  Int32 MaxBits => 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
-    private const Int32 BUFFER_MIN_BITS = 0;
-    private const Int32 BITS_PER_BYTE = 8;
-    private const Int32 BITS_PER_ULONG = 64;
-
     public Boolean IsDisposed { get; private set; }
 
     public StreamBitWriter(Stream underlying)
@@ -38,39 +34,33 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public void WriteBits(UInt64 buffer, int count)
     {
-        if (count < BUFFER_MIN_BITS || count > MaxBits)
+#if DEBUG
+        if (count < 0 || count > MaxBits)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {MaxBits}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {MaxBits}");
         }
+#endif
 
         if (count == 0)
         {
             return;
         }
 
-        // Remove any stray bits from the provided buffer (ie, if provided with buffer=00000011 and count=1, we need to remove that left-most '1' bit)
-        buffer <<= BITS_PER_ULONG - count;
+        BitOperation.Push(ref Buffer, ref Count, buffer, count);
 
-        // Align the buffer ready to be merged
-        buffer >>= Count;
-
-        // Add to buffer
-        Buffer |= buffer;
-        Count += count;
-
-        Push();
+        UnderlyingWrite();
     }
 
     public void Align()
     {
         // If already aligned, do nothing
-        if (Count % BITS_PER_BYTE == 0)
+        if (Count % BitOperation.BITS_PER_BYTE == 0)
         {
             return;
         }
 
         // Burn bits remaining in current byte
-        WriteBits(0, BITS_PER_BYTE - Count % BITS_PER_BYTE);
+        WriteBits(0, BitOperation.BITS_PER_BYTE - Count % BitOperation.BITS_PER_BYTE);
     }
 
     public void Dispose()
@@ -94,17 +84,11 @@ public class StreamBitWriter : IBitWriter, IDisposable
     /// <summary>
     /// Write any completed bits to the underlying stream
     /// </summary>
-    private void Push()
+    private void UnderlyingWrite()
     {
-        while (Count >= BITS_PER_BYTE)
+        while (Count >= BitOperation.BITS_PER_BYTE)
         {
-            // Extract byte from buffer and write to underlying
-            var b = (Byte) (Buffer >> BITS_PER_ULONG - BITS_PER_BYTE);
-            Underlying.WriteByte(b);
-
-            // Reduce buffer
-            Buffer <<= BITS_PER_BYTE;
-            Count -= BITS_PER_BYTE;
+            Underlying.WriteByte((Byte) BitOperation.Pop(ref Buffer, ref Count, BitOperation.BITS_PER_BYTE));
         }
     }
 }

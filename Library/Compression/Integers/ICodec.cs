@@ -5,13 +5,24 @@ namespace InvertedTomato.Compression.Integers;
 
 public interface ICodec
 {
-    /*
+    /* TODO?
     Int64 WastedBits { get; }
     Int64 OverheadBits { get; }
     Int64 DataBits { get; }
 
     void ResetStatistics();
     */
+    
+    
+    /// <summary>
+    /// Minimum value this codec can support.
+    /// </summary>
+    UInt64 MinValue { get; }
+
+    /// <summary>
+    /// The maximum value of a symbol this codec can support.
+    /// </summary>
+    UInt64 MaxValue { get; }
 
     void EncodeBit(Boolean value, IBitWriter buffer);
     void EncodeUInt8(Byte value, IBitWriter buffer);
@@ -32,4 +43,11 @@ public interface ICodec
     Int16 DecodeInt16(IBitReader buffer);
     Int32 DecodeInt32(IBitReader buffer);
     Int64 DecodeInt64(IBitReader buffer);
+
+    /// <summary>
+    /// Predict how many bits would be used to encode a given value
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>Number of bits that would be used to encode value, or NULL if value is not supported</returns>
+    Int32? CalculateEncodedBits(UInt64 value);
 }

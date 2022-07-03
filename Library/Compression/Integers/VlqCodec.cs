@@ -4,8 +4,8 @@ namespace InvertedTomato.Compression.Integers;
 
 public class VlqCodec : ICodec
 {
-    public const UInt64 MinValue = 0;
-    public const UInt64 MaxValue = UInt64.MaxValue - 1;
+    public UInt64 MinValue => 0;
+    public UInt64 MaxValue => UInt64.MaxValue - 1;
 
     private const Byte More = 0b10000000;
     private const Byte Mask = 0b01111111;
@@ -45,7 +45,7 @@ public class VlqCodec : ICodec
         do
         {
             // Read byte
-            b = (Byte)buffer.ReadBits(8);
+            b = (Byte) buffer.ReadBits(8);
 
             // Add input bits to output
             var chunk = (UInt64) (b & Mask);
@@ -90,4 +90,11 @@ public class VlqCodec : ICodec
     public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
     public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
     public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
+    
+    public  Int32? CalculateEncodedBits(UInt64 value)
+    {
+        var packets = (Int32) Math.Ceiling(BitOperation.CountUsed(value) / (Single) PacketSize);
+
+        return packets * (PacketSize + 1);
+    }
 }
