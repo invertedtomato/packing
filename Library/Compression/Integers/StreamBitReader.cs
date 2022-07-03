@@ -64,7 +64,7 @@ public class StreamBitReader : IBitReader, IDisposable
         EnsureLoad(count);
 
         // Extract value
-        var buffer = Buffer >> BITS_PER_ULONG - count;
+        var buffer = Buffer >> (BITS_PER_ULONG - count);
 
         // Update references
         Buffer <<= count;
@@ -118,11 +118,11 @@ public class StreamBitReader : IBitReader, IDisposable
                 throw new EndOfStreamException();
             }
 
-            // Make space in buffer
-            Buffer >>= BITS_PER_BYTE;
+            // Align inbound buffer
+            var buffer = (UInt64) b << BITS_PER_ULONG - BITS_PER_BYTE - Count;
             
             // Add to buffer
-            Buffer |= (UInt64)b << BITS_PER_ULONG - BITS_PER_BYTE;
+            Buffer |= buffer;
             Count += BITS_PER_BYTE;
         }
     }
