@@ -36,7 +36,7 @@ public class StreamBitReader : IBitReader, IDisposable
     public bool PeakBit()
     {
         // Ensure we have at least one bit loaded
-        EnsureLoad(1);
+        Pull(1);
 
         // Return that bit
         return (Buffer & TOP_BITMASK) > 0;
@@ -61,7 +61,7 @@ public class StreamBitReader : IBitReader, IDisposable
         }
 
         // Ensure we have enough bits loaded
-        EnsureLoad(count);
+        Pull(count);
 
         // Extract value
         var buffer = Buffer >> (BITS_PER_ULONG - count);
@@ -96,11 +96,11 @@ public class StreamBitReader : IBitReader, IDisposable
     }
 
     /// <summary>
-    /// Ensure we have the provided number of bits loaded - if not, load them
+    /// Ensure we have the specified number of bits loaded - if not, load them from the underlying stream
     /// </summary>
     /// <param name="count"></param>
     /// <exception cref="EndOfStreamException"></exception>
-    private void EnsureLoad(int count)
+    private void Pull(int count)
     {
 #if DEBUG
         if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)

@@ -91,6 +91,9 @@ public class StreamBitWriter : IBitWriter, IDisposable
         }
     }
 
+    /// <summary>
+    /// Write any completed bits to the underlying stream
+    /// </summary>
     private void Push()
     {
         while (Count >= BITS_PER_BYTE)
