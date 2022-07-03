@@ -86,6 +86,26 @@ public class StreamBitReaderTests
         Assert.Equal((ulong) 0b0000, reader.ReadBits(4));
         Assert.Equal((ulong) 0b0000, reader.ReadBits(4));
     }
+    
+    [Fact]
+    public void ReadBits_56()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.Equal((ulong) 0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(56));
+    }
+    
+    
+    [Fact]
+    public void ReadBits_1_56()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_01111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b10000000,});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.Equal((UInt64) 0b1,reader.ReadBits(1));
+        Assert.Equal((UInt64) 0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(56));
+    }
 
     [Fact]
     public void DisposeNotOwned()

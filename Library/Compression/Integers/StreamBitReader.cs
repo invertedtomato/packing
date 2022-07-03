@@ -6,13 +6,13 @@ namespace InvertedTomato.Compression.Integers;
 public class StreamBitReader : IBitReader, IDisposable
 {
     // Lowest bit is always on the right
-    
+
     private const Int32 BUFFER_MIN_BITS = 0;
-    private const Int32 BUFFER_MAX_BITS = 64-8; // There must always be room for another byte to be loaded, else bits must be lost
+    private const Int32 BUFFER_MAX_BITS = 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
     private const Int32 BITS_PER_BYTE = 8;
     private const Int32 BITS_PER_ULONG = 64;
     private const UInt64 TOP_BITMASK = 0b10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
-    
+
     private readonly Stream Underlying;
     private readonly Boolean OwnUnderlying;
 
@@ -32,7 +32,7 @@ public class StreamBitReader : IBitReader, IDisposable
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
     }
-    
+
     public bool PeakBit()
     {
         // Ensure we have at least one bit loaded
@@ -41,12 +41,12 @@ public class StreamBitReader : IBitReader, IDisposable
         // Return that bit
         return (Buffer & TOP_BITMASK) > 0;
     }
-    
+
     public Boolean ReadBit()
     {
         return ReadBits(1) > 0;
     }
-    
+
     public UInt64 ReadBits(int count)
     {
         if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
@@ -79,7 +79,7 @@ public class StreamBitReader : IBitReader, IDisposable
         // Burn bits remaining in current byte
         ReadBits(Count % BITS_PER_BYTE);
     }
-    
+
     public void Dispose()
     {
         if (IsDisposed)
@@ -108,7 +108,7 @@ public class StreamBitReader : IBitReader, IDisposable
             throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {BUFFER_MAX_BITS}");
         }
 #endif
-        
+
         // Load bytes until we have enough
         while (Count < count)
         {
@@ -120,7 +120,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
             // Align inbound buffer
             var buffer = (UInt64) b << BITS_PER_ULONG - BITS_PER_BYTE - Count;
-            
+
             // Add to buffer
             Buffer |= buffer;
             Count += BITS_PER_BYTE;

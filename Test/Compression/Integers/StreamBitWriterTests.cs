@@ -121,6 +121,31 @@ public class StreamBitWriterTests
     }
 
     [Fact]
+    public void WriteBits_56()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 56);
+        }
+
+        Assert.Equal(new Byte[] {0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,}, stream.ToArray());
+    }
+    
+    [Fact]
+    public void WriteBits_1_56()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBit(true);
+            writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 56);
+        }
+
+        Assert.Equal(new Byte[] {0b_01111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b10000000,}, stream.ToArray());
+    }
+
+    [Fact]
     public void DisposeNotOwned()
     {
         using var stream = new MemoryStream();
