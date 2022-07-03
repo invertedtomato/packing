@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace InvertedTomato.Compression.Integers;
 
@@ -25,27 +26,43 @@ public static class BitOperation
         return bits;
     }
 
-    public static void Push(ref UInt64 dstBuffer, ref Int32 dstCount, UInt64 srcBuffer, Int32 srcCount)
+    /// <summary>
+    /// Add bits to a buffer
+    /// </summary>
+    /// <param name="targetBuffer"></param>
+    /// <param name="targetCount"></param>
+    /// <param name="buffer"></param>
+    /// <param name="count"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Push(ref UInt64 targetBuffer, ref Int32 targetCount, UInt64 buffer, Int32 count)
     {
         // Remove any stray bits from the provided buffer (ie, if provided with buffer=00000011 and count=1, we need to remove that left-most '1' bit)
-        srcBuffer <<= BITS_PER_ULONG - srcCount;
+        buffer <<= BITS_PER_ULONG - count;
 
         // Align the buffer ready to be merged
-        srcBuffer >>= dstCount;
+        buffer >>= targetCount;
 
         // Add to buffer
-        dstBuffer |= srcBuffer;
-        dstCount += srcCount;
+        targetBuffer |= buffer;
+        targetCount += count;
     }
 
-    public static UInt64 Pop(ref UInt64 dstBuffer, ref Int32 dstCount, Int32 srcBuffer)
+    /// <summary>
+    /// Pop bits off of a bugger
+    /// </summary>
+    /// <param name="targetBuffer"></param>
+    /// <param name="targetCount"></param>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static UInt64 Pop(ref UInt64 targetBuffer, ref Int32 targetCount, Int32 buffer)
     {
         // Extract byte from buffer and write to underlying
-        var d = dstBuffer >> BITS_PER_ULONG - srcBuffer;
+        var d = targetBuffer >> BITS_PER_ULONG - buffer;
 
         // Reduce buffer
-        dstBuffer <<= srcBuffer;
-        dstCount -= srcBuffer;
+        targetBuffer <<= buffer;
+        targetCount -= buffer;
 
         return d;
     }
