@@ -6,13 +6,14 @@ namespace InvertedTomato.Compression.Integers
 {
     public class EliasGammaTests
     {
+        // TODO: A full set of tests are required! I haven't bothered yet as I haven't found any use for this codec beyond acaedemic interest
         
         [Fact]
         public void EncodeDecode_1000()
         {
             var ta = new EliasGammaCodec();
             using var stream = new MemoryStream();
-            
+
             // Encode
             using (var writer = new StreamBitWriter(stream))
             {
@@ -21,7 +22,7 @@ namespace InvertedTomato.Compression.Integers
                     ta.EncodeUInt64(symbol, writer);
                 }
             }
-            
+
             stream.Seek(0, SeekOrigin.Begin);
 
             // Decode

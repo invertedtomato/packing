@@ -11,7 +11,7 @@ namespace InvertedTomato.Compression.Integers
         {
             var ta = new ThompsonAlphaCodec();
             using var stream = new MemoryStream();
-            
+
             // Encode
             using (var writer = new StreamBitWriter(stream))
             {
@@ -20,7 +20,7 @@ namespace InvertedTomato.Compression.Integers
                     ta.EncodeUInt64(symbol, writer);
                 }
             }
-            
+
             stream.Seek(0, SeekOrigin.Begin);
 
             // Decode

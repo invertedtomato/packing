@@ -26,68 +26,66 @@ namespace InvertedTomato.Compression.Integers
 
             return codec.DecodeUInt64(reader);
         }
-        
+
         [Fact]
         public void Compress_0()
         {
-            Assert.Equal(new Byte[]{0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(0));
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(0));
         }
 
         [Fact]
         public void Compress_1()
         {
-            Assert.Equal(new Byte[]{0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(1));
+            Assert.Equal(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(1));
         }
 
         [Fact]
         public void Compress_2()
         {
-            Assert.Equal(new Byte[]{0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(2));
+            Assert.Equal(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(2));
         }
 
         [Fact]
         public void Compress_3()
         {
-            Assert.Equal(new Byte[]{0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(3));
+            Assert.Equal(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(3));
         }
 
         [Fact]
         public void Compress_Max()
         {
-            Assert.Equal(new Byte[]{0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}, Encode(UInt64.MaxValue));
+            Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}, Encode(UInt64.MaxValue));
         }
-
-
 
 
         [Fact]
         public void Decompress_0()
         {
-            Assert.Equal((UInt64) 0, Decode(new Byte[]{0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 0, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
         public void Decompress_1()
         {
-            Assert.Equal((UInt64) 1, Decode(new Byte[]{0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
         public void Decompress_2()
         {
-            Assert.Equal((UInt64) 2, Decode(new Byte[]{0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
         public void Decompress_3()
         {
-            Assert.Equal((UInt64) 3, Decode(new Byte[]{0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
         public void Decompress_Max()
         {
-            Assert.Equal(new RawCodec().MaxValue, Decode(new Byte[]{0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
+            Assert.Equal(new RawCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
         }
 
         [Fact]
@@ -95,7 +93,7 @@ namespace InvertedTomato.Compression.Integers
         {
             var ta = new RawCodec();
             using var stream = new MemoryStream();
-            
+
             // Encode
             using (var writer = new StreamBitWriter(stream))
             {
@@ -104,7 +102,7 @@ namespace InvertedTomato.Compression.Integers
                     ta.EncodeUInt64(symbol, writer);
                 }
             }
-            
+
             stream.Seek(0, SeekOrigin.Begin);
 
             // Decode
