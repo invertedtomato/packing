@@ -138,7 +138,7 @@ public class StreamBitWriterTests
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
         {
-            writer.WriteBit(true);
+            writer.WriteBit(false);
             writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 56);
         }
 

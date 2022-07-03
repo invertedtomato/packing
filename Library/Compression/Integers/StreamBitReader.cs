@@ -7,8 +7,9 @@ public class StreamBitReader : IBitReader, IDisposable
 {
     // Lowest bit is always on the right
 
+    public  Int32 MaxBits => 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
+    
     private const Int32 BUFFER_MIN_BITS = 0;
-    private const Int32 BUFFER_MAX_BITS = 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
     private const Int32 BITS_PER_BYTE = 8;
     private const Int32 BITS_PER_ULONG = 64;
     private const UInt64 TOP_BITMASK = 0b10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
@@ -49,9 +50,9 @@ public class StreamBitReader : IBitReader, IDisposable
 
     public UInt64 ReadBits(int count)
     {
-        if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
+        if (count  < BUFFER_MIN_BITS || count > MaxBits)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {BUFFER_MAX_BITS}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {MaxBits}");
         }
 
         // You'd expect `UInt64.MaxValue >> 64` would result in 0, but alas, nope, it's the same as `UInt64.MaxValue >> 0` - so let's avoid this by not doing anything for count=0
@@ -103,9 +104,9 @@ public class StreamBitReader : IBitReader, IDisposable
     private void Pull(int count)
     {
 #if DEBUG
-        if (count is < BUFFER_MIN_BITS or > BUFFER_MAX_BITS)
+        if (count  < BUFFER_MIN_BITS || count > MaxBits)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {BUFFER_MAX_BITS}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between {BUFFER_MIN_BITS} and {MaxBits}");
         }
 #endif
 

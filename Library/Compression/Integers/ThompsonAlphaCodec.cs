@@ -45,7 +45,12 @@ public class ThompsonAlphaCodec : ICodec
         buffer.WriteBits((UInt64) length, LengthBits);
 
         // Write number
-        buffer.WriteBits(value, length);
+        while (length > 0) // We may need to do this in multiple chunks if it exceeds the bit writers' capacity for a single operation
+        {
+            var load = Math.Min(length, buffer.MaxBits);
+            length -= load;
+            buffer.WriteBits(value >> (64 - load), load);
+        }
     }
 
     private UInt64 Decode(IBitReader buffer)
@@ -53,8 +58,15 @@ public class ThompsonAlphaCodec : ICodec
         // Read length
         var length = (Int32) buffer.ReadBits(LengthBits);
 
-        // Read body
-        var value = buffer.ReadBits(length);
+        // Read number
+        UInt64 value = 0;
+        while (length > 0) // We may need to do this in multiple chunks if it exceeds the bit writers' capacity for a single operation
+        {
+            var load = Math.Min(length, buffer.MaxBits);
+            length -= load;
+            value |= buffer.ReadBits(load) << (64 - load);
+        }
+
 
         // Recover implied MSB
         value |= (UInt64) 1 << length;
