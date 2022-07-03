@@ -69,7 +69,7 @@ public class StreamBitWriterTests
 
         Assert.Equal(new Byte[] {0b10100000,}, stream.ToArray());
     }
-    
+
     [Fact]
     public void WriteBits_1_0_1_0_1_0()
     {
@@ -117,7 +117,7 @@ public class StreamBitWriterTests
             writer.WriteBits(0b11, 2);
         }
 
-        Assert.Equal(new Byte[] {0b10000000,0b11000000}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b10000000, 0b11000000}, stream.ToArray());
     }
 
     [Fact]
@@ -129,9 +129,9 @@ public class StreamBitWriterTests
             writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 56);
         }
 
-        Assert.Equal(new Byte[] {0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,}, stream.ToArray());
     }
-    
+
     [Fact]
     public void WriteBits_1_56()
     {
@@ -142,7 +142,7 @@ public class StreamBitWriterTests
             writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 56);
         }
 
-        Assert.Equal(new Byte[] {0b_01111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b_11111111,0b10000000,}, stream.ToArray());
+        Assert.Equal(new Byte[] {0b_01111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b10000000,}, stream.ToArray());
     }
 
     [Fact]
@@ -168,6 +168,6 @@ public class StreamBitWriterTests
         Assert.True(writer.IsDisposed);
         Assert.Throws<ObjectDisposedException>(() => stream.ReadByte());
     }
-    
+
     // TODO: Writing 64bits
 }

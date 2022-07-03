@@ -16,7 +16,16 @@ namespace InvertedTomato.Compression.Integers
 
             return stream.ToArray();
         }
+        
+        private UInt64 Decode(Byte[] encoded)
+        {
+            var codec = new VlqCodec();
+            using var stream = new MemoryStream(encoded);
+            using var reader = new StreamBitReader(stream);
 
+            return codec.DecodeUInt64(reader);
+        }
+        
         [Fact]
         public void Encode0()
         {
@@ -93,15 +102,6 @@ namespace InvertedTomato.Compression.Integers
         public void EncodeOverflow()
         {
             Assert.Throws<OverflowException>(() => { Encode(UInt64.MaxValue); });
-        }
-
-        private UInt64 Decode(Byte[] encoded)
-        {
-            var codec = new VlqCodec();
-            using var stream = new MemoryStream(encoded);
-            using var reader = new StreamBitReader(stream);
-
-            return codec.DecodeUInt64(reader);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace InvertedTomato.Compression.Integers
             var codec = new VlqCodec();
             using var stream = new MemoryStream(new Byte[] {0b00000001, 0b00000001, 0b00000001});
             using var reader = new StreamBitReader(stream);
-            
+
             Assert.Equal((UInt64) 1, codec.DecodeUInt64(reader));
             Assert.Equal((UInt64) 1, codec.DecodeUInt64(reader));
             Assert.Equal((UInt64) 1, codec.DecodeUInt64(reader));
@@ -211,6 +211,34 @@ namespace InvertedTomato.Compression.Integers
         public void Decode1_X()
         {
             Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000001, 0b10000011}));
+        }
+        
+        
+        [Fact]
+        public void EncodeDecode_1000()
+        {
+            var ta = new VlqCodec();
+            using var stream = new MemoryStream();
+            
+            // Encode
+            using (var writer = new StreamBitWriter(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    ta.EncodeUInt64(symbol, writer);
+                }
+            }
+            
+            stream.Seek(0, SeekOrigin.Begin);
+
+            // Decode
+            using (var reader = new StreamBitReader(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    Assert.Equal(symbol, ta.DecodeUInt64(reader));
+                }
+            }
         }
     }
 }
