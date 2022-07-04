@@ -4,10 +4,9 @@ namespace InvertedTomato.Compression.Integers;
 
 public class ThompsonAlphaCodec : ICodec
 {
-    
     public UInt64 MinValue => UInt64.MinValue;
-    public UInt64 MaxValue => UInt64.MaxValue >> BitOperation.BITS_PER_ULONG- LengthBits + 1; // TODO: Check logic
-    
+    public UInt64 MaxValue => UInt64.MaxValue >> BitOperation.BITS_PER_ULONG - LengthBits + 6 - 1; // TODO: Check logic
+
     private readonly Int32 LengthBits;
 
     public ThompsonAlphaCodec() : this(6)
@@ -100,7 +99,7 @@ public class ThompsonAlphaCodec : ICodec
     public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
     public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
     public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
-    
+
     public int? CalculateEncodedBits(ulong value)
     {
         // Offset value to allow zeros
