@@ -52,17 +52,17 @@ public static class BitOperation
     /// </summary>
     /// <param name="targetBuffer"></param>
     /// <param name="targetCount"></param>
-    /// <param name="buffer"></param>
+    /// <param name="count"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt64 Pop(ref UInt64 targetBuffer, ref Int32 targetCount, Int32 buffer)
+    public static UInt64 Pop(ref UInt64 targetBuffer, ref Int32 targetCount, Int32 count)
     {
         // Extract byte from buffer and write to underlying
-        var d = targetBuffer >> BITS_PER_ULONG - buffer;
+        var d = targetBuffer >> BITS_PER_ULONG - count;
 
         // Reduce buffer
-        targetBuffer <<= buffer;
-        targetCount -= buffer;
+        targetBuffer <<= count;
+        targetCount -= count;
 
         return d;
     }
