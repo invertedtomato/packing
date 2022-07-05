@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 // TODO: Rewrite this! It's probably far messier and inefficent than it needs be!
 
@@ -12,7 +13,7 @@ namespace InvertedTomato.Compression.Integers
         /// <summary>
         /// Lookup table of Fibonacci numbers that can fit in a ulong.
         /// </summary>
-        private static readonly UInt64[] Lookup =
+        private static readonly UInt64[] Fibonaccis =
         {
             1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657,
             46368, 75025, 121393, 196418, 317811, 514229, 832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352,
@@ -62,10 +63,10 @@ namespace InvertedTomato.Compression.Integers
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            for (var fibIdx = Lookup.Length - 1; fibIdx >= 0; fibIdx--)
+            for (var fibIdx = Fibonaccis.Length - 1; fibIdx >= 0; fibIdx--)
             {
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word (counting the left most digit as place 0).
-                if (value >= Lookup[fibIdx])
+                if (value >= Fibonaccis[fibIdx])
                 {
                     // Calculate offsets
                     var adjustedIdx = fibIdx + bitOffset;
@@ -89,7 +90,7 @@ namespace InvertedTomato.Compression.Integers
                     buffer[byteIdx] |= (Byte) (0x01 << 7 - bitIdx); // Flag bit
 
                     // Deduct Fibonacci number from value
-                    value -= Lookup[fibIdx];
+                    value -= Fibonaccis[fibIdx];
                 }
             }
 
@@ -119,67 +120,39 @@ namespace InvertedTomato.Compression.Integers
             // Current symbol being decoded
             UInt64 symbol = 0;
 
-            // Next Fibonacci number to test
-            var nextFibIndex = 0;
-
             // State of the last bit while decoding
             var lastBit = false;
 
-
-            while (true)
+            // Loop through each possible fib
+            foreach (var fib in Fibonaccis)
             {
-                // Read byte of input, and throw error if unavailable
-                var b = buffer.ReadBits(8);
-
-                // For each bit of buffer
-                for (var bi = 0; bi < 8; bi++)
+                // Read bit of input
+                if (buffer.ReadBit())
                 {
-                    // If bit is set...
-                    if (((b << bi) & MSB) > 0)
+                    // If double 1 bits
+                    if (lastBit)
                     {
-                        // If double 1 bits
-                        if (lastBit)
-                        {
-                            // Remove zero offset
-                            symbol--;
+                        // Remove zero offset
+                        symbol--;
 
-                            // Add to output
-                            return symbol;
-                        }
-
-#if DEBUG
-                        // Check for overflow
-                        if (nextFibIndex >= Lookup.Length)
-                        {
-                            throw new OverflowException("Value too large to decode. Max 64bits supported."); // TODO: Handle this so that it doesn't allow for DoS attacks!
-                        }
-#endif
-
-                        // Add value to current symbol
-                        var pre = symbol;
-                        symbol += Lookup[nextFibIndex];
-#if DEBUG
-                        // Check for overflow
-                        if (symbol < pre)
-                        {
-                            // TODO: Support full 64bit
-                            throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
-                        }
-#endif
-
-                        // Note bit for next cycle
-                        lastBit = true;
-                    }
-                    else
-                    {
-                        // Note bit for next cycle
-                        lastBit = false;
+                        // Add to output
+                        return symbol;
                     }
 
-                    // Increment bit position
-                    nextFibIndex++;
+                    // Add value to current symbol
+                    symbol += fib;
+
+                    // Note bit for next cycle
+                    lastBit = true;
+                }
+                else
+                {
+                    // Note bit for next cycle
+                    lastBit = false;
                 }
             }
+
+            throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
         }
 
         public Int32? CalculateEncodedBits(UInt64 value)
@@ -193,9 +166,9 @@ namespace InvertedTomato.Compression.Integers
             // Offset for zero
             value++;
 
-            for (var i = Lookup.Length - 1; i >= 0; i--)
+            for (var i = Fibonaccis.Length - 1; i >= 0; i--)
             {
-                if (value >= Lookup[i])
+                if (value >= Fibonaccis[i])
                 {
                     return i + 1;
                 }
