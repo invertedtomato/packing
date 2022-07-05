@@ -86,23 +86,23 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_56()
+    public void ReadBits_32()
     {
-        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,});
+        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111});
         using var reader = new StreamBitReader(stream);
 
-        Assert.Equal((ulong) 0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(56));
+        Assert.Equal((ulong) 0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
     }
 
 
     [Fact]
-    public void ReadBits_1_56()
+    public void ReadBits_1_32()
     {
-        using var stream = new MemoryStream(new byte[] {0b_01111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b10000000,});
+        using var stream = new MemoryStream(new byte[] {0b_01111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b10000000,});
         using var reader = new StreamBitReader(stream);
 
         Assert.False(reader.ReadBit());
-        Assert.Equal((UInt64) 0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(56));
+        Assert.Equal((UInt64) 0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
     }
 
     [Fact]
