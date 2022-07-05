@@ -28,62 +28,62 @@ namespace InvertedTomato.Compression.Integers
         }
 
         [Fact]
-        public void Compress_0()
+        public void Encode_0()
         {
             Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(0));
         }
 
         [Fact]
-        public void Compress_1()
+        public void Encode_1()
         {
             Assert.Equal(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(1));
         }
 
         [Fact]
-        public void Compress_2()
+        public void Encode_2()
         {
             Assert.Equal(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(2));
         }
 
         [Fact]
-        public void Compress_3()
+        public void Encode_3()
         {
             Assert.Equal(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(3));
         }
 
         [Fact]
-        public void Compress_Max()
+        public void Encode_Max()
         {
             Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}, Encode(UInt64.MaxValue));
         }
 
 
         [Fact]
-        public void Decompress_0()
+        public void Decode_0()
         {
             Assert.Equal((UInt64) 0, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
-        public void Decompress_1()
+        public void Decode_1()
         {
             Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
-        public void Decompress_2()
+        public void Decode_2()
         {
             Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
-        public void Decompress_3()
+        public void Decode_3()
         {
             Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
         }
 
         [Fact]
-        public void Decompress_Max()
+        public void Decode_Max()
         {
             Assert.Equal(new RawCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
         }
