@@ -5,14 +5,14 @@ namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitWriter : IBitWriter, IDisposable
 {
-    public Int32 MaxBits => 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
+    private const Int32 MAX_BITS = 32; // There must always be room for another byte to be loaded, else bits must be lost
 
     private readonly Stream Underlying;
     private readonly Boolean OwnUnderlying;
-    
+
     private UInt64 Buffer;
     private Int32 Count;
-    
+
     public Boolean IsDisposed { get; private set; }
 
     public StreamBitWriter(Stream underlying)
@@ -35,9 +35,9 @@ public class StreamBitWriter : IBitWriter, IDisposable
     public void WriteBits(UInt64 buffer, int count)
     {
 #if DEBUG
-        if (count < 0 || count > MaxBits)
+        if (count < 0 || count > MAX_BITS)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {MaxBits}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {MAX_BITS}");
         }
 #endif
 
@@ -90,5 +90,10 @@ public class StreamBitWriter : IBitWriter, IDisposable
         {
             Underlying.WriteByte((Byte) BitOperation.Pop(ref Buffer, ref Count, BitOperation.BITS_PER_BYTE));
         }
+    }
+
+    public override string ToString()
+    {
+        return Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
     }
 }

@@ -7,8 +7,7 @@ public class StreamBitReader : IBitReader, IDisposable
 {
     // Lowest bit is always on the right
 
-    public Int32 MaxBits => 64 - 8; // There must always be room for another byte to be loaded, else bits must be lost
-
+    private const Int32 MAX_BITS = 32; // There must always be room for another byte to be loaded, else bits must be lost
     private const UInt64 TOP_BITMASK = 0b10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
 
     private readonly Stream Underlying;
@@ -48,9 +47,9 @@ public class StreamBitReader : IBitReader, IDisposable
     public UInt64 ReadBits(int count)
     {
 #if DEBUG
-        if (count < 0 || count > MaxBits)
+        if (count < 0 || count > MAX_BITS)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {MaxBits}");
+            throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {MAX_BITS}");
         }
 #endif
 
@@ -105,5 +104,11 @@ public class StreamBitReader : IBitReader, IDisposable
 
             BitOperation.Push(ref Buffer, ref Count, (UInt64) b, BitOperation.BITS_PER_BYTE);
         }
+    }
+
+
+    public override string ToString()
+    {
+        return Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
     }
 }
