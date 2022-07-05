@@ -59,7 +59,7 @@ public class ThompsonAlphaCodec : ICodec
 
         // Read number (max 32 bits can be written in one operation, so split it over two)
         var value = buffer.ReadBits(Math.Min(length, 32));
-        value |= buffer.ReadBits(Math.Max(length - 32, 0)) >> 32;
+        value |= buffer.ReadBits(Math.Max(length - 32, 0)) << 32;
 
         // Recover implied MSB
         value |= (UInt64) 1 << length;
