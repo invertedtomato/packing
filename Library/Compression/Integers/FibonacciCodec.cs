@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-
-// TODO: Rewrite this! It's probably far messier and inefficent than it needs be!
 
 namespace InvertedTomato.Compression.Integers
 {
@@ -13,7 +10,7 @@ namespace InvertedTomato.Compression.Integers
         /// <summary>
         /// Lookup table of Fibonacci numbers that can fit in a ulong.
         /// </summary>
-        private static readonly UInt64[] Fibonaccis =
+        private static readonly UInt64[] FibonacciTable =
         {
             1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657,
             46368, 75025, 121393, 196418, 317811, 514229, 832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352,
@@ -28,25 +25,8 @@ namespace InvertedTomato.Compression.Integers
             2880067194370816120, 4660046610375530309, 7540113804746346429, 12200160415121876738
         };
 
-        /// <summary>
-        /// The most significant bit in a byte.
-        /// </summary>
-        private const Byte MSB = 0x80;
-
-        /// <summary>
-        /// Maximum possible length of an encoded symbol.
-        /// </summary>
-        private const Int32 MAX_ENCODED_LENGTH = 12;
-
         private void Encode(UInt64 value, IBitWriter writer)
         {
-            // Allocate working buffer the max length of an encoded UInt64 + 1 byte
-            var buffer = new Byte[MAX_ENCODED_LENGTH];
-            var bitOffset = 0;
-
-            var residualBits = 0;
-            var maxByte = 0;
-
 #if DEBUG
             // Check for overflow
             if (value > MaxValue)
@@ -55,64 +35,38 @@ namespace InvertedTomato.Compression.Integers
             }
 #endif
 
-            // Reset size for next symbol
-            maxByte = -1;
+            var working = new Boolean[FibonacciTable.Length];
 
-            // Fibonacci doesn't support 0s, so add 1 to allow for them
+            // Fibonacci doesn't support 0s, so offset by 1 to allow for them
             value++;
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            for (var fibIdx = Fibonaccis.Length - 1; fibIdx >= 0; fibIdx--)
+            for (var i = FibonacciTable.Length - 1; i >= 0; i--)
             {
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word (counting the left most digit as place 0).
-                if (value >= Fibonaccis[fibIdx])
+                if (value >= FibonacciTable[i])
                 {
-                    // Calculate offsets
-                    var adjustedIdx = fibIdx + bitOffset;
-                    var byteIdx = adjustedIdx / 8;
-                    var bitIdx = adjustedIdx % 8;
-
-                    // If this is the termination fib, add termination bit
-                    if (-1 == maxByte)
-                    {
-                        // Note parameters for this symbol
-                        maxByte = (adjustedIdx + 1) / 8;
-                        residualBits = (adjustedIdx + 2) % 8; // Add two bits being written
-
-                        // Append bits to output
-                        var terminationByteIdx = (adjustedIdx + 1) / 8;
-                        var terminationBitIdx = (adjustedIdx + 1) % 8;
-                        buffer[terminationByteIdx] |= (Byte) (0x01 << 7 - terminationBitIdx); // Termination bit
-                    }
-
-                    // Flag that fib is used
-                    buffer[byteIdx] |= (Byte) (0x01 << 7 - bitIdx); // Flag bit
-
+                    working[i] = true;
+                    
                     // Deduct Fibonacci number from value
-                    value -= Fibonaccis[fibIdx];
+                    value -= FibonacciTable[i];
                 }
             }
 
-            // Write n-1 output bytes
-            for (var j = 0; j < maxByte; j++)
+            // Reverse working array, writing out bits
+            var started = false;
+            for (var i = working.Length - 1; i >= 0; i--)
             {
-                writer.WriteBits(buffer[j], 8);
-                buffer[j] = 0;
+                if (working[i] || started)
+                {
+                    started = true;
+                    writer.WriteBit(working[i]);
+                }
             }
-
-            // Write last byte if complete, or no more symbols to encode
-            if (residualBits == 0)
-            {
-                return;
-            }
-            else if (maxByte > 0)
-            {
-                buffer[0] = buffer[maxByte];
-                buffer[maxByte] = 0;
-            }
-
-            bitOffset = residualBits;
+            
+            // Write termination bit
+            writer.WriteBit(true);
         }
 
         private UInt64 Decode(IBitReader buffer)
@@ -124,7 +78,7 @@ namespace InvertedTomato.Compression.Integers
             var lastBit = false;
 
             // Loop through each possible fib
-            foreach (var fib in Fibonaccis)
+            foreach (var fib in FibonacciTable)
             {
                 // Read bit of input
                 if (buffer.ReadBit())
@@ -166,9 +120,9 @@ namespace InvertedTomato.Compression.Integers
             // Offset for zero
             value++;
 
-            for (var i = Fibonaccis.Length - 1; i >= 0; i--)
+            for (var i = FibonacciTable.Length - 1; i >= 0; i--)
             {
-                if (value >= Fibonaccis[i])
+                if (value >= FibonacciTable[i])
                 {
                     return i + 1;
                 }
