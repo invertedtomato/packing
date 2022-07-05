@@ -51,14 +51,11 @@ namespace InvertedTomato.Compression.Integers
             Assert.Equal(new Byte[] {0b000010_00}, Encode(3)); // Len=10, val=(1)11
         }
 
-
         [Fact]
         public void Encode_Max()
         {
-            Assert.Equal(new Byte[] {0b111111_11, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111100}, Encode(UInt64.MaxValue - 1));
+            Assert.Equal(new Byte[] {0b111111_11, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111000}, Encode(UInt64.MaxValue - 1));
         }
-
-        // TODO: Max value test
 
 
         [Fact]
@@ -89,7 +86,7 @@ namespace InvertedTomato.Compression.Integers
         [Fact]
         public void Decode_Max()
         {
-            Assert.Equal(UInt64.MaxValue - 1, Decode(new Byte[] {0b111111_11, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111100}));
+            Assert.Equal(UInt64.MaxValue - 1, Decode(new Byte[] {0b111111_11, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111000}));
         }
 
         [Fact]
