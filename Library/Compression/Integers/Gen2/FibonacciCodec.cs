@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace InvertedTomato.Compression.Integers.Legacy
+namespace InvertedTomato.Compression.Integers.Gen2
 {
     public class FibonacciCodec : Codec
     {

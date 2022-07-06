@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace InvertedTomato.Compression.Integers.Legacy {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	public class ListByteWrapper : IByteWriter {
 		private readonly IList<Byte> Underlying;
 

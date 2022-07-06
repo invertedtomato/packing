@@ -1,6 +1,6 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers.Legacy {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	public class ThompsonAlphaCodec :Codec{
 		private readonly Int32 LengthBits;
 

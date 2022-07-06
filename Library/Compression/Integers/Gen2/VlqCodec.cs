@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace InvertedTomato.Compression.Integers.Legacy {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	
 	/// <summary>
 	/// Traditional VLQ implementation as per https://en.wikipedia.org/wiki/Variable-length_quantity with "Removing Redundancy".

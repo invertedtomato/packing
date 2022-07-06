@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace InvertedTomato.Compression.Integers.Legacy {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	/// <summary>
 	/// VLQ similar to https://en.wikipedia.org/wiki/Variable-length_quantity with "Removing Redundancy", but the
 	/// continuation bit flag is reversed. This might be more performant for datasets with consistently large values.

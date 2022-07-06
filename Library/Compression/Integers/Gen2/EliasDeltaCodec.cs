@@ -1,6 +1,6 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers.Legacy {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	public class EliasDeltaCodec :Codec{
 		public override void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count) {
 #if DEBUG
