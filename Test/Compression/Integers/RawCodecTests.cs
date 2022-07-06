@@ -1,155 +1,118 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using InvertedTomato.IO.Bits;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
-	public class RawCodecTests { // TODO: Check Compress and Decompress's "used" value is correct
-		private readonly Codec Codec = new RawCodec();
+namespace InvertedTomato.Compression.Integers
+{
+    public class RawCodecTests
+    {
+        private Byte[] Encode(UInt64 value)
+        {
+            var codec = new RawCodec();
+            using var stream = new MemoryStream();
+            using (var writer = new StreamBitWriter(stream))
+            {
+                codec.EncodeUInt64(value, writer);
+            }
 
-		public String CompressMany(UInt64[] input, Int32 outputBufferSize = 8) {
-			var output = new MemoryStream(outputBufferSize);
-			Codec.EncodeMany(output, input);
+            return stream.ToArray();
+        }
 
-			return output.ToArray().ToBinaryString();
-		}
+        private UInt64 Decode(Byte[] encoded)
+        {
+            var codec = new RawCodec();
+            using var stream = new MemoryStream(encoded);
+            using var reader = new StreamBitReader(stream);
 
-		public String CompressOne(UInt64 value, Int32 outputBufferSize = 8) {
-			return CompressMany(new[] {value}, outputBufferSize);
-		}
+            return codec.DecodeUInt64(reader);
+        }
 
-		[Fact]
-		public void Compress_Empty() {
-			Assert.Equal("", CompressMany(new UInt64[] { }));
-		}
+        [Fact]
+        public void Encode_0()
+        {
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(0));
+        }
 
-		[Fact]
-		public void Compress_0() {
-			Assert.Equal("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressOne(0));
-		}
+        [Fact]
+        public void Encode_1()
+        {
+            Assert.Equal(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(1));
+        }
 
-		[Fact]
-		public void Compress_1() {
-			Assert.Equal("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressOne(1));
-		}
+        [Fact]
+        public void Encode_2()
+        {
+            Assert.Equal(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(2));
+        }
 
-		[Fact]
-		public void Compress_2() {
-			Assert.Equal("00000010 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressOne(2));
-		}
+        [Fact]
+        public void Encode_3()
+        {
+            Assert.Equal(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(3));
+        }
 
-		[Fact]
-		public void Compress_3() {
-			Assert.Equal("00000011 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressOne(3));
-		}
-
-		[Fact]
-		public void Compress_Max() {
-			Assert.Equal("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111", CompressOne(UInt64.MaxValue));
-		}
-
-		[Fact]
-		public void Compress_1_1_1() {
-			Assert.Equal("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", CompressMany(new UInt64[] {1, 1, 1}, 3 * 8));
-		}
-
-
-		private UInt64[] DecompressMany(String value, Int32 count) {
-			var input = new MemoryStream(BitOperation.ParseToBytes(value));
-			var codec = new RawCodec();
-			var output = new UInt64[count];
-			codec.DecodeMany(input, output);
-
-			return output;
-		}
-
-		private UInt64 DecompressOne(String value) {
-			var set = DecompressMany(value, 1);
-			return set[0];
-		}
-
-		[Fact]
-		public void Decompress_Empty() {
-			Assert.Empty(DecompressMany("", 0));
-		}
-
-		[Fact]
-		public void Decompress_0() {
-			Assert.Equal((UInt64) 0, DecompressOne("00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
-		}
-
-		[Fact]
-		public void Decompress_1() {
-			Assert.Equal((UInt64) 1, DecompressOne("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
-		}
-
-		[Fact]
-		public void Decompress_2() {
-			Assert.Equal((UInt64) 2, DecompressOne("00000010 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
-		}
-
-		[Fact]
-		public void Decompress_3() {
-			Assert.Equal((UInt64) 3, DecompressOne("00000011 00000000 00000000 00000000 00000000 00000000 00000000 00000000"));
-		}
-
-		[Fact]
-		public void Decompress_Max() {
-			Assert.Equal(RawCodec.MaxValue, DecompressOne("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111"));
-		}
-
-		[Fact]
-		public void Decompress_1_1_1() {
-			var set = DecompressMany("00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001 00000000 00000000 00000000 00000000 00000000 00000000 00000000", 3);
-			Assert.Equal(3, set.Length);
-			Assert.Equal((UInt64) 1, set[0]);
-			Assert.Equal((UInt64) 1, set[1]);
-			Assert.Equal((UInt64) 1, set[2]);
-		}
-
-		[Fact]
-		public void Decompress_InputClipped() {
-			Assert.Throws<EndOfStreamException>(() => {
-				var input = new MemoryStream(BitOperation.ParseToBytes("00000000"));
-				var output = new UInt64[1];
-				Codec.DecodeMany(input, output);
-			});
-		}
+        [Fact]
+        public void Encode_Max()
+        {
+            Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}, Encode(UInt64.MaxValue));
+        }
 
 
-		[Fact]
-		public void CompressDecompress_First1000_Series() {
-			for (UInt64 input = 0; input < 1000; input++) {
-				var encoded = CompressOne(input);
-				var output = DecompressOne(encoded);
+        [Fact]
+        public void Decode_0()
+        {
+            Assert.Equal((UInt64) 0, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+        }
 
-				Assert.Equal(input, output);
-			}
-		}
+        [Fact]
+        public void Decode_1()
+        {
+            Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+        }
 
-		[Fact]
-		public void CompressDecompress_First1000_Parallel() {
-			// Create input
-			var input = new List<UInt64>(1000);
-			input.Seed(0, 999);
+        [Fact]
+        public void Decode_2()
+        {
+            Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+        }
 
-			// Compress
-			var compressed = new MemoryStream();
-			Codec.EncodeMany(compressed, input.ToArray());
+        [Fact]
+        public void Decode_3()
+        {
+            Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+        }
 
-			// Rewind stream
-			compressed.Seek(0, SeekOrigin.Begin);
+        [Fact]
+        public void Decode_Max()
+        {
+            Assert.Equal(new RawCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
+        }
 
-			// Decompress
-			var output = new UInt64[input.Count];
-			Codec.DecodeMany(compressed, output);
+        [Fact]
+        public void EncodeDecode_1000()
+        {
+            var ta = new RawCodec();
+            using var stream = new MemoryStream();
 
-			// Validate
-			for (var i = 0; i < 1000; i++) {
-				Assert.Equal((UInt64) i, output[i]);
-			}
-		}
-	}
+            // Encode
+            using (var writer = new StreamBitWriter(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    ta.EncodeUInt64(symbol, writer);
+                }
+            }
+
+            stream.Seek(0, SeekOrigin.Begin);
+
+            // Decode
+            using (var reader = new StreamBitReader(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    Assert.Equal(symbol, ta.DecodeUInt64(reader));
+                }
+            }
+        }
+    }
 }

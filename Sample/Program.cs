@@ -1,18 +1,43 @@
 ﻿using InvertedTomato.Compression.Integers;
 
-// Instantiate the codec ready to compress
-Codec codec = new FibonacciCodec(); // Using "InvertedTomato.Compression.Integers.Wave3"
+// Instantiate the codecs we want
+var vlq = new VlqCodec();
+var fib = new FibonacciCodec();
+var td = new ThompsonAlphaCodec();
 
-// Compress data - 3x8 bytes = 24bytes uncompressed
+// Encode some values...
 using var stream = new MemoryStream();
-codec.EncodeMany(stream, new ulong[] {1, 2, 3,});
-Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
+using (var writer = new StreamBitWriter(stream))
+{
+    // Encode some values using the Fibonacci codec
+    fib.EncodeInt32(0, writer);
+    fib.EncodeInt32(1, writer);
+    
+    // Encode a value using the VLQ codec
+    vlq.EncodeInt32(2, writer);
+    
+    // Encode a value using the ThompsonAlpha codec
+    td.EncodeInt32(3, writer);
+}
 
-// Decompress data
+// Convert it to binary so we can see what it's done
+var binary = String.Join(" ", stream.ToArray().Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
+Console.WriteLine($"Compressed data is {stream.Length} bytes ({binary})");
+
+// Decode the values...
 stream.Seek(0, SeekOrigin.Begin);
-var decompressed = new ulong[3];
-codec.DecodeMany(stream, decompressed);
-Console.WriteLine(string.Join(",", decompressed)); // Output: 1,2,3
+using (var reader = new StreamBitReader(stream))
+{
+    // Decode the the Fibonacci values
+    Console.WriteLine(fib.DecodeInt32(reader));
+    Console.WriteLine(fib.DecodeInt32(reader));
+    
+    // Decode the VLQ value
+    Console.WriteLine(vlq.DecodeInt32(reader));
+    
+    // Decode the ThompsonAlpha value
+    Console.WriteLine(td.DecodeInt32(reader));
+}
 
 Console.WriteLine("Done.");
 Console.ReadKey(true);

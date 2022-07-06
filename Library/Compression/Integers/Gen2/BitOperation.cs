@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	/// <summary>
     ///     Tools for managing bit sets.
     /// </summary>

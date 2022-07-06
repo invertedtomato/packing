@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace InvertedTomato.Compression.Integers {
+namespace InvertedTomato.Compression.Integers.Gen2 {
 	public abstract class Codec {
 		public abstract void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count);
 

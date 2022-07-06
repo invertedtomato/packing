@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
     <AssemblyName>InvertedTomato.IntegerCompression</AssemblyName>
     <RootNamespace>InvertedTomato</RootNamespace>
     <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/integer-compression/master/LICENSE</PackageLicenseUrl>
@@ -22,6 +21,7 @@
     <PackageReleaseNotes>Removed legacy interfaces. Removed dependancy on external library.</PackageReleaseNotes>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
+    <TargetFrameworks>net6.0;netstandard1.0</TargetFrameworks>
   </PropertyGroup>
 
 </Project>

@@ -1,129 +1,112 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers {
-	public class ThompsonAlphaCodec :Codec{
-		private readonly Int32 LengthBits;
+namespace InvertedTomato.Compression.Integers;
 
-		public ThompsonAlphaCodec() : this(6) { }
+public class ThompsonAlphaCodec : ICodec
+{
+    public UInt64 MinValue => UInt64.MinValue;
+    public UInt64 MaxValue => UInt64.MaxValue >> BitOperation.BITS_PER_ULONG - LengthBits + 6 - 1; // TODO: Check logic
 
-		/// <summary>
-		///     Instantiate with options.
-		/// </summary>
-		/// <param name="output"></param>
-		/// <param name="lengthBits">Number of prefix bits used to store length.</param>
-		public ThompsonAlphaCodec( Int32 lengthBits) {
-			if (lengthBits < 1 || lengthBits > 6) {
-				throw new ArgumentOutOfRangeException("Must be between 1 and 6, not " + lengthBits + ".", nameof(lengthBits));
-			}
+    private readonly Int32 LengthBits;
 
-			LengthBits = lengthBits;
-		}
-		
-		public override void EncodeMany(IByteWriter output, UInt64[] values, Int32 offset, Int32 count) {
-#if DEBUG
-			if (null == output) {
-				throw new ArgumentNullException(nameof(output));
-			}
+    public ThompsonAlphaCodec() : this(6)
+    {
+    }
 
-			if (null == values) {
-				throw new ArgumentNullException(nameof(values));
-			}
+    /// <summary>
+    /// Instantiate with options
+    /// </summary>
+    /// <param name="lengthBits">Number of prefix bits used to store length.</param>
+    public ThompsonAlphaCodec(Int32 lengthBits)
+    {
+        if (lengthBits is < 1 or > 6)
+        {
+            throw new ArgumentOutOfRangeException($"Must be between 1 and 6, not {lengthBits}.", nameof(lengthBits));
+        }
 
-			if (offset < 0 || offset > values.Length) {
-				throw new ArgumentOutOfRangeException(nameof(offset));
-			}
+        LengthBits = lengthBits;
+    }
 
-			if (count < 0 || offset + count > values.Length) {
-				throw new ArgumentOutOfRangeException(nameof(count));
-			}
-#endif
-			
-			using (var writer = new BitWriter(output)) {
-				// Iterate through all symbols
-				for (var i = offset; i < offset + count; i++) {
-					var value = values[i];
+    private void Encode(UInt64 value, IBitWriter buffer)
+    {
+        // Offset value to allow zeros
+        value++;
 
-					// Offset value to allow zeros
-					value++;
+        // Count length
+        var length = BitOperation.CountUsed(value);
 
-					// Count length
-					var length = BitOperation.CountUsed(value);
+        // Check not too large
+        if (length > (LengthBits + 2) * 8)
+        {
+            throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - LengthBits - 1)}. Increase length bits to support larger numbers.");
+        }
 
-					// Check not too large
-					if (length > (LengthBits + 2) * 8) {
-						throw new ArgumentOutOfRangeException("Value is greater than maximum of " + (UInt64.MaxValue >> (64 - LengthBits - 1)) + ". Increase length bits to support larger numbers.");
-					}
+        // Clip MSB, it's redundant
+        length--;
 
-					// Clip MSB, it's redundant
-					length--;
+        // Write length
+        buffer.WriteBits((UInt64) length, LengthBits);
 
-					// Write length
-					writer.Write((UInt64) length, LengthBits);
+        // Write number (max 32 bits can be written in one operation, so split it over two)
+        buffer.WriteBits(value, Math.Min(length, 32));
+        buffer.WriteBits(value >> 32, Math.Max(length - 32, 0));
+    }
 
-					// Write number
-					writer.Write(value, length);
-				}
-			}
-		}
+    private UInt64 Decode(IBitReader buffer)
+    {
+        // Read length
+        var length = (Int32) buffer.ReadBits(LengthBits);
 
-		public override void DecodeMany(IByteReader input, UInt64[] values, Int32 offset, Int32 count) {
-#if DEBUG
-			if (null == input) {
-				throw new ArgumentNullException(nameof(input));
-			}
+        // Read number (max 32 bits can be written in one operation, so split it over two)
+        var value = buffer.ReadBits(Math.Min(length, 32));
+        value |= buffer.ReadBits(Math.Max(length - 32, 0)) << 32;
 
-			if (null == values) {
-				throw new ArgumentNullException(nameof(values));
-			}
+        // Recover implied MSB
+        value |= (UInt64) 1 << length;
 
-			if (offset < 0 || offset > values.Length) {
-				throw new ArgumentOutOfRangeException(nameof(offset));
-			}
+        // Remove offset to allow zeros
+        value--;
 
-			if (count < 0 || offset + count > values.Length) {
-				throw new ArgumentOutOfRangeException(nameof(count));
-			}
-#endif
-			
-			using (var reader = new BitReader(input)) {
-				for (var i = offset; i < offset + count; i++) {
-					// Read length
-					var length = (Int32) reader.Read(LengthBits);
+        return value;
+    }
 
-					// Read body
-					var value = reader.Read(length);
+    public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);
+    public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt16(ushort value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt32(uint value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeUInt64(ulong value, IBitWriter buffer) => Encode(value, buffer);
+    public void EncodeInt8(sbyte value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt16(short value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt32(int value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
+    public void EncodeInt64(long value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
 
-					// Recover implied MSB
-					value |= (UInt64) 1 << length;
+    public Boolean DecodeBit(IBitReader buffer) => Decode(buffer) > 0;
+    public Byte DecodeUInt8(IBitReader buffer) => (Byte) Decode(buffer);
+    public UInt16 DecodeUInt16(IBitReader buffer) => (UInt16) Decode(buffer);
+    public UInt32 DecodeUInt32(IBitReader buffer) => (UInt32) Decode(buffer);
+    public UInt64 DecodeUInt64(IBitReader buffer) => Decode(buffer);
+    public SByte DecodeInt8(IBitReader buffer) => (SByte) ZigZag.Decode(Decode(buffer));
+    public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
+    public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
+    public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
 
-					// Remove offset to allow zeros
-					value--;
+    public int? CalculateEncodedBits(ulong value)
+    {
+        // Offset value to allow zeros
+        value++;
 
-					values[i] = value;
-				}
-			}
-		}
+        // Count length
+        var length = BitOperation.CountUsed(value);
 
-		public override Int32? CalculateEncodedBits(UInt64 value) {
-				// Assume 6 length bits
-				var lengthBits = 6;
-				
-				// Offset to allow for zero
-				value++;
+        // Check not too large
+        if (length > (LengthBits + 2) * 8)
+        {
+            return null;
+        }
 
-				// Calculate length
-				var length = BitOperation.CountUsed(value);
+        // Clip MSB, it's redundant
+        length--;
 
-				// Remove implied MSB
-				length--;
-
-				// Abort if it doesn't fit
-				if (BitOperation.CountUsed((UInt64) length) > lengthBits) {
-					return null;
-				}
-
-				// Return size
-				return lengthBits + length;
-		}
-	}
+        return LengthBits + length;
+    }
 }

@@ -2,68 +2,37 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers {
-	public class EliasOmegaTests {
-		private readonly Codec EliasOmega = new EliasOmegaCodec();
-		
-		[Fact]
-		public void EncodeDecode1000Series () {
-			for (UInt64 input = 0; input< 1000; input++) {
-				using (var stream = new MemoryStream()) {
-					// Encode
-					EliasOmega.EncodeSingle(new StreamWrapper( stream), input);
-					stream.Seek(0, SeekOrigin.Begin);
-					
-					// Decode
-					var output = EliasOmega.DecodeSingle(new StreamWrapper(stream));
-					
-					Assert.Equal(input,output);
-				}
-			}
-		}
+namespace InvertedTomato.Compression.Integers
+{
+    public class EliasOmegaTests
+    {
+        // TODO: A full set of tests are required! I haven't bothered yet as I haven't found any use for this codec beyond acaedemic interest
 
+        [Fact]
+        public void EncodeDecode_1000()
+        {
+            var ta = new EliasOmegaCodec();
+            using var stream = new MemoryStream();
 
-		[Fact]
-		public void EncodeDecode1000Parallel1() {
-			using (var stream = new MemoryStream()) {
-				for (UInt64 input = 0; input < 1000; input++) {
-					// Encode
-					EliasOmega.EncodeSingle(new StreamWrapper(stream), input);
-				}
-				
-				stream.Seek(0, SeekOrigin.Begin);
+            // Encode
+            using (var writer = new StreamBitWriter(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    ta.EncodeUInt64(symbol, writer);
+                }
+            }
 
-				for (UInt64 input = 0; input < 1000; input++) {
+            stream.Seek(0, SeekOrigin.Begin);
 
-					// Decode
-					var output = EliasOmega.DecodeSingle(new StreamWrapper(stream));
-
-					Assert.Equal(input, output);
-				}
-			}
-	}
-		
-		
-		[Fact]
-		public void EncodeDecode1000Parallel2() {
-			var input = new UInt64[1000];
-			for (UInt64 i = 0; i < 1000; i++) {
-				input[i] = i;
-			}
-			
-			
-			using (var stream = new MemoryStream()) {
-				// Encode
-				EliasOmega.EncodeMany(new StreamWrapper(stream), input);
-				
-				stream.Seek(0, SeekOrigin.Begin);
-
-				// Decode
-				var output = new UInt64[1000];
-				EliasOmega.DecodeMany(new StreamWrapper(stream), output);
-
-				Assert.Equal(input, output);
-			}
-		}
-	}
+            // Decode
+            using (var reader = new StreamBitReader(stream))
+            {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                {
+                    Assert.Equal(symbol, ta.DecodeUInt64(reader));
+                }
+            }
+        }
+    }
 }
