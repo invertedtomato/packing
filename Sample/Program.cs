@@ -15,7 +15,7 @@ using (var writer = new StreamBitWriter(stream))
     td.EncodeInt32(4, writer);
 }
 
-Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
+Console.WriteLine("Compressed data is " + stream.Length + " bytes");
 stream.Seek(0, SeekOrigin.Begin);
 
 // Decode

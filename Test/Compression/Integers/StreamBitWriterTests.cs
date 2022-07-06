@@ -105,7 +105,6 @@ public class StreamBitWriterTests
         Assert.Equal(new Byte[] {0b10101010, 0b10000000,}, stream.ToArray());
     }
 
-
     [Fact]
     public void WriteBits_10_Align_10()
     {
@@ -118,6 +117,45 @@ public class StreamBitWriterTests
         }
 
         Assert.Equal(new Byte[] {0b10000000, 0b11000000}, stream.ToArray());
+    }
+
+    [Fact]
+    public void WriteBits_Align()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.Align();
+        }
+
+        Assert.Equal(new Byte[] { }, stream.ToArray());
+    }
+
+    [Fact]
+    public void WriteBits_8_Align()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b11111111, 8);
+            writer.Align();
+        }
+
+        Assert.Equal(new Byte[] {0b11111111}, stream.ToArray());
+    }
+
+    [Fact]
+    public void WriteBits_8_Align_8()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b11111111, 8);
+            writer.Align();
+            writer.WriteBits(0b11111111, 8);
+        }
+
+        Assert.Equal(new Byte[] {0b11111111, 0b11111111}, stream.ToArray());
     }
 
     [Fact]
