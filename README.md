@@ -117,8 +117,7 @@ it performs *terribly*.
  - **Details:** [Wikipedia](https://en.wikipedia.org/wiki/Elias_delta_coding)
 
 I have a lot of respect for this algorithm. It's an all-rounder, doing well on small numbers and large alike. If you knew you 
-were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice. The algorithm is a little
-complex, so you might be cautious if you have extreme CPU limitations.
+were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice if it weren't for ThompsonAlpha. The algorithm is a little complex, so you might be cautious if you have extreme CPU limitations.
 
 ## Comparing algorithms
 In order to make an accurate assessment of a codec for your purpose, some
@@ -128,8 +127,8 @@ of your data and running it through the `CalculateEncodedBits` methods of a few
 algorithms to see which one is best.
 
 ## Signed and unsigned
-If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** encoding. That 
-way you'll get the best compression. Obviously fall back to **signed** if you must.
+If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** calls to the Codec. That 
+way you'll get the best compression. Obviously fall back to **signed** if you must. Hand-waving, it'll cost you an extra bit or so for each value if you used signed.
 
 ## Even better compression
 There are a few techniques you can use to further increase the compression of your integers.
@@ -174,3 +173,57 @@ value before compression and adding one after decompression.
 This may seem like a trivial optimization, however with most algorithms it will save
 you one or two bits per number. If you have several million numbers that really 
 adds up.
+
+### Intermix codecs
+So Fibonacci is best for small numbers, and ThompsonAlpha is better for large values - so why not use both? You can do something like this:
+```C#
+// Instantiate the codecs I want
+var fib = new FibonacciCodec();
+var vlq = new VlqCodec();
+var td = new ThompsonAlphaCodec();
+
+// Encode some values...
+using var stream = new MemoryStream();
+using (var writer = new StreamBitWriter(stream))
+{
+    // Encode some values using the Fibonacci codec
+    fib.EncodeInt32(0, writer);
+    fib.EncodeInt32(1, writer);
+    
+    // Encode a value using the VLQ codec
+    vlq.EncodeInt32(2, writer);
+    
+    // Encode a value using the ThompsonAlpha codec
+    td.EncodeInt32(10000, writer);
+}
+
+// Convert it to binary so we can see what it's done
+var binary = String.Join(" ", stream.ToArray().Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
+Console.WriteLine($"Compressed data is {stream.Length} bytes ({binary})");
+
+// Decode the values...
+stream.Seek(0, SeekOrigin.Begin);
+using (var reader = new StreamBitReader(stream))
+{
+    // Decode the the Fibonacci values
+    Console.WriteLine(fib.DecodeInt32(reader)); // Output: 0
+    Console.WriteLine(fib.DecodeInt32(reader)); // Output: 1
+    
+    // Decode the VLQ value
+    Console.WriteLine(vlq.DecodeInt32(reader)); // Output: 2
+    
+    // Decode the ThompsonAlpha value
+    Console.WriteLine(td.DecodeInt32(reader)); // Output: 10000
+}
+```
+See how I intermixed the codecs? That works fine, so long as I read it in the same order I wrote it. If you use this cleverly you can get some real size wins.
+
+### Compress it
+You thought we were compressing integers already? We'll it depends how you define your terms, but I'd say I was just encoding them more cleverly. But you can compress it as well. Check out [BrotliStream](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.brotlistream). If you wrap your stream in this you can further compress your dataset. While the above encoding stores your data in the most efficent manner, Brotli will then look for patterns in your data to exploit to make it smaller again.
+
+## Gen3
+This is the third generation of this library. The latest rewrite adds the following:
+ * Ability to intermix codecs. You can now encode a Fibonacci value adjacent to a ThompsonAlpha value. This is excellent for handling datasets with mixed values
+ * Full support for .NET Core/.NET 6 (along with .NET Standard)
+ * Huge simplification! Splitting the codec logic from reader/writer logic has increased clarity dramatically and reduce LOC
+ 
