@@ -138,7 +138,7 @@ namespace InvertedTomato.Compression.Integers
         public void Decode_33() => Assert.Equal((UInt64) 33, Decode(new Byte[] {0b00000001, 0b1_0000000})); // Termination bit is on next byte
 
         [Fact]
-        public void Decode_54() => Assert.Equal((UInt64) 54, Decode(new Byte[] {0b0000000011_000000})); // Final and termination bits on next byte
+        public void Decode_54() => Assert.Equal((UInt64) 54, Decode(new Byte[] {0b00000000, 0b11_000000})); // Final and termination bits on next byte
 
         [Fact]
         public void Decode_986() => Assert.Equal((UInt64) 986, Decode(new Byte[] {0b00000000, 0b00000011})); // Exactly two bytes
@@ -147,14 +147,14 @@ namespace InvertedTomato.Compression.Integers
         public void Decode_1596() => Assert.Equal((UInt64) 1596, Decode(new Byte[] {0b00000000, 0b00000001, 0b1_0000000})); // Termination bit is on next byte
 
         [Fact]
-        public void Decode_2583() => Assert.Equal((UInt64) 2583, Decode(new Byte[] {0b00000000, 0b0000000011_000000})); // Final and termination bits on next byte
+        public void Decode_2583() => Assert.Equal((UInt64) 2583, Decode(new Byte[] {0b00000000, 0b00000000, 0b11_000000})); // Final and termination bits on next byte
 
         [Fact]
         public void Decode_Max() => Assert.Equal(new FibonacciCodec().MaxValue, Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}));
 
         [Fact]
         public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010100, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}); }); // Symbol too large
-        
+
         [Fact]
         public void Decode_Overflow2() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b010011_00}); }); // Symbol too large and too many bits
 
