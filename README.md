@@ -4,18 +4,25 @@
 Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
 ```C#
 // Instantiate the codec ready to compress
-Codec codec = new FibonacciCodec(); // Using "InvertedTomato.Compression.Integers.Wave3"
+var fib = new FibonacciCodec(); // Using "InvertedTomato.Compression.Integers"
 
-using (var stream = new MemoryStream()) {
-    // Compress data - 3x8 bytes = 24bytes uncompressed
-    codec.EncodeMany(stream, new UInt64[] {1, 2, 3});
-    Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
+// Compress data - 3x8 bytes = 24bytes uncompressed
+using var stream = new MemoryStream();
+using (var writer = new StreamBitWriter(stream))
+{
+    fib.EncodeUInt64(1, writer);
+    fib.EncodeUInt64(2, writer);
+    fib.EncodeUInt64(3, writer);
+}
+Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
 
-    // Decompress data
-    stream.Seek(0, SeekOrigin.Begin);
-    var decompressed = new UInt64[3];
-    codec.DecodeMany(stream, decompressed);
-    Console.WriteLine(String.Join(",", decompressed)); // Output: 1,2,3
+// Decompress data
+stream.Position = 0;
+using (var reader = new StreamBitReader(stream))
+{
+    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 1
+    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 2
+    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 3
 }
 ```
 
@@ -113,22 +120,6 @@ I have a lot of respect for this algorithm. It's an all-rounder, doing well on s
 were mostly going to have small numbers, but you'd have a some larger ones as well, this would be my choice. The algorithm is a little
 complex, so you might be cautious if you have extreme CPU limitations.
 
-## What about signed integers? These only support `ulong`s!
-Indeed they do! There's a good reason for that - most times an integer is
-wanted to be compressed it's unsigned. And indeed it's not nearly
-as efficient to allow for signed integers unless it's really required.
-So by default these are all unsigned.
-
-For those cases where you do want signed integers, convert it to
-unsigned using the ZigZag algorithm, like this:
-
-```c#
-var signed = -3;
-var unsigned = ZigZag.Encode(signed);
-```
-
-And then pop the converted unsigned integer into the compression algorithm. When you're ready to decompress, use the `ZigZag.Decode` to reverse the effect.
-
 ## Comparing algorithms
 In order to make an accurate assessment of a codec for your purpose, some
 algorithms have a method `CalculateEncodedBits` that allows you to know
@@ -183,7 +174,3 @@ value before compression and adding one after decompression.
 This may seem like a trivial optimization, however with most algorithms it will save
 you one or two bits per number. If you have several million numbers that really 
 adds up.
-
-## NuGet
-The [latest build is always on NuGet](https://www.nuget.org/packages/InvertedTomato.IntegerCompression/).
-
