@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace InvertedTomato.Compression.Integers;
 
@@ -18,13 +19,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
     public Boolean IsDisposed { get; private set; }
 
-    public StreamBitReader(Stream underlying)
-    {
-        Underlying = underlying;
-        OwnUnderlying = false;
-    }
-
-    public StreamBitReader(Stream underlying, Boolean ownUnderlying)
+    public StreamBitReader(Stream underlying, Boolean ownUnderlying=false)
     {
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
@@ -39,10 +34,7 @@ public class StreamBitReader : IBitReader, IDisposable
         return (Buffer & TOP_BITMASK) > 0;
     }
 
-    public Boolean ReadBit()
-    {
-        return ReadBits(1) > 0;
-    }
+    public Boolean ReadBit() => ReadBits(1) > 0;
 
     public UInt64 ReadBits(int count)
     {
@@ -62,14 +54,10 @@ public class StreamBitReader : IBitReader, IDisposable
         // Ensure we have enough bits loaded
         UnderlyingRead(count);
 
-        return BitOperation.Pop(ref Buffer, ref Count, count);
+        return BitOperation.Dequeue(ref Buffer, ref Count, count);
     }
 
-    public void Align()
-    {
-        // Burn bits remaining in current byte
-        ReadBits(Count % BitOperation.BITS_PER_BYTE);
-    }
+    public void Align() =>  ReadBits(Count % BitOperation.BITS_PER_BYTE); // Burn bits remaining in current byte
 
     public void Dispose()
     {
@@ -102,13 +90,10 @@ public class StreamBitReader : IBitReader, IDisposable
                 throw new EndOfStreamException();
             }
 
-            BitOperation.Push(ref Buffer, ref Count, (UInt64) b, BitOperation.BITS_PER_BYTE);
+            BitOperation.Enqueue(ref Buffer, ref Count, (UInt64) b, BitOperation.BITS_PER_BYTE);
         }
     }
 
 
-    public override string ToString()
-    {
-        return Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
-    }
+    public override string ToString() => Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
 }

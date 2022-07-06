@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace InvertedTomato.Compression.Integers;
 
@@ -15,22 +16,13 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public Boolean IsDisposed { get; private set; }
 
-    public StreamBitWriter(Stream underlying)
-    {
-        Underlying = underlying;
-        OwnUnderlying = false;
-    }
-
-    public StreamBitWriter(Stream underlying, Boolean ownUnderlying)
+    public StreamBitWriter(Stream underlying, Boolean ownUnderlying = false)
     {
         Underlying = underlying;
         OwnUnderlying = ownUnderlying;
     }
 
-    public void WriteBit(Boolean value)
-    {
-        WriteBits(value ? (UInt64) 1 : 0, 1);
-    }
+    public void WriteBit(Boolean value) => WriteBits(value ? (UInt64) 1 : 0, 1);
 
     public void WriteBits(UInt64 buffer, int count)
     {
@@ -46,7 +38,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
             return;
         }
 
-        BitOperation.Push(ref Buffer, ref Count, buffer, count);
+        BitOperation.Enqueue(ref Buffer, ref Count, buffer, count);
 
         UnderlyingWrite();
     }
@@ -88,12 +80,9 @@ public class StreamBitWriter : IBitWriter, IDisposable
     {
         while (Count >= BitOperation.BITS_PER_BYTE)
         {
-            Underlying.WriteByte((Byte) BitOperation.Pop(ref Buffer, ref Count, BitOperation.BITS_PER_BYTE));
+            Underlying.WriteByte((Byte) BitOperation.Dequeue(ref Buffer, ref Count, BitOperation.BITS_PER_BYTE));
         }
     }
 
-    public override string ToString()
-    {
-        return Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
-    }
+    public override string ToString() => Convert.ToString((Int64) Buffer, 2).Substring(0, Count);
 }
