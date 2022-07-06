@@ -8,7 +8,7 @@ namespace InvertedTomato.Compression.Integers
         public UInt64 MaxValue => UInt64.MaxValue - 1;
 
         /// <summary>
-        /// Lookup table of Fibonacci numbers that can fit in a ulong.
+        /// Lookup table of Fibonacci numbers that can fit in a UInt64
         /// </summary>
         private static readonly UInt64[] FibonacciTable =
         {
@@ -22,49 +22,45 @@ namespace InvertedTomato.Compression.Integers
             1304969544928657, 2111485077978050, 3416454622906707, 5527939700884757, 8944394323791464, 14472334024676221,
             23416728348467685, 37889062373143906, 61305790721611591, 99194853094755497, 160500643816367088,
             259695496911122585, 420196140727489673, 679891637638612258, 1100087778366101931, 1779979416004714189,
-            2880067194370816120, 4660046610375530309, 7540113804746346429, 12200160415121876738
+            2880067194370816120, 4660046610375530309, 7540113804746346429, 12200160415121876738,
         };
 
         private void Encode(UInt64 value, IBitWriter writer)
         {
 #if DEBUG
             // Check for overflow
-            if (value > MaxValue)
-            {
-                throw new OverflowException("Exceeded FibonacciCodec maximum supported symbol value of " + MaxValue + ".");
-            }
+            if (value > MaxValue) throw new OverflowException($"Exceeded FibonacciCodec maximum supported symbol value of {MaxValue}.");
 #endif
-
-            var working = new Boolean[FibonacciTable.Length];
-
+            
             // Fibonacci doesn't support 0s, so offset by 1 to allow for them
             value++;
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
+            Boolean[]? working = null;
             for (var i = FibonacciTable.Length - 1; i >= 0; i--)
             {
+                // Do nothing if not a fib match
+                if (value < FibonacciTable[i]) continue;
+
+                // Allocate working if it's not yet allocated (ie, this is the highest fib)
+                working ??= new Boolean[i + 1];
+
                 // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word (counting the left most digit as place 0).
-                if (value >= FibonacciTable[i])
-                {
-                    working[i] = true;
-                    
-                    // Deduct Fibonacci number from value
-                    value -= FibonacciTable[i];
-                }
+                working[i] = true;
+
+                // Deduct Fibonacci number from value
+                value -= FibonacciTable[i];
             }
 
+#if DEBUG
+            // If no working the input value was unexpectedly high (shouldn't be possible)
+            if (null == working) throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
+#endif
+
             // Reverse working array, writing out bits
-            var started = false;
-            for (var i = working.Length - 1; i >= 0; i--)
-            {
-                if (working[i] || started)
-                {
-                    started = true;
-                    writer.WriteBit(working[i]);
-                }
-            }
-            
+            foreach (var item in working) writer.WriteBit(item);
+
             // Write termination bit
             writer.WriteBit(true);
         }
