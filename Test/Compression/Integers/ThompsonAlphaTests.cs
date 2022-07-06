@@ -73,7 +73,7 @@ namespace InvertedTomato.Compression.Integers
         public void Decode_Max() => Assert.Equal(UInt64.MaxValue - 1, Decode(new Byte[] {0b111111_11, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111000}));
 
         [Fact]
-        public void EncodeDecode_1000()
+        public void EncodeDecode_100000()
         {
             var ta = new ThompsonAlphaCodec();
             using var stream = new MemoryStream();
@@ -81,7 +81,7 @@ namespace InvertedTomato.Compression.Integers
             // Encode
             using (var writer = new StreamBitWriter(stream))
             {
-                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                for (UInt64 symbol = 0; symbol < 100000; symbol++)
                 {
                     ta.EncodeUInt64(symbol, writer);
                 }
@@ -92,7 +92,7 @@ namespace InvertedTomato.Compression.Integers
             // Decode
             using (var reader = new StreamBitReader(stream))
             {
-                for (UInt64 symbol = 0; symbol < 1000; symbol++)
+                for (UInt64 symbol = 0; symbol < 100000; symbol++)
                 {
                     Assert.Equal(symbol, ta.DecodeUInt64(reader));
                 }
