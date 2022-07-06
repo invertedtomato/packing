@@ -153,10 +153,10 @@ namespace InvertedTomato.Compression.Integers
         public void Decode_Max() => Assert.Equal(new FibonacciCodec().MaxValue, Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}));
 
         [Fact]
-        public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010100, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}); }); // Symbol too large
+        public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {  0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10101010, 0b01011_000}); }); // Symbol too large
 
         [Fact]
-        public void Decode_Overflow2() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b010011_00}); }); // Symbol too large and too many bits
+        public void Decode_Overflow2() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b010011_00}); }); // Symbol too long
 
 
         [Fact]

@@ -80,25 +80,30 @@ namespace InvertedTomato.Compression.Integers
                 var bit = buffer.ReadBit();
                 if (bit)
                 {
-                    // If double 1 bits
-                    if (lastBit)
-                    {
-                        // Remove zero offset
-                        symbol--;
-
-                        // Add to output
-                        return symbol;
-                    }
+                    // If double 1 bits - all done! Return symbol less zero offset
+                    if (lastBit) return symbol - 1;
 
                     // Add value to current symbol
+                    var pre = symbol;
                     symbol += fib;
+#if DEBUG
+                    if (symbol < pre)
+                    {
+                        // Input is larger than expected
+                        throw new OverflowException($"Symbol is larger than the max value of {MaxValue}. Data is probably corrupt");
+                    }
+#endif
                 }
 
                 // Note bit for next cycle
                 lastBit = bit;
             }
 
-            throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
+            // If double 1 bits - all done! Return symbol less zero offset (this occurs only when decoding MaxValue)
+            if (lastBit && buffer.ReadBit()) return symbol - 1;
+
+            // Input longer than supported
+            throw new OverflowException($"Termination not found within supported {FibonacciTable.Length} bit range. Data is probably corrupt.");
         }
 
         public Int32? CalculateEncodedBits(UInt64 value)
