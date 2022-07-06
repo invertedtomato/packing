@@ -31,7 +31,7 @@ namespace InvertedTomato.Compression.Integers
             // Check for overflow
             if (value > MaxValue) throw new OverflowException($"Exceeded FibonacciCodec maximum supported symbol value of {MaxValue}.");
 #endif
-            
+
             // Fibonacci doesn't support 0s, so offset by 1 to allow for them
             value++;
 
@@ -77,7 +77,8 @@ namespace InvertedTomato.Compression.Integers
             foreach (var fib in FibonacciTable)
             {
                 // Read bit of input
-                if (buffer.ReadBit())
+                var bit = buffer.ReadBit();
+                if (bit)
                 {
                     // If double 1 bits
                     if (lastBit)
@@ -91,15 +92,10 @@ namespace InvertedTomato.Compression.Integers
 
                     // Add value to current symbol
                     symbol += fib;
+                }
 
-                    // Note bit for next cycle
-                    lastBit = true;
-                }
-                else
-                {
-                    // Note bit for next cycle
-                    lastBit = false;
-                }
+                // Note bit for next cycle
+                lastBit = bit;
             }
 
             throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
