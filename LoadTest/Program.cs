@@ -8,7 +8,7 @@
 // Compress: 386ms 197.65MB / s Total 36MB
 // Decompress: 874ms 87.29MB / s
 
-// 210707
+// 220707
 // CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE
 //     ThompsonAlpha
 // InvertedTomato.Compression.Integers.Gen2.ThompsonAlphaCodec                             839ms             736ms           32.00MB
@@ -22,6 +22,21 @@
 //     Raw
 // InvertedTomato.Compression.Integers.Gen2.RawCodec                                       631ms             625ms           76.00MB
 // InvertedTomato.Compression.Integers.RawCodec                                          2,000ms           2,093ms           76.00MB
+
+// 220711
+// CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE
+//     ThompsonAlpha
+// InvertedTomato.Compression.Integers.Gen2.ThompsonAlphaCodec                             860ms             745ms           32.00MB
+// InvertedTomato.Compression.Integers.Gen3.ThompsonAlphaCodec                             758ms             625ms           32.00MB
+//     Fibonacci
+// InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,891ms           1,445ms           38.00MB
+// InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               7,972ms           6,385ms           38.00MB
+//     VLQ
+// InvertedTomato.Compression.Integers.Gen2.VlqCodec                                       271ms             356ms           36.00MB
+// InvertedTomato.Compression.Integers.Gen3.VlqCodec                                       525ms             683ms           36.00MB
+//     Raw
+// InvertedTomato.Compression.Integers.Gen2.RawCodec                                       647ms             639ms           76.00MB
+// InvertedTomato.Compression.Integers.Gen3.RawCodec                                       825ms             850ms           76.00MB
 
 
 
