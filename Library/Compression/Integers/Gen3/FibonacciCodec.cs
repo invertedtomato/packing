@@ -4,6 +4,7 @@ namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class FibonacciCodec : ICodec
     {
+        private const UInt64 One = 1;
         public UInt64 MinValue => UInt64.MinValue;
         public UInt64 MaxValue => UInt64.MaxValue - 1;
 
@@ -37,32 +38,55 @@ namespace InvertedTomato.Compression.Integers.Gen3
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            Boolean[]? working = null;
+            var lowCount = 0;
+            var highCount = 0;
+            UInt64 lowBuffer = 0;
+            UInt64 highBuffer = 0;
             for (var i = FibonacciTable.Length - 1; i >= 0; i--)
             {
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
-                // Allocate working if it's not yet allocated (ie, this is the highest fib)
-                working ??= new Boolean[i + 1];
+                // If this is within the low buffer
+                if (i <= Bits.ULONG_BITS)
+                {
+                    // If this is the first fib match...
+                    if (lowCount == 0)
+                    {
+                        // Calculate offsets
+                        lowCount = i + 2;
 
-                // #2 If the number subtracted was the ith Fibonacci number F(i), put a 1 in place i−2 in the code word (counting the left most digit as place 0).
-                working[i] = true;
+                        // Set termination bit
+                        lowBuffer |= One;
+                    }
+
+                    // Write to low buffer
+                    lowBuffer |= One << (lowCount - i - 1);
+                }
+                else // its in the high buffer
+                {
+                    // If this is the first fib match...
+                    if (lowCount == 0)
+                    {
+                        // Calculate offsets
+                        lowCount = Bits.ULONG_BITS;
+                        highCount = i - Bits.ULONG_BITS;
+
+                        // Set termination bit
+                        highBuffer |= One;
+                    }
+
+                    // Write to high buffer
+                    highBuffer |= One << (highCount - (i - Bits.ULONG_BITS) + 1);
+                }
 
                 // Deduct Fibonacci number from value
                 value -= FibonacciTable[i];
             }
 
-#if DEBUG
-            // If no working the input value was unexpectedly high (shouldn't be possible)
-            if (null == working) throw new OverflowException("Input symbol larger than the supported limit of 64bits. Possible data issue.");
-#endif
-
-            // Reverse working array, writing out bits
-            foreach (var item in working) writer.WriteBit(item);
-
-            // Write termination bit
-            writer.WriteBit(true);
+            // Write out buffers
+            writer.WriteBits(lowBuffer, lowCount);
+            writer.WriteBits(highBuffer, highCount);
         }
 
         private UInt64 Decode(IBitReader buffer)

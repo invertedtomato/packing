@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using InvertedTomato.Compression.Integers.Gen3.Extensions;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers.Gen3
@@ -21,37 +22,37 @@ namespace InvertedTomato.Compression.Integers.Gen3
         }
 
         [Fact]
-        public void Encode_0() => Assert.Equal(new Byte[] {0b11000000}, Encode(0));
+        public void Encode_0() => Assert.Equal(new Byte[] {0b11000000}.ToBinaryString(), Encode(0).ToBinaryString());
 
         [Fact]
-        public void Encode_1() => Assert.Equal(new Byte[] {0b01100000}, Encode(1));
+        public void Encode_1() => Assert.Equal(new Byte[] {0b01100000}.ToBinaryString(), Encode(1).ToBinaryString());
+        
+        [Fact]
+        public void Encode_2() => Assert.Equal(new Byte[] {0b00110000}.ToBinaryString(), Encode(2).ToBinaryString());
+        
+        [Fact]
+        public void Encode_3() => Assert.Equal(new Byte[] {0b10110000}.ToBinaryString(), Encode(3).ToBinaryString());
+        
+        [Fact]
+        public void Encode_4() => Assert.Equal(new Byte[] {0b00011000}.ToBinaryString(), Encode(4).ToBinaryString());
+        
+        [Fact]
+        public void Encode_5() => Assert.Equal(new Byte[] {0b10011000}.ToBinaryString(), Encode(5).ToBinaryString());
+        
+        [Fact]
+        public void Encode_6() => Assert.Equal(new Byte[] {0b01011000}.ToBinaryString(), Encode(6).ToBinaryString());
 
         [Fact]
-        public void Encode_2() => Assert.Equal(new Byte[] {0b00110000}, Encode(2));
+        public void Encode_7() => Assert.Equal(new Byte[] {0b00001100}.ToBinaryString(), Encode(7).ToBinaryString());
 
         [Fact]
-        public void Encode_3() => Assert.Equal(new Byte[] {0b10110000}, Encode(3));
+        public void Encode_8() => Assert.Equal(new Byte[] {0b10001100}.ToBinaryString(), Encode(8).ToBinaryString());
 
         [Fact]
-        public void Encode_4() => Assert.Equal(new Byte[] {0b00011000}, Encode(4));
+        public void Encode_9() => Assert.Equal(new Byte[] {0b01001100}.ToBinaryString(), Encode(9).ToBinaryString());
 
         [Fact]
-        public void Encode_5() => Assert.Equal(new Byte[] {0b10011000}, Encode(5));
-
-        [Fact]
-        public void Encode_6() => Assert.Equal(new Byte[] {0b01011000}, Encode(6));
-
-        [Fact]
-        public void Encode_7() => Assert.Equal(new Byte[] {0b00001100}, Encode(7));
-
-        [Fact]
-        public void Encode_8() => Assert.Equal(new Byte[] {0b10001100}, Encode(8));
-
-        [Fact]
-        public void Encode_9() => Assert.Equal(new Byte[] {0b01001100}, Encode(9));
-
-        [Fact]
-        public void Encode_10() => Assert.Equal(new Byte[] {0b00101100}, Encode(10));
+        public void Encode_10() => Assert.Equal(new Byte[] {0b00101100}.ToBinaryString(), Encode(10).ToBinaryString());
 
         [Fact]
         public void Encode_11() => Assert.Equal(new Byte[] {0b10101100}, Encode(11));

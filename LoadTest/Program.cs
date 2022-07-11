@@ -23,7 +23,7 @@
 // InvertedTomato.Compression.Integers.Gen2.RawCodec                                       631ms             625ms           76.00MB
 // InvertedTomato.Compression.Integers.RawCodec                                          2,000ms           2,093ms           76.00MB
 
-// 220711
+// 220711 Added buffer to StreamBitReader&StreamBitWriter (ie, writes byte[] rather than byte)
 // CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE
 //     ThompsonAlpha
 // InvertedTomato.Compression.Integers.Gen2.ThompsonAlphaCodec                             860ms             745ms           32.00MB
@@ -38,6 +38,10 @@
 // InvertedTomato.Compression.Integers.Gen2.RawCodec                                       647ms             639ms           76.00MB
 // InvertedTomato.Compression.Integers.Gen3.RawCodec                                       825ms             850ms           76.00MB
 
+// 220711 Added Fib write buffering rather than pushing raw bits
+// Fibonacci
+// InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,915ms           1,469ms           38.00MB
+// InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,155ms           6,391ms           38.00MB
 
 
 using System.Diagnostics;
