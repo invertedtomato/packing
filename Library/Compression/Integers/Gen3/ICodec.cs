@@ -1,19 +1,10 @@
 using System;
 using System.Text;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Compression.Integers.Gen3;
 
 public interface ICodec
 {
-    /* TODO?
-    Int64 WastedBits { get; }
-    Int64 OverheadBits { get; }
-    Int64 DataBits { get; }
-
-    void ResetStatistics();
-    */
-    
-    
     /// <summary>
     /// Minimum value this codec can support.
     /// </summary>

@@ -1,11 +1,24 @@
 using System;
 using System.IO;
+using InvertedTomato.Compression.Integers.Gen3.Extensions;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Compression.Integers.Gen3;
 
 public class StreamBitWriterTests
 {
+    [Fact]
+    public void WriteBit_0()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBit(false);
+        }
+
+        Assert.Equal(new Byte[] {0b00000000,}, stream.ToArray());
+    }
+    
     [Fact]
     public void WriteBit_1()
     {
@@ -16,6 +29,19 @@ public class StreamBitWriterTests
         }
 
         Assert.Equal(new Byte[] {0b10000000,}, stream.ToArray());
+    }
+    
+    [Fact]
+    public void WriteBit_0_1()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBit(false);
+            writer.WriteBit(true);
+        }
+
+        Assert.Equal(new Byte[] {0b01000000,}, stream.ToArray());
     }
 
     [Fact]
@@ -169,6 +195,30 @@ public class StreamBitWriterTests
 
         Assert.Equal(new Byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,}, stream.ToArray());
     }
+    
+    [Fact]
+    public void WriteBits_63()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b_01111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 63);
+        }
+
+        Assert.Equal(new Byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,0b_11111111, 0b_11111111, 0b_11111111, 0b_11111110,}, stream.ToArray());
+    }
+    
+    [Fact]
+    public void WriteBits_64()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111, 64);
+        }
+
+        Assert.Equal(new Byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111,}, stream.ToArray());
+    }
 
     [Fact]
     public void WriteBits_1_32()
@@ -181,6 +231,19 @@ public class StreamBitWriterTests
         }
 
         Assert.Equal(new Byte[] {0b_01111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b10000000,}, stream.ToArray());
+    }
+    
+    
+    [Fact]
+    public void WriteBit_x1()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream))
+        {
+            writer.WriteBits(1,64);
+        }
+
+        Assert.Equal(new Byte[] {0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000001,}.ToHexString(), stream.ToArray().ToHexString());
     }
 
     [Fact]
@@ -206,6 +269,29 @@ public class StreamBitWriterTests
         Assert.True(writer.IsDisposed);
         Assert.Throws<ObjectDisposedException>(() => stream.ReadByte());
     }
+    
+    
+    [Fact]
+    public void WriteBit_B1_8()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream,false,1))
+        {
+            writer.WriteBits(0b11111111,8);
+        }
 
-    // TODO: Writing 64bits
+        Assert.Equal(new Byte[] {0b11111111,}, stream.ToArray());
+    }
+    
+    [Fact]
+    public void WriteBit_B1_9()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new StreamBitWriter(stream,false,1))
+        {
+            writer.WriteBits(0b111111111,9);
+        }
+
+        Assert.Equal(new Byte[] {0b11111111,0b10000000}, stream.ToArray());
+    }
 }

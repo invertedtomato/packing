@@ -1,6 +1,6 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class EliasDeltaCodec : ICodec
     {
@@ -22,8 +22,8 @@ namespace InvertedTomato.Compression.Integers
             var r = value - (UInt64) Math.Pow(2, n);
 
             // #2 Encode N+1 with Elias gamma coding.
-            var np = (UInt64) n + 1;
-            var len = BitOperation.CountUsed(np);
+            var np = (Byte) (n + 1);
+            var len = Bits.CountUsed(np);
             buffer.WriteBits(0, len - 1);
             buffer.WriteBits(np, len);
 
@@ -77,7 +77,7 @@ namespace InvertedTomato.Compression.Integers
 
             // #2 Encode N+1 with Elias gamma coding.
             var np = (Byte) (n + 1);
-            var len = BitOperation.CountUsed(np);
+            var len = Bits.CountUsed(np);
             result += len - 1;
             result += len;
 

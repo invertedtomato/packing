@@ -1,56 +1,17 @@
-using System;
+﻿using System;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
-    public class EliasGammaCodec : ICodec
+    public class RawCodec : ICodec
     {
         public UInt64 MinValue => UInt64.MinValue;
-        public UInt64 MaxValue => UInt64.MaxValue - 1; // TODO: Check!
+        public UInt64 MaxValue => UInt64.MaxValue;
 
-        private void Encode(UInt64 value, IBitWriter buffer)
-        {
-            // Offset value to allow zeros
-            value++;
+        public Int32? CalculateEncodedBits(UInt64 value) => Bits.ULONG_BITS;
 
-            // Calculate length
-            var length = BitOperation.CountUsed(value);
+        private void Encode(UInt64 value, IBitWriter buffer) => buffer.WriteBits(value, Bits.ULONG_BITS);
 
-            // Write unary zeros
-            buffer.WriteBits(0, length - 1);
-
-            // Write value
-            buffer.WriteBits(value, length);
-        }
-
-        private UInt64 Decode(IBitReader buffer)
-        {
-            // Read length
-            var length = 1;
-            while (!buffer.PeakBit())
-            {
-                // Note that length is one bit longer
-                length++;
-
-                // Remove 0 from input
-                buffer.ReadBit();
-            }
-
-            // Read value
-            var value = buffer.ReadBits(length);
-
-            // Remove offset from value
-            value--;
-
-            return value;
-        }
-
-        public Int32? CalculateEncodedBits(UInt64 value)
-        {
-            // Offset for zero
-            value++;
-
-            return BitOperation.CountUsed(value) * 2 - 1;
-        }
+        private UInt64 Decode(IBitReader buffer) => buffer.ReadBits(Bits.ULONG_BITS);
 
         public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);
         public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);

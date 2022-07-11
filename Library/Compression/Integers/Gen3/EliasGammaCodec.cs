@@ -1,63 +1,55 @@
-﻿using System;
-using System.IO;
+using System;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
-    public class RawCodec : ICodec
+    public class EliasGammaCodec : ICodec
     {
         public UInt64 MinValue => UInt64.MinValue;
-        public UInt64 MaxValue => UInt64.MaxValue;
-
-        public Int32? CalculateEncodedBits(UInt64 value)
-        {
-            return 8 * 8;
-        }
+        public UInt64 MaxValue => UInt64.MaxValue - 1; // TODO: Check!
 
         private void Encode(UInt64 value, IBitWriter buffer)
         {
-            // Convert to raw byte array
-            var raw = BitConverter.GetBytes(value);
+            // Offset value to allow zeros
+            value++;
 
-            // Standardise endian
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(raw);
-            }
+            // Calculate length
+            var length = Bits.CountUsed(value);
 
-            // Add to output
-            foreach (var b in raw)
-            {
-                buffer.WriteBits((UInt64) b, 8);
-            }
+            // Write unary zeros
+            buffer.WriteBits(0, length - 1);
+
+            // Write value
+            buffer.WriteBits(value, length);
         }
 
         private UInt64 Decode(IBitReader buffer)
         {
-            // Get next 8 bytes
-            var b = new Byte[8];
-            try
+            // Read length
+            var length = 1;
+            while (!buffer.PeakBit())
             {
-                for (var j = 0; j < b.Length; j++)
-                {
-                    b[j] = (Byte) buffer.ReadBits(8);
-                }
-            }
-            catch (ArgumentException)
-            {
-                throw new EndOfStreamException("Input ends with a partial symbol. More bytes required to decode.");
+                // Note that length is one bit longer
+                length++;
+
+                // Remove 0 from input
+                buffer.ReadBit();
             }
 
-            // Standardise endian
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(b);
-            }
+            // Read value
+            var value = buffer.ReadBits(length);
 
-            // Convert to symbol
-            var symbol = BitConverter.ToUInt64(b, 0);
+            // Remove offset from value
+            value--;
 
-            // Return symbol
-            return symbol;
+            return value;
+        }
+
+        public Int32? CalculateEncodedBits(UInt64 value)
+        {
+            // Offset for zero
+            value++;
+
+            return Bits.CountUsed(value) * 2 - 1;
         }
 
         public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);

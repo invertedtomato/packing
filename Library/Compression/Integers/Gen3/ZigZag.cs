@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     /// <summary>
     ///     Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm.
@@ -10,7 +10,7 @@ namespace InvertedTomato.Compression.Integers
     public static class ZigZag
     {
         /// <summary>
-        ///     Encode a signed long into an ZigZag unsigned long.
+        /// Encode a signed long into an ZigZag unsigned long
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -21,7 +21,7 @@ namespace InvertedTomato.Compression.Integers
         }
 
         /// <summary>
-        ///     Encode an array of signed longs into a ZigZag encoded array of unsigned longs.
+        /// Encode an array of signed longs into a ZigZag encoded array of unsigned longs
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
@@ -38,7 +38,7 @@ namespace InvertedTomato.Compression.Integers
         }
 
         /// <summary>
-        ///     Decode a ZigZag unsigned long back into a signed long.
+        /// Decode a ZigZag unsigned long back into a signed long
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -49,7 +49,7 @@ namespace InvertedTomato.Compression.Integers
         }
 
         /// <summary>
-        /// Decode an array of unsigned longs into a ZigZag encoded array of signed longs.
+        /// Decode an array of unsigned longs into a ZigZag encoded array of signed longs
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>

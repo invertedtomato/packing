@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class EliasOmegaCodec : ICodec
     {
@@ -23,7 +23,7 @@ namespace InvertedTomato.Compression.Integers
             while (value > 1)
             {
                 // Calculate the length of value
-                var length = BitOperation.CountUsed(value);
+                var length = Bits.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
                 groups.Push(new KeyValuePair<UInt64, Int32>(value, length));
@@ -72,7 +72,7 @@ namespace InvertedTomato.Compression.Integers
             while (value > 1)
             {
                 // Calculate the length of value
-                var length = BitOperation.CountUsed(value);
+                var length = Bits.CountUsed(value);
 
                 // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
                 result += length;

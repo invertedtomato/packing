@@ -2,12 +2,40 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Compression.Integers.Gen3;
 
 public class StreamBitReaderTests
 {
     [Fact]
-    public void ReadBits_8()
+    public void ReadBit_1()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_10000000});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.True(reader.ReadBit());
+    }
+
+    [Fact]
+    public void ReadBit_0()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_00000000});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.False(reader.ReadBit());
+    }
+
+    [Fact]
+    public void ReadBit_0_1()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_01000000});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.False(reader.ReadBit());
+        Assert.True(reader.ReadBit());
+    }
+
+    [Fact]
+    public void ReadBits_Peak_8()
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111});
         using var reader = new StreamBitReader(stream);
@@ -17,7 +45,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_8_8_0()
+    public void ReadBits_Peak_8_Peak_8_0()
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
@@ -56,7 +84,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_4_8_4()
+    public void ReadBits_4_Peak_8_Peak_4()
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
@@ -71,7 +99,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_4_Align_4()
+    public void ReadBits_4_Peak_Align_Peak_4()
     {
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b00000000});
         using var reader = new StreamBitReader(stream);
@@ -91,9 +119,26 @@ public class StreamBitReaderTests
         using var stream = new MemoryStream(new byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111});
         using var reader = new StreamBitReader(stream);
 
-        Assert.Equal((ulong) 0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
+        Assert.Equal(0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
     }
 
+    [Fact]
+    public void ReadBits_63()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111110});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.Equal((UInt64) 0b_01111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(63));
+    }
+
+    [Fact]
+    public void ReadBits_64()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.Equal(0b_11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111, reader.ReadBits(64));
+    }
 
     [Fact]
     public void ReadBits_1_32()
@@ -102,7 +147,17 @@ public class StreamBitReaderTests
         using var reader = new StreamBitReader(stream);
 
         Assert.False(reader.ReadBit());
-        Assert.Equal((UInt64) 0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
+        Assert.Equal(0b_11111111_11111111_11111111_11111111, reader.ReadBits(32));
+    }
+
+
+    [Fact]
+    public void ReadBit_x1()
+    {
+        using var stream = new MemoryStream(new byte[]  {0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000001,});
+        using var reader = new StreamBitReader(stream);
+
+        Assert.Equal((UInt64) 1, reader.ReadBits(64));
     }
 
     [Fact]
@@ -159,5 +214,21 @@ public class StreamBitReaderTests
         Assert.Throws<EndOfStreamException>(() => reader.PeakBit());
     }
 
-    // TODO: Reading 64 bits
+    [Fact]
+    public void ReadBits_B8_8()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111});
+        using var reader = new StreamBitReader(stream, false, 1);
+
+        Assert.Equal((UInt64) 0b_11111111, reader.ReadBits(8));
+    }
+
+    [Fact]
+    public void ReadBits_B8_9()
+    {
+        using var stream = new MemoryStream(new byte[] {0b_11111111, 0b10000000,});
+        using var reader = new StreamBitReader(stream, false, 1);
+
+        Assert.Equal((UInt64) 0b_00000001_11111111, reader.ReadBits(9));
+    }
 }

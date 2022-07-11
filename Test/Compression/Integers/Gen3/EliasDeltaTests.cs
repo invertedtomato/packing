@@ -2,16 +2,16 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
-    public class EliasOmegaTests
+    public class EliasDeltaTests
     {
         // TODO: A full set of tests are required! I haven't bothered yet as I haven't found any use for this codec beyond acaedemic interest
 
         [Fact]
         public void EncodeDecode_1000()
         {
-            var ta = new EliasOmegaCodec();
+            var ta = new EliasDeltaCodec();
             using var stream = new MemoryStream();
 
             // Encode

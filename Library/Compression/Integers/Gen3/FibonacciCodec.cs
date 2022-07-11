@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class FibonacciCodec : ICodec
     {

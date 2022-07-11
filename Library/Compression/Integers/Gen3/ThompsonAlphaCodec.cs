@@ -1,11 +1,11 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Compression.Integers.Gen3;
 
 public class ThompsonAlphaCodec : ICodec
 {
     public UInt64 MinValue => UInt64.MinValue;
-    public UInt64 MaxValue => UInt64.MaxValue >> BitOperation.BITS_PER_ULONG - LengthBits + 6 - 1; // TODO: Check logic
+    public UInt64 MaxValue => UInt64.MaxValue >> Bits.ULONG_BITS - LengthBits + 6 - 1; // TODO: Check logic
 
     private readonly Int32 LengthBits;
 
@@ -33,23 +33,20 @@ public class ThompsonAlphaCodec : ICodec
         value++;
 
         // Count length
-        var length = BitOperation.CountUsed(value);
+        var length = Bits.CountUsed(value);
 
         // Check not too large
-        if (length > (LengthBits + 2) * 8)
-        {
-            throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - LengthBits - 1)}. Increase length bits to support larger numbers.");
-        }
+        if (length > (LengthBits + 2) * 8) throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - LengthBits - 1)}. Increase length bits to support larger numbers.");
 
         // Clip MSB, it's redundant
         length--;
+        value = length == 0 ? 0 : value << (Bits.ULONG_BITS - length) >> (Bits.ULONG_BITS - length);
 
         // Write length
-        buffer.WriteBits((UInt64) length, LengthBits);
+        buffer.WriteBits(length, LengthBits);
 
-        // Write number (max 32 bits can be written in one operation, so split it over two)
-        buffer.WriteBits(value, Math.Min(length, 32));
-        buffer.WriteBits(value >> 32, Math.Max(length - 32, 0));
+        // Write number
+        buffer.WriteBits(value, length);
     }
 
     private UInt64 Decode(IBitReader buffer)
@@ -58,8 +55,7 @@ public class ThompsonAlphaCodec : ICodec
         var length = (Int32) buffer.ReadBits(LengthBits);
 
         // Read number (max 32 bits can be written in one operation, so split it over two)
-        var value = buffer.ReadBits(Math.Min(length, 32));
-        value |= buffer.ReadBits(Math.Max(length - 32, 0)) << 32;
+        var value = buffer.ReadBits(length);
 
         // Recover implied MSB
         value |= (UInt64) 1 << length;
@@ -96,7 +92,7 @@ public class ThompsonAlphaCodec : ICodec
         value++;
 
         // Count length
-        var length = BitOperation.CountUsed(value);
+        var length = Bits.CountUsed(value);
 
         // Check not too large
         if (length > (LengthBits + 2) * 8)

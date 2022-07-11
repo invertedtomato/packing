@@ -1,20 +1,17 @@
 using System;
+using System.Diagnostics;
 
-namespace InvertedTomato.Compression.Integers.Gen2 {
+namespace InvertedTomato.Compression.Integers.Gen2.Wrappers {
 	public class ByteArraySegmentWrapper : IByteReader { // Based on work by Vicente Penades
 		public ByteArraySegmentWrapper(Byte[] underlying) {
 			if (null == underlying) {
 				throw new ArgumentNullException(nameof(underlying));
 			}
 
-			Underlying = new ArraySegment<Byte>(underlying);
+			Underlying = new (underlying);
 		}
 
 		public ByteArraySegmentWrapper(ArraySegment<Byte> underlying) {
-			if (null == underlying) {
-				throw new ArgumentNullException(nameof(underlying));
-			}
-
 			Underlying = underlying;
 		}
 
@@ -22,10 +19,11 @@ namespace InvertedTomato.Compression.Integers.Gen2 {
 
 		public Byte ReadByte() {
 			// Extract value
+			Debug.Assert(Underlying.Array != null, "Underlying.Array != null");
 			var value = Underlying.Array[Underlying.Offset];
 
 			// Advance pointer
-			Underlying = new ArraySegment<Byte>(Underlying.Array, Underlying.Offset + 1, Underlying.Count - 1);
+			Underlying = new (Underlying.Array, Underlying.Offset + 1, Underlying.Count - 1);
 
 			return value;
 		}

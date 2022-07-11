@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
+using InvertedTomato.Compression.Integers.Gen3.Extensions;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class RawCodecTests
     {
@@ -30,31 +31,31 @@ namespace InvertedTomato.Compression.Integers
         [Fact]
         public void Encode_0()
         {
-            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(0));
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}.ToHexString(), Encode(0).ToHexString());
         }
 
         [Fact]
         public void Encode_1()
         {
-            Assert.Equal(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(1));
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001}.ToHexString(), Encode(1).ToHexString());
         }
 
         [Fact]
         public void Encode_2()
         {
-            Assert.Equal(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(2));
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000010}.ToHexString(), Encode(2).ToHexString());
         }
 
         [Fact]
         public void Encode_3()
         {
-            Assert.Equal(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}, Encode(3));
+            Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000011}.ToHexString(), Encode(3).ToHexString());
         }
 
         [Fact]
         public void Encode_Max()
         {
-            Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}, Encode(UInt64.MaxValue));
+            Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}.ToHexString(), Encode(UInt64.MaxValue).ToHexString());
         }
 
 
@@ -67,19 +68,19 @@ namespace InvertedTomato.Compression.Integers
         [Fact]
         public void Decode_1()
         {
-            Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001}));
         }
 
         [Fact]
         public void Decode_2()
         {
-            Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000010}));
         }
 
         [Fact]
         public void Decode_3()
         {
-            Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000011, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
+            Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000011}));
         }
 
         [Fact]

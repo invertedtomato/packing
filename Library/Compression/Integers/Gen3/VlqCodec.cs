@@ -1,6 +1,6 @@
 using System;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Compression.Integers.Gen3;
 
 public class VlqCodec : ICodec
 {
@@ -45,7 +45,7 @@ public class VlqCodec : ICodec
         do
         {
             // Read byte
-            b = (Byte) buffer.ReadBits(8);
+            b = (Byte) buffer.ReadBits(Bits.BYTE_BITS);
 
             // Add input bits to output
             var chunk = (UInt64) (b & Mask);
@@ -90,10 +90,10 @@ public class VlqCodec : ICodec
     public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
     public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
     public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
-    
-    public  Int32? CalculateEncodedBits(UInt64 value)
+
+    public Int32? CalculateEncodedBits(UInt64 value)
     {
-        var packets = (Int32) Math.Ceiling(BitOperation.CountUsed(value) / (Single) PacketSize);
+        var packets = (Int32) Math.Ceiling(Bits.CountUsed(value) / (Single) PacketSize);
 
         return packets * (PacketSize + 1);
     }

@@ -8,6 +8,23 @@
 // Compress: 386ms 197.65MB / s Total 36MB
 // Decompress: 874ms 87.29MB / s
 
+// 210707
+// CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE
+//     ThompsonAlpha
+// InvertedTomato.Compression.Integers.Gen2.ThompsonAlphaCodec                             839ms             736ms           32.00MB
+// InvertedTomato.Compression.Integers.ThompsonAlphaCodec                                  897ms             738ms           32.00MB
+//     Fibonacci
+// InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,874ms           1,442ms           38.00MB
+// InvertedTomato.Compression.Integers.FibonacciCodec                                    8,399ms           6,777ms           38.00MB
+//     VLQ
+// InvertedTomato.Compression.Integers.Gen2.VlqCodec                                       265ms             346ms           36.00MB
+// InvertedTomato.Compression.Integers.VlqCodec                                            959ms           1,112ms           36.00MB
+//     Raw
+// InvertedTomato.Compression.Integers.Gen2.RawCodec                                       631ms             625ms           76.00MB
+// InvertedTomato.Compression.Integers.RawCodec                                          2,000ms           2,093ms           76.00MB
+
+
+
 using System.Diagnostics;
 
 var min = 100000;
@@ -46,12 +63,12 @@ void Gen2Test(InvertedTomato.Compression.Integers.Gen2.Codec codec)
 }
 
 
-void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
+void Gen3Test(InvertedTomato.Compression.Integers.Gen3.ICodec codec)
 {
     // Compress
     using var stream = new MemoryStream(count * 5);
     var compressStopwatch = Stopwatch.StartNew();
-    using (var writer = new InvertedTomato.Compression.Integers.StreamBitWriter(stream))
+    using (var writer = new InvertedTomato.Compression.Integers.Gen3.StreamBitWriter(stream))
     {
         input.ForEach(a=>codec.EncodeUInt64(a,writer));
     }
@@ -60,7 +77,7 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
     // Decompress
     stream.Position = 0;
     var decompressStopwatch = Stopwatch.StartNew();
-    using (var reader = new InvertedTomato.Compression.Integers.StreamBitReader(stream))
+    using (var reader = new InvertedTomato.Compression.Integers.Gen3.StreamBitReader(stream))
     {
         input.ForEach(a =>
         {
@@ -76,19 +93,19 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
 Console.WriteLine("CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE");
 Console.WriteLine("ThompsonAlpha");
 Gen2Test(new InvertedTomato.Compression.Integers.Gen2.ThompsonAlphaCodec());
-Gen3Test(new InvertedTomato.Compression.Integers.ThompsonAlphaCodec());
+Gen3Test(new InvertedTomato.Compression.Integers.Gen3.ThompsonAlphaCodec());
 
 Console.WriteLine("Fibonacci");
 Gen2Test(new InvertedTomato.Compression.Integers.Gen2.FibonacciCodec());
-Gen3Test(new InvertedTomato.Compression.Integers.FibonacciCodec());
+Gen3Test(new InvertedTomato.Compression.Integers.Gen3.FibonacciCodec());
 
 Console.WriteLine("VLQ");
 Gen2Test(new InvertedTomato.Compression.Integers.Gen2.VlqCodec());
-Gen3Test(new InvertedTomato.Compression.Integers.VlqCodec());
+Gen3Test(new InvertedTomato.Compression.Integers.Gen3.VlqCodec());
 
 Console.WriteLine("Raw");
 Gen2Test(new InvertedTomato.Compression.Integers.Gen2.RawCodec());
-Gen3Test(new InvertedTomato.Compression.Integers.RawCodec());
+Gen3Test(new InvertedTomato.Compression.Integers.Gen3.RawCodec());
 
 Console.WriteLine("\nDone.");
 Console.ReadKey(true);

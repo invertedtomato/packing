@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     public class ZigZagTests
     {

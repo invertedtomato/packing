@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
 
-namespace InvertedTomato.Compression.Integers
+namespace InvertedTomato.Compression.Integers.Gen3
 {
     /// <summary>
     /// VLQ similar to https://en.wikipedia.org/wiki/Variable-length_quantity with "Removing Redundancy", but the
@@ -11,7 +10,6 @@ namespace InvertedTomato.Compression.Integers
     {
         public  UInt64 MinValue => UInt64.MinValue;
         public  UInt64 MaxValue => UInt64.MaxValue - 1;
-        public const Byte Nil = 0x80; // 10000000
 
         public static readonly Byte[] Zero = {0x80}; // 10000000
         public static readonly Byte[] One = {0x81}; // 10000001
@@ -19,6 +17,7 @@ namespace InvertedTomato.Compression.Integers
         public static readonly Byte[] Four = {0x84}; // 10000100
         public static readonly Byte[] Eight = {0x88};
 
+        private const Byte Nil = 0x80; // 10000000
         private const Byte Mask = 0x7f; // 01111111
         private const Int32 PacketSize = 7;
         private const UInt64 MinPacketValue = UInt64.MaxValue >> (64 - PacketSize);
@@ -36,7 +35,7 @@ namespace InvertedTomato.Compression.Integers
             while (value > MinPacketValue)
             {
                 // Write payload, skipping MSB bit
-                buffer.WriteBits((Byte) (value & Mask), BitOperation.BITS_PER_BYTE);
+                buffer.WriteBits((Byte) (value & Mask), Bits.BYTE_BITS);
 
                 // Offset value for next cycle
                 value >>= PacketSize;
@@ -44,7 +43,7 @@ namespace InvertedTomato.Compression.Integers
             }
 
             // Write remaining - marking it as the final byte for symbol
-            buffer.WriteBits((Byte) (value | Nil), BitOperation.BITS_PER_BYTE);
+            buffer.WriteBits((Byte) (value | Nil), Bits.BYTE_BITS);
         }
 
         private UInt64 Decode(IBitReader buffer)
@@ -57,10 +56,10 @@ namespace InvertedTomato.Compression.Integers
             do
             {
                 // Read byte
-                b = buffer.ReadBits(8);
+                b = buffer.ReadBits(Bits.BYTE_BITS);
 
                 // Add input bits to output
-                var chunk = (UInt64) (b & Mask);
+                var chunk = b & Mask;
                 var pre = symbol;
                 symbol += (chunk + 1) << bit;
 
@@ -105,7 +104,7 @@ namespace InvertedTomato.Compression.Integers
 
         public Int32? CalculateEncodedBits(UInt64 value)
         {
-            var packets = (Int32) Math.Ceiling(BitOperation.CountUsed(value) / (Single) PacketSize);
+            var packets = (Int32) Math.Ceiling(Bits.CountUsed(value) / (Single) PacketSize);
 
             return packets * (PacketSize + 1);
         }
