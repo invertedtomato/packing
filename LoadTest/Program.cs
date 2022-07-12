@@ -38,10 +38,10 @@
 // InvertedTomato.Compression.Integers.Gen2.RawCodec                                       647ms             639ms           76.00MB
 // InvertedTomato.Compression.Integers.Gen3.RawCodec                                       825ms             850ms           76.00MB
 
-// 220711 Added Fib write buffering rather than pushing raw bits
+// 220713 Added Fib write buffering rather than pushing raw bits
 // Fibonacci
-// InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,915ms           1,469ms           38.00MB
-// InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,155ms           6,391ms           38.00MB
+// InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,924ms           1,484ms           38.00MB
+// InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,396ms           7,443ms           38.00MB
 
 
 using System.Diagnostics;
@@ -127,4 +127,3 @@ Gen2Test(new InvertedTomato.Compression.Integers.Gen2.RawCodec());
 Gen3Test(new InvertedTomato.Compression.Integers.Gen3.RawCodec());
 
 Console.WriteLine("\nDone.");
-Console.ReadKey(true);

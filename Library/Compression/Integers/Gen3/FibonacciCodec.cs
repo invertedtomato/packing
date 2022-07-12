@@ -38,32 +38,40 @@ namespace InvertedTomato.Compression.Integers.Gen3
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            var buffers = new UInt64[] {0, 0};
-            var count = 0;
+            UInt64[]? buffers = null;
+            Int32[]? counts = null;
+            //var count = 0;
             Int32 a;
             Int32 b;
-            Int32 pos;
             for (var i = FibonacciTable.Length - 1; i >= 0; i--) {
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
-                pos = i ; // Offset to leave room for termination bit
-
                 // If this is the first fib match...
-                if (count == 0) {
-                    // Calculate bit count
-                    count = pos + 2; // +1 to fit current bit
+                if (buffers == null) {
+                    // Calculate the total bit count
+                    var totalCount = i + 2; // The current index, add one to make it a count, and add another one for the termination bit
+
+                    // Allocate buffers
+                    buffers = new UInt64[totalCount / Bits.ULONG_BITS + 1];
+                    counts = new Int32[totalCount / Bits.ULONG_BITS + 1];
+
+                    // Calculate the count of bits for each buffer
+                    for (var j = 0; j < counts.Length; j++) {
+                        counts[j] = Math.Min(totalCount, Bits.ULONG_BITS);
+                        totalCount -= counts[j];
+                    }
 
                     // Calculate address for termination bit
-                    a = (pos + 2) / Bits.ULONG_BITS;
+                    a = (i + 1) / Bits.ULONG_BITS;
 
                     // Set termination bit
                     buffers[a] |= One;
                 }
-                
+
                 // Calculate address
-                a = pos / Bits.ULONG_BITS;
-                b = count - pos - 1; // TODO: This should be zero to fix test!
+                a = i / Bits.ULONG_BITS;
+                b = counts![a] - i - 1;
 
                 // Write to buffer
                 buffers[a] |= One << b;
@@ -73,13 +81,7 @@ namespace InvertedTomato.Compression.Integers.Gen3
             }
 
             // Write out buffers
-            a = 0;
-            while (count > 0) {
-                var load = Math.Min(Bits.ULONG_BITS, count);
-                writer.WriteBits(buffers[a], load);
-                count -= load;
-                a++;
-            }
+            for (a = 0; a < buffers!.Length; a++) writer.WriteBits(buffers[a], counts![a]);
         }
 
         private UInt64 Decode(IBitReader buffer)
