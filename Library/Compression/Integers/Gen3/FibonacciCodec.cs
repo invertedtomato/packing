@@ -40,13 +40,15 @@ namespace InvertedTomato.Compression.Integers.Gen3
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
             var buffers = new UInt64[] {0, 0};
             var count = 0;
+            Int32 a;
+            Int32 b;
             for (var i = FibonacciTable.Length - 1; i >= 0; i--) {
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
                 // Calculate first part of buffer address
-                var a = i / Bits.ULONG_BITS;
-                
+                a = i / Bits.ULONG_BITS;
+
                 // If this is the first fib match...
                 if (count == 0) {
                     // Calculate bit count
@@ -57,9 +59,8 @@ namespace InvertedTomato.Compression.Integers.Gen3
                 }
 
                 // Calculate second part of buffer address
-                var innerCount = count % Bits.ULONG_BITS;
-                var b = innerCount - i % Bits.ULONG_BITS - 1;
-                
+                b = count - i - 1;
+
                 // Write to buffer
                 buffers[a] |= One << b;
 
@@ -68,9 +69,12 @@ namespace InvertedTomato.Compression.Integers.Gen3
             }
 
             // Write out buffers
-            foreach (var buffer in buffers) {
-                writer.WriteBits(buffer, Math.Min(Bits.ULONG_BITS, Math.Max(0, count)));
-                count -= Bits.ULONG_BITS;
+            a = 0;
+            while (count > 0) {
+                var load = Math.Min(Bits.ULONG_BITS, count);
+                writer.WriteBits(buffers[a], load);
+                count -= load;
+                a++;
             }
         }
 
