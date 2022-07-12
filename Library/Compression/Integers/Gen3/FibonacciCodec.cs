@@ -44,17 +44,24 @@ namespace InvertedTomato.Compression.Integers.Gen3
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
+                // Calculate first part of buffer address
+                var a = i / Bits.ULONG_BITS;
+                
                 // If this is the first fib match...
                 if (count == 0) {
-                    // Calculate offsets
-                    count = i + 2;
+                    // Calculate bit count
+                    count = i + 2; // Additional to fit current bit, and another for termination bit
 
                     // Set termination bit
-                    buffers[i / Bits.ULONG_BITS] |= One;
+                    buffers[a] |= One;
                 }
 
-                // Write to low buffer
-                buffers[i / Bits.ULONG_BITS] |= One << (count - i - 1);
+                // Calculate second part of buffer address
+                var innerCount = count % Bits.ULONG_BITS;
+                var b = innerCount - i % Bits.ULONG_BITS - 1;
+                
+                // Write to buffer
+                buffers[a] |= One << b;
 
                 // Deduct Fibonacci number from value
                 value -= FibonacciTable[i];
