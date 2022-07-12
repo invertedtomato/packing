@@ -14,14 +14,14 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Inverted Tomato</Authors>
     <Company>Inverted Tomato</Company>
-    <AssemblyVersion>1.2.3.0</AssemblyVersion>
-    <FileVersion>1.2.3.0</FileVersion>
-    <PackageVersion>3.0.0</PackageVersion>
+    <AssemblyVersion>4.0.0</AssemblyVersion>
+    <FileVersion>4.0.0</FileVersion>
+    <PackageVersion>4.0.0</PackageVersion>
     <Title>InvertedTomato.IntegerCompression</Title>
     <PackageReleaseNotes>Removed legacy interfaces. Removed dependancy on external library.</PackageReleaseNotes>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>net6.0;netstandard1.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard1.0;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
 </Project>

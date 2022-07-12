@@ -29,7 +29,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
     {
 #if DEBUG
         // Count the count is sane
-        if (count is < 0 or > Bits.ULONG_BITS) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.ULONG_BITS}");
+        if (count is < 0 or > Bits.ULONG_BITS) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.ULONG_BITS} but was {count}");
 
         // Check that only bits within the count range are used (yep, we could clean this automatically, but that adds operations and slows things down, so we only check when debugging)
         if ((bits << Bits.ULONG_BITS - count >> Bits.ULONG_BITS - count != bits)
