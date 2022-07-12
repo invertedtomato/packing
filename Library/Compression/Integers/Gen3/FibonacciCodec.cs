@@ -38,46 +38,39 @@ namespace InvertedTomato.Compression.Integers.Gen3
 
             // #1 Find the largest Fibonacci number equal to or less than N; subtract this number from N, keeping track of the remainder.
             // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
-            var lowCount = 0;
-            var highCount = 0;
-            UInt64 lowBuffer = 0;
-            UInt64 highBuffer = 0;
-            for (var i = FibonacciTable.Length - 1; i >= 0; i--)
-            {
+            var buffers = new UInt64[] {0, 0};
+            var count = 0;
+            for (var i = FibonacciTable.Length - 1; i >= 0; i--) {
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
                 // If this is within the low buffer
-                if (i <= Bits.ULONG_BITS)
-                {
+                if (i <= Bits.ULONG_BITS) {
                     // If this is the first fib match...
-                    if (lowCount == 0)
-                    {
+                    if (count == 0) {
                         // Calculate offsets
-                        lowCount = i + 2;
+                        count = i + 2;
 
                         // Set termination bit
-                        lowBuffer |= One;
+                        buffers[0] |= One;
                     }
 
                     // Write to low buffer
-                    lowBuffer |= One << (lowCount - i - 1);
+                    buffers[0] |= One << (count - i - 1);
                 }
                 else // its in the high buffer
                 {
                     // If this is the first fib match...
-                    if (lowCount == 0)
-                    {
+                    if (count == 0) {
                         // Calculate offsets
-                        lowCount = Bits.ULONG_BITS;
-                        highCount = i - Bits.ULONG_BITS;
+                        count = i + 2;
 
                         // Set termination bit
-                        highBuffer |= One;
+                        buffers[1] |= One;
                     }
 
                     // Write to high buffer
-                    highBuffer |= One << (highCount - (i - Bits.ULONG_BITS) + 1);
+                    buffers[1] |= One << (count - Bits.ULONG_BITS - i - 1);
                 }
 
                 // Deduct Fibonacci number from value
@@ -85,8 +78,10 @@ namespace InvertedTomato.Compression.Integers.Gen3
             }
 
             // Write out buffers
-            writer.WriteBits(lowBuffer, lowCount);
-            writer.WriteBits(highBuffer, highCount);
+            foreach (var buffer in buffers) {
+                writer.WriteBits(buffer, Math.Min(Bits.ULONG_BITS, Math.Max(0, count)));
+                count -= Bits.ULONG_BITS;
+            }
         }
 
         private UInt64 Decode(IBitReader buffer)
@@ -98,12 +93,10 @@ namespace InvertedTomato.Compression.Integers.Gen3
             var lastBit = false;
 
             // Loop through each possible fib
-            foreach (var fib in FibonacciTable)
-            {
+            foreach (var fib in FibonacciTable) {
                 // Read bit of input
                 var bit = buffer.ReadBit();
-                if (bit)
-                {
+                if (bit) {
                     // If double 1 bits - all done! Return symbol less zero offset
                     if (lastBit) return symbol - 1;
 
@@ -111,8 +104,7 @@ namespace InvertedTomato.Compression.Integers.Gen3
                     var pre = symbol;
                     symbol += fib;
 #if DEBUG
-                    if (symbol < pre)
-                    {
+                    if (symbol < pre) {
                         // Input is larger than expected
                         throw new OverflowException($"Symbol is larger than the max value of {MaxValue}. Data is probably corrupt");
                     }
@@ -133,18 +125,15 @@ namespace InvertedTomato.Compression.Integers.Gen3
         public Int32? CalculateEncodedBits(UInt64 value)
         {
             // Check for overflow
-            if (value > MaxValue)
-            {
+            if (value > MaxValue) {
                 return null;
             }
 
             // Offset for zero
             value++;
 
-            for (var i = FibonacciTable.Length - 1; i >= 0; i--)
-            {
-                if (value >= FibonacciTable[i])
-                {
+            for (var i = FibonacciTable.Length - 1; i >= 0; i--) {
+                if (value >= FibonacciTable[i]) {
                     return i + 1;
                 }
             }
