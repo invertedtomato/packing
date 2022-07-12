@@ -13,8 +13,7 @@ namespace InvertedTomato.Compression.Integers.Gen3
         {
             var codec = new FibonacciCodec();
             using var stream = new MemoryStream();
-            using (var writer = new StreamBitWriter(stream))
-            {
+            using (var writer = new StreamBitWriter(stream)) {
                 codec.EncodeUInt64(value, writer);
             }
 
@@ -26,19 +25,19 @@ namespace InvertedTomato.Compression.Integers.Gen3
 
         [Fact]
         public void Encode_1() => Assert.Equal(new Byte[] {0b01100000}.ToBinaryString(), Encode(1).ToBinaryString());
-        
+
         [Fact]
         public void Encode_2() => Assert.Equal(new Byte[] {0b00110000}.ToBinaryString(), Encode(2).ToBinaryString());
-        
+
         [Fact]
         public void Encode_3() => Assert.Equal(new Byte[] {0b10110000}.ToBinaryString(), Encode(3).ToBinaryString());
-        
+
         [Fact]
         public void Encode_4() => Assert.Equal(new Byte[] {0b00011000}.ToBinaryString(), Encode(4).ToBinaryString());
-        
+
         [Fact]
         public void Encode_5() => Assert.Equal(new Byte[] {0b10011000}.ToBinaryString(), Encode(5).ToBinaryString());
-        
+
         [Fact]
         public void Encode_6() => Assert.Equal(new Byte[] {0b01011000}.ToBinaryString(), Encode(6).ToBinaryString());
 
@@ -82,8 +81,26 @@ namespace InvertedTomato.Compression.Integers.Gen3
         public void Encode_2583() => Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b11000000}, Encode(2583)); // Final and termination bits on next byte
 
         [Fact]
-        public void Encode_Max() => Assert.Equal(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011000}, Encode(new FibonacciCodec().MaxValue)); // Not completely sure about this value
+        public void Encode_6557470319841() =>  Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000110}.ToBinaryString(), Encode(6557470319841).ToBinaryString()); // All bits in first buffer
 
+        [Fact]
+        public void Encode_10610209857722() => Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000011}.ToBinaryString(), Encode(10610209857722).ToBinaryString()); // All bits in first buffer
+
+        [Fact]
+        public void Encode_17167680177564() => Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001, 0b10000000}.ToBinaryString(), Encode(17167680177564).ToBinaryString()); // All value bits in first buffer and termination in second buffer
+
+        [Fact]
+        public void Encode_27777890035287() => Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b11000000}.ToBinaryString(), Encode(27777890035287).ToBinaryString()); // Value bits and termination bits in second buffer
+
+        [Fact]
+        public void Encode_Max()
+        {
+            var expected = new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011000}.ToBinaryString();
+            var actual = Encode(new FibonacciCodec().MaxValue).ToBinaryString();
+            Assert.Equal(expected, actual); // Not completely sure about this value
+            // Actual:   10100010 01000100 10000000 01001000 10001010 00001010 00101000 00100010 10001000 10100000 10001010 01011000
+            // Expected: 01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000
+        }
 
         // Decode
 
@@ -154,7 +171,7 @@ namespace InvertedTomato.Compression.Integers.Gen3
         public void Decode_Max() => Assert.Equal(new FibonacciCodec().MaxValue, Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}));
 
         [Fact]
-        public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {  0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10101010, 0b01011_000}); }); // Symbol too large
+        public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10101010, 0b01011_000}); }); // Symbol too large
 
         [Fact]
         public void Decode_Overflow2() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b010011_00}); }); // Symbol too long
@@ -167,10 +184,8 @@ namespace InvertedTomato.Compression.Integers.Gen3
             using var stream = new MemoryStream();
 
             // Encode
-            using (var writer = new StreamBitWriter(stream))
-            {
-                for (UInt64 symbol = 0; symbol < 1000; symbol++)
-                {
+            using (var writer = new StreamBitWriter(stream)) {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++) {
                     ta.EncodeUInt64(symbol, writer);
                 }
             }
@@ -178,10 +193,8 @@ namespace InvertedTomato.Compression.Integers.Gen3
             stream.Seek(0, SeekOrigin.Begin);
 
             // Decode
-            using (var reader = new StreamBitReader(stream))
-            {
-                for (UInt64 symbol = 0; symbol < 1000; symbol++)
-                {
+            using (var reader = new StreamBitReader(stream)) {
+                for (UInt64 symbol = 0; symbol < 1000; symbol++) {
                     Assert.Equal(symbol, ta.DecodeUInt64(reader));
                 }
             }

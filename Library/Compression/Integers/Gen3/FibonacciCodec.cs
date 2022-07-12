@@ -42,24 +42,28 @@ namespace InvertedTomato.Compression.Integers.Gen3
             var count = 0;
             Int32 a;
             Int32 b;
+            Int32 pos;
             for (var i = FibonacciTable.Length - 1; i >= 0; i--) {
                 // Do nothing if not a fib match
                 if (value < FibonacciTable[i]) continue;
 
-                // Calculate first part of buffer address
-                a = i / Bits.ULONG_BITS;
+                pos = i ; // Offset to leave room for termination bit
 
                 // If this is the first fib match...
                 if (count == 0) {
                     // Calculate bit count
-                    count = i + 2; // Additional to fit current bit, and another for termination bit
+                    count = pos + 2; // +1 to fit current bit
+
+                    // Calculate address for termination bit
+                    a = (pos + 2) / Bits.ULONG_BITS;
 
                     // Set termination bit
                     buffers[a] |= One;
                 }
-
-                // Calculate second part of buffer address
-                b = count - i - 1;
+                
+                // Calculate address
+                a = pos / Bits.ULONG_BITS;
+                b = count - pos - 1; // TODO: This should be zero to fix test!
 
                 // Write to buffer
                 buffers[a] |= One << b;
