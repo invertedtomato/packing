@@ -12,10 +12,7 @@ public static class ZigZag
     /// <param name="value"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt64 Encode(Int64 value)
-    {
-        return (UInt64)((value << 1) ^ (value >> 63));
-    }
+    public static UInt64 Encode(Int64 value) => (UInt64)((value << 1) ^ (value >> 63));
 
     /// <summary>
     /// Encode an array of signed longs into a ZigZag encoded array of unsigned longs
@@ -40,10 +37,7 @@ public static class ZigZag
     /// <param name="value"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Int64 Decode(UInt64 value)
-    {
-        return (Int64)((value >> 1) ^ (~(value & 1) + 1));
-    }
+    public static Int64 Decode(UInt64 value) => (Int64)((value >> 1) ^ (~(value & 1) + 1));
 
     /// <summary>
     /// Decode an array of unsigned longs into a ZigZag encoded array of signed longs
