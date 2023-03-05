@@ -7,19 +7,19 @@ namespace InvertedTomato.Binary;
 
 public class StreamBitReader : IBitReader, IDisposable
 {
-    private readonly Stream Underlying;
-    private readonly Boolean OwnUnderlying;
-    private readonly Byte[] Buffer;
-    private Int32 Offset;
-    private Int32 Count;
+    private readonly Stream _underlying;
+    private readonly Boolean _ownUnderlying;
+    private readonly Byte[] _buffer;
+    private Int32 _offset;
+    private Int32 _count;
 
     public Boolean IsDisposed { get; private set; }
 
     public StreamBitReader(Stream underlying, Boolean ownUnderlying = false, Int32 bufferSize = 1024)
     {
-        Underlying = underlying;
-        OwnUnderlying = ownUnderlying;
-        Buffer = new Byte[bufferSize];
+        _underlying = underlying;
+        _ownUnderlying = ownUnderlying;
+        _buffer = new Byte[bufferSize];
     }
 
     public UInt64 ReadBits(int count)
@@ -38,19 +38,19 @@ public class StreamBitReader : IBitReader, IDisposable
             UnderlyingRead();
 
             // Calculate bit address
-            var a = Offset / Bits.ByteBits;
-            var b = Offset % Bits.ByteBits;
+            var a = _offset / Bits.ByteBits;
+            var b = _offset % Bits.ByteBits;
 
             // Calculate number of bits available in this byte
             var load = Math.Min(Bits.ByteBits - b, count);
 
             // Extract bits
-            var chunk = (Byte)(Buffer[a] << b) >> Bits.ByteBits - load; // This is a little complex, as it must mask out any previous bits in this byte at the same time
+            var chunk = (Byte)(_buffer[a] << b) >> Bits.ByteBits - load; // This is a little complex, as it must mask out any previous bits in this byte at the same time
 
             // Load the bits
             value |= (UInt64)chunk << count - load;
-            Offset += load;
-            Count -= load;
+            _offset += load;
+            _count -= load;
 
             // Decrement input
             count -= load;
@@ -63,7 +63,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
     public Boolean ReadBit() => ReadBits(1) > 0;
 
-    public void Align() => ReadBits(Count % Bits.ByteBits);
+    public void Align() => ReadBits(_count % Bits.ByteBits);
 
     public bool PeakBit()
     {
@@ -71,11 +71,11 @@ public class StreamBitReader : IBitReader, IDisposable
         UnderlyingRead();
 
         // Calculate bit address
-        var a = Offset / Bits.ByteBits;
-        var b = Offset % Bits.ByteBits;
+        var a = _offset / Bits.ByteBits;
+        var b = _offset % Bits.ByteBits;
 
         // Get bit at that address
-        var bit = Buffer[a] & (Byte)(1 << Bits.ByteBits - b - 1);
+        var bit = _buffer[a] & (Byte)(1 << Bits.ByteBits - b - 1);
 
         // Test if non-zero
         return bit > 0;
@@ -84,14 +84,14 @@ public class StreamBitReader : IBitReader, IDisposable
     private void UnderlyingRead()
     {
         // If there's more bits in the buffer, do nothing
-        if (Count > 0) return;
+        if (_count > 0) return;
 
         // Otherwise load more bits
-        Offset = 0;
-        Count = Underlying.Read(Buffer) * Bits.ByteBits;
+        _offset = 0;
+        _count = _underlying.Read(_buffer) * Bits.ByteBits;
 
         // If nothing could be loaded, throw exception
-        if (Count == 0) throw new EndOfStreamException();
+        if (_count == 0) throw new EndOfStreamException();
     }
 
     public void Dispose()
@@ -101,12 +101,12 @@ public class StreamBitReader : IBitReader, IDisposable
         IsDisposed = true;
 
         // If we own the underlying, dispose it too
-        if (OwnUnderlying) Underlying.Dispose();
+        if (_ownUnderlying) _underlying.Dispose();
     }
 
     public override string ToString()
     {
-        var a = String.Join("", Buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
-        return a.Substring(Offset, Count);
+        var a = String.Join("", _buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
+        return a.Substring(_offset, _count);
     }
 }

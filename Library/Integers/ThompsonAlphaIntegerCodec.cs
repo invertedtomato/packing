@@ -1,11 +1,13 @@
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace InvertedTomato.Binary.Integers;
 
 public class ThompsonAlphaIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => UInt64.MinValue;
-    public UInt64 MaxValue => UInt64.MaxValue >> Bits.UlongBits - LengthBits + 6 - 1; // TODO: Check logic
+    public UInt64 MaxValue => UInt64.MaxValue >> Bits.UlongBits - _lengthBits + 6 - 1; // TODO: Check logic
 
-    private readonly Int32 LengthBits;
+    private readonly Int32 _lengthBits;
 
     public ThompsonAlphaIntegerCodec() : this(6)
     {
@@ -22,7 +24,7 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
             throw new ArgumentOutOfRangeException($"Must be between 1 and 6, not {lengthBits}.", nameof(lengthBits));
         }
 
-        LengthBits = lengthBits;
+        _lengthBits = lengthBits;
     }
 
     private void Encode(UInt64 value, IBitWriter buffer)
@@ -34,14 +36,15 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
         var length = Bits.CountUsed(value);
 
         // Check not too large
-        if (length > (LengthBits + 2) * 8) throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - LengthBits - 1)}. Increase length bits to support larger numbers.");
+        if (length > (_lengthBits + 2) * 8)
+            throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - _lengthBits - 1)}. Increase length bits to support larger numbers.");
 
         // Clip MSB, it's redundant
         length--;
         value = length == 0 ? 0 : value << (Bits.UlongBits - length) >> (Bits.UlongBits - length);
 
         // Write length
-        buffer.WriteBits(length, LengthBits);
+        buffer.WriteBits(length, _lengthBits);
 
         // Write number
         buffer.WriteBits(value, length);
@@ -50,13 +53,13 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
     private UInt64 Decode(IBitReader buffer)
     {
         // Read length
-        var length = (Int32) buffer.ReadBits(LengthBits);
+        var length = (Int32)buffer.ReadBits(_lengthBits);
 
         // Read number (max 32 bits can be written in one operation, so split it over two)
         var value = buffer.ReadBits(length);
 
         // Recover implied MSB
-        value |= (UInt64) 1 << length;
+        value |= (UInt64)1 << length;
 
         // Remove offset to allow zeros
         value--;
@@ -75,13 +78,13 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
     public void EncodeInt64(long value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
 
     public Boolean DecodeBit(IBitReader buffer) => Decode(buffer) > 0;
-    public Byte DecodeUInt8(IBitReader buffer) => (Byte) Decode(buffer);
-    public UInt16 DecodeUInt16(IBitReader buffer) => (UInt16) Decode(buffer);
-    public UInt32 DecodeUInt32(IBitReader buffer) => (UInt32) Decode(buffer);
+    public Byte DecodeUInt8(IBitReader buffer) => (Byte)Decode(buffer);
+    public UInt16 DecodeUInt16(IBitReader buffer) => (UInt16)Decode(buffer);
+    public UInt32 DecodeUInt32(IBitReader buffer) => (UInt32)Decode(buffer);
     public UInt64 DecodeUInt64(IBitReader buffer) => Decode(buffer);
-    public SByte DecodeInt8(IBitReader buffer) => (SByte) ZigZag.Decode(Decode(buffer));
-    public Int16 DecodeInt16(IBitReader buffer) => (Int16) ZigZag.Decode(Decode(buffer));
-    public Int32 DecodeInt32(IBitReader buffer) => (Int32) ZigZag.Decode(Decode(buffer));
+    public SByte DecodeInt8(IBitReader buffer) => (SByte)ZigZag.Decode(Decode(buffer));
+    public Int16 DecodeInt16(IBitReader buffer) => (Int16)ZigZag.Decode(Decode(buffer));
+    public Int32 DecodeInt32(IBitReader buffer) => (Int32)ZigZag.Decode(Decode(buffer));
     public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
 
     public int? CalculateEncodedBits(ulong value)
@@ -93,7 +96,7 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
         var length = Bits.CountUsed(value);
 
         // Check not too large
-        if (length > (LengthBits + 2) * 8)
+        if (length > (_lengthBits + 2) * 8)
         {
             return null;
         }
@@ -101,6 +104,6 @@ public class ThompsonAlphaIntegerCodec : IIntegerCodec
         // Clip MSB, it's redundant
         length--;
 
-        return LengthBits + length;
+        return _lengthBits + length;
     }
 }

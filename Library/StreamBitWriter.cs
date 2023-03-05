@@ -9,18 +9,18 @@ public class StreamBitWriter : IBitWriter, IDisposable
 {
     private const UInt64 Zero = 0;
     private const UInt64 One = 1;
-    private readonly Stream Underlying;
-    private readonly Boolean OwnUnderlying;
-    private readonly Byte[] Buffer;
-    private Int32 Count;
+    private readonly Stream _underlying;
+    private readonly Boolean _ownUnderlying;
+    private readonly Byte[] _buffer;
+    private Int32 _count;
 
     public Boolean IsDisposed { get; private set; }
 
     public StreamBitWriter(Stream underlying, Boolean ownUnderlying = false, Int32 bufferSize = 1024)
     {
-        Underlying = underlying;
-        OwnUnderlying = ownUnderlying;
-        Buffer = new Byte[bufferSize];
+        _underlying = underlying;
+        _ownUnderlying = ownUnderlying;
+        _buffer = new Byte[bufferSize];
     }
 
     public void WriteBits(UInt64 bits, int count)
@@ -39,8 +39,8 @@ public class StreamBitWriter : IBitWriter, IDisposable
         do
         {
             // Calculate bit address
-            var a = Count / Bits.ByteBits;
-            var b = Count % Bits.ByteBits;
+            var a = _count / Bits.ByteBits;
+            var b = _count % Bits.ByteBits;
 
             // Calculate number of bits to load into this byte
             var load = Math.Min(Bits.ByteBits - b, count);
@@ -49,21 +49,21 @@ public class StreamBitWriter : IBitWriter, IDisposable
             var chunk = (Byte)(bits >> (count - load));
 
             // Load the bits
-            Buffer[a] |= (Byte)(chunk << (Bits.ByteBits - load - b));
-            Count += load;
+            _buffer[a] |= (Byte)(chunk << (Bits.ByteBits - load - b));
+            _count += load;
 
             // Decrement input
             count -= load;
 
             // If buffer is full..
-            if (Count == Buffer.Length * Bits.ByteBits)
+            if (_count == _buffer.Length * Bits.ByteBits)
             {
                 // Flush buffer
-                Underlying.Write(Buffer);
+                _underlying.Write(_buffer);
 
                 // Clear buffer
-                Buffer.Clear();
-                Count = 0;
+                _buffer.Clear();
+                _count = 0;
             }
 
             // If all bits have been written, end here
@@ -74,7 +74,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public void Align()
     {
-        if (HasPartialByte()) WriteBits(0, Bits.ByteBits - Count % Bits.ByteBits);
+        if (HasPartialByte()) WriteBits(0, Bits.ByteBits - _count % Bits.ByteBits);
     }
 
     public void Dispose()
@@ -84,19 +84,19 @@ public class StreamBitWriter : IBitWriter, IDisposable
         IsDisposed = true;
 
         // Write out any remaining bytes
-        var count = Count / Bits.ByteBits;
+        var count = _count / Bits.ByteBits;
         if (HasPartialByte()) count++; // If there's an incomplete byte, write it anyway
-        Underlying.Write(Buffer, count);
+        _underlying.Write(_buffer, count);
 
         // If we own the underlying, dispose it too
-        if (OwnUnderlying) Underlying.Dispose();
+        if (_ownUnderlying) _underlying.Dispose();
     }
 
     public override string ToString()
     {
-        var a = String.Join("", Buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
-        return a.Substring(0, Count);
+        var a = String.Join("", _buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
+        return a.Substring(0, _count);
     }
 
-    private Boolean HasPartialByte() => Count % Bits.ByteBits > 0;
+    private Boolean HasPartialByte() => _count % Bits.ByteBits > 0;
 }
