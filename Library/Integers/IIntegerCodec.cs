@@ -1,3 +1,7 @@
+// ReSharper disable UnusedMember.Global
+
+// ReSharper disable UnusedMemberInSuper.Global
+
 namespace InvertedTomato.Binary.Integers;
 
 public interface IIntegerCodec
