@@ -50,7 +50,7 @@ public class EliasGammaIntegerCodec : IIntegerCodec
         return Bits.CountUsed(value) * 2 - 1;
     }
 
-    public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);
+    public void EncodeBit(bool value, IBitWriter buffer) => Encode(value ? 1UL : 0UL, buffer);
     public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);
     public void EncodeUInt16(ushort value, IBitWriter buffer) => Encode(value, buffer);
     public void EncodeUInt32(uint value, IBitWriter buffer) => Encode(value, buffer);

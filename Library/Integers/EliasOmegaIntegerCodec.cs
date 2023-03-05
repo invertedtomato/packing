@@ -16,7 +16,7 @@ public class EliasOmegaIntegerCodec : IIntegerCodec
         var groups = new Stack<KeyValuePair<UInt64, Int32>>();
 
         // #1 Place a "0" at the end of the code.
-        groups.Push(new KeyValuePair<UInt64, Int32>(0, 1));
+        groups.Push(new (0, 1));
 
         // #2 If N=1, stop; encoding is complete.
         while (value > 1)
@@ -25,7 +25,7 @@ public class EliasOmegaIntegerCodec : IIntegerCodec
             var length = Bits.CountUsed(value);
 
             // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
-            groups.Push(new KeyValuePair<UInt64, Int32>(value, length));
+            groups.Push(new (value, length));
 
             // #4 Let N equal the number of bits just prepended, minus one.
             value = (UInt64)length - 1;
@@ -83,7 +83,7 @@ public class EliasOmegaIntegerCodec : IIntegerCodec
         return result;
     }
 
-    public void EncodeBit(bool value, IBitWriter buffer) => Encode(1, buffer);
+    public void EncodeBit(bool value, IBitWriter buffer) => Encode(value ? 1UL : 0UL, buffer);
     public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);
     public void EncodeUInt16(ushort value, IBitWriter buffer) => Encode(value, buffer);
     public void EncodeUInt32(uint value, IBitWriter buffer) => Encode(value, buffer);
