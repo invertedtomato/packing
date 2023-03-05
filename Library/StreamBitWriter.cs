@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using InvertedTomato.Compression.Integers.Gen3.Extensions;
+using InvertedTomato.Compression.Integers.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 

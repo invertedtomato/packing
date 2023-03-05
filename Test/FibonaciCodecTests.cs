@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-using InvertedTomato.Compression.Integers.Gen3.Extensions;
+using InvertedTomato.Compression.Integers.Extensions;
 using Xunit;
 
-namespace InvertedTomato.Compression.Integers.Gen3
-{
-    public class FibonacciCodecTests
+namespace InvertedTomato.Compression.Integers;
+
+public class FibonacciCodecTests
     {
         // Encode
 
@@ -200,4 +200,3 @@ namespace InvertedTomato.Compression.Integers.Gen3
             }
         }
     }
-}

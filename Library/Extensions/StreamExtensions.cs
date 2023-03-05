@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace InvertedTomato.Compression.Integers.Gen3.Extensions;
+namespace InvertedTomato.Compression.Integers.Extensions;
 
 public static class StreamExtensions
 {
