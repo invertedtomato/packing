@@ -19,11 +19,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Library\Library.csproj" />
+      <Compile Remove="Compression\Integers\BufferUtilTests.cs" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Compression\Integers\BufferUtilTests.cs" />
+      <ProjectReference Include="..\Library\Library.csproj" />
     </ItemGroup>
 
 </Project>

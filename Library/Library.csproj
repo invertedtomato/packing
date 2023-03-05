@@ -1,28 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <AssemblyName>InvertedTomato.Binary</AssemblyName>
-    <RootNamespace>InvertedTomato.Binary</RootNamespace>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/binary/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/invertedtomato/binary</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/invertedtomato/binary</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Compression VLQ Elias Omega Gamma Delta Fibonacci Integer Numbers</PackageTags>
-    <Version>1.2.3</Version>
-    <Description>Library for expressing data in the least possible space without using compression. Handy storage and transmission of data when both speed and size are critical. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
-    <Copyright>Inverted Tomato</Copyright>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Inverted Tomato</Authors>
-    <Company>Inverted Tomato</Company>
-    <AssemblyVersion>5.0.0</AssemblyVersion>
-    <FileVersion>5.0.0</FileVersion>
-    <PackageVersion>5.0.0</PackageVersion>
-    <Title>InvertedTomato.Binary</Title>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <LangVersion>11</LangVersion>
-    <Nullable>enable</Nullable>
-    <TargetFrameworks>net7.0;netstandard1.0;netstandard2.0</TargetFrameworks>
-    <Product>InvertedTomato.Binary</Product>
-  </PropertyGroup>
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>InvertedTomato.Binary</AssemblyName>
+        <RootNamespace>InvertedTomato.Binary</RootNamespace>
+        <TargetFrameworks>net7.0;netstandard1.0;netstandard2.0</TargetFrameworks>
+        <LangVersion>11</LangVersion>
+        <Version>5.0.0</Version>
+        <Title>InvertedTomato.Binary</Title>
+        <Authors>Inverted Tomato</Authors>
+        <Description>Library for expressing data in the least possible space without using compression. Handy storage and transmission of data when both speed and size are critical. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
+        <Copyright>Inverted Tomato</Copyright>
+        <PackageProjectUrl>https://github.com/invertedtomato/binary</PackageProjectUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/binary/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/invertedtomato/binary</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Compression VLQ Elias Omega Gamma Delta Fibonacci Integer Numbers</PackageTags>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
 
 </Project>
