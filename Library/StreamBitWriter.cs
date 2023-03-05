@@ -5,7 +5,7 @@ using InvertedTomato.Compression.Integers.Gen3.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitWriter : IBitWriter, IDisposable
 {
@@ -29,10 +29,10 @@ public class StreamBitWriter : IBitWriter, IDisposable
     {
 #if DEBUG
         // Count the count is sane
-        if (count is < 0 or > Bits.ULONG_BITS) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.ULONG_BITS} but was {count}");
+        if (count is < 0 or > Bits.UlongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.UlongBits} but was {count}");
 
         // Check that only bits within the count range are used (yep, we could clean this automatically, but that adds operations and slows things down, so we only check when debugging)
-        if ((bits << Bits.ULONG_BITS - count >> Bits.ULONG_BITS - count != bits)
+        if ((bits << Bits.UlongBits - count >> Bits.UlongBits - count != bits)
             || (count == 0 && bits > 0) // Once again, why does UInt64 >> 64 not equal 0?? Catching and handling this additional case here
            ) throw new ArgumentException("Bits must only have '1' bits within the 'count' range. Ie, if count=1, only the right-most bit can be used", nameof(bits));
 #endif
@@ -41,24 +41,24 @@ public class StreamBitWriter : IBitWriter, IDisposable
         do
         {
             // Calculate bit address
-            var a = Count / Bits.BYTE_BITS;
-            var b = Count % Bits.BYTE_BITS;
+            var a = Count / Bits.ByteBits;
+            var b = Count % Bits.ByteBits;
 
             // Calculate number of bits to load into this byte
-            var load = Math.Min(Bits.BYTE_BITS - b, count);
+            var load = Math.Min(Bits.ByteBits - b, count);
 
             // Extract bits
             var chunk = (Byte) (bits >> (count - load));
 
             // Load the bits
-            Buffer[a] |= (Byte) (chunk << (Bits.BYTE_BITS - load - b));
+            Buffer[a] |= (Byte) (chunk << (Bits.ByteBits - load - b));
             Count += load;
 
             // Decrement input
             count -= load;
 
             // If buffer is full..
-            if (Count == Buffer.Length * Bits.BYTE_BITS)
+            if (Count == Buffer.Length * Bits.ByteBits)
             {
                 // Flush buffer
                 Underlying.Write(Buffer);
@@ -76,7 +76,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
 
     public void Align()
     {
-        if (HasPartialByte()) WriteBits(0, Bits.BYTE_BITS - Count % Bits.BYTE_BITS);
+        if (HasPartialByte()) WriteBits(0, Bits.ByteBits - Count % Bits.ByteBits);
     }
 
     public void Dispose()
@@ -86,7 +86,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
         IsDisposed = true;
 
         // Write out any remaining bytes
-        var count = Count / Bits.BYTE_BITS;
+        var count = Count / Bits.ByteBits;
         if (HasPartialByte()) count++; // If there's an incomplete byte, write it anyway
         Underlying.Write(Buffer, count);
 
@@ -100,5 +100,5 @@ public class StreamBitWriter : IBitWriter, IDisposable
         return a.Substring(0, Count);
     }
 
-    private Boolean HasPartialByte() => Count % Bits.BYTE_BITS > 0;
+    private Boolean HasPartialByte() => Count % Bits.ByteBits > 0;
 }

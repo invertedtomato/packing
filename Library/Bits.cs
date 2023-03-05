@@ -1,12 +1,12 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public static class Bits
 {
-    public const Int32 BYTE_BITS = 8;
-    public const Int32 ULONG_BITS = 64;
+    public const Int32 ByteBits = 8;
+    public const Int32 UlongBits = 64;
 
     /// <summary>
     /// Count the number of bits used to express number

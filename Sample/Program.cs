@@ -1,4 +1,4 @@
-﻿using InvertedTomato.Compression.Integers.Gen3;
+﻿using InvertedTomato.Compression.Integers;
 
 // Instantiate the codecs we want
 var vlq = new VlqCodec();

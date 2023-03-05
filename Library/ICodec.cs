@@ -1,7 +1,6 @@
 using System;
-using System.Text;
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public interface ICodec
 {

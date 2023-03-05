@@ -5,7 +5,7 @@ using InvertedTomato.Compression.Integers.Gen3.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public class StreamBitReader : IBitReader, IDisposable
 {
@@ -27,7 +27,7 @@ public class StreamBitReader : IBitReader, IDisposable
     public UInt64 ReadBits(int count)
     {
 #if DEBUG
-        if (count is < 0 or > Bits.ULONG_BITS) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.ULONG_BITS}");
+        if (count is < 0 or > Bits.UlongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.UlongBits}");
 #endif
 
         // If nothing to do, do nothing - we don't want UnderlyingRead trying to read bits when we don't need any
@@ -40,14 +40,14 @@ public class StreamBitReader : IBitReader, IDisposable
             UnderlyingRead();
 
             // Calculate bit address
-            var a = Offset / Bits.BYTE_BITS;
-            var b = Offset % Bits.BYTE_BITS;
+            var a = Offset / Bits.ByteBits;
+            var b = Offset % Bits.ByteBits;
 
             // Calculate number of bits available in this byte
-            var load = Math.Min(Bits.BYTE_BITS - b, count);
+            var load = Math.Min(Bits.ByteBits - b, count);
 
             // Extract bits
-            var chunk = (Byte)(Buffer[a] << b) >> Bits.BYTE_BITS - load; // This is a little complex, as it must mask out any previous bits in this byte at the same time
+            var chunk = (Byte)(Buffer[a] << b) >> Bits.ByteBits - load; // This is a little complex, as it must mask out any previous bits in this byte at the same time
 
             // Load the bits
             value |= (UInt64) chunk << count - load;
@@ -65,7 +65,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
     public Boolean ReadBit() => ReadBits(1) > 0;
 
-    public void Align() => ReadBits(Count % Bits.BYTE_BITS);
+    public void Align() => ReadBits(Count % Bits.ByteBits);
 
     public bool PeakBit()
     {
@@ -73,11 +73,11 @@ public class StreamBitReader : IBitReader, IDisposable
         UnderlyingRead();
 
         // Calculate bit address
-        var a = Offset / Bits.BYTE_BITS;
-        var b = Offset % Bits.BYTE_BITS;
+        var a = Offset / Bits.ByteBits;
+        var b = Offset % Bits.ByteBits;
 
         // Get bit at that address
-        var bit = Buffer[a] & (Byte) (1 << Bits.BYTE_BITS - b - 1);
+        var bit = Buffer[a] & (Byte) (1 << Bits.ByteBits - b - 1);
 
         // Test if non-zero
         return bit > 0;
@@ -90,7 +90,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
         // Otherwise load more bits
         Offset = 0;
-        Count = Underlying.Read(Buffer) * Bits.BYTE_BITS;
+        Count = Underlying.Read(Buffer) * Bits.ByteBits;
 
         // If nothing could be loaded, throw exception
         if (Count == 0) throw new EndOfStreamException();

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>InvertedTomato.IntegerCompression</AssemblyName>
-    <RootNamespace>InvertedTomato</RootNamespace>
+    <RootNamespace>InvertedTomato.Compression.Integers</RootNamespace>
     <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/integer-compression/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/invertedtomato/integer-compression</PackageProjectUrl>
     <RepositoryUrl>https://github.com/invertedtomato/integer-compression</RepositoryUrl>

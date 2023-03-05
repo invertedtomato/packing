@@ -1,11 +1,12 @@
 using System;
+using InvertedTomato.Compression.Integers.Gen3;
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public class ThompsonAlphaCodec : ICodec
 {
     public UInt64 MinValue => UInt64.MinValue;
-    public UInt64 MaxValue => UInt64.MaxValue >> Bits.ULONG_BITS - LengthBits + 6 - 1; // TODO: Check logic
+    public UInt64 MaxValue => UInt64.MaxValue >> Bits.UlongBits - LengthBits + 6 - 1; // TODO: Check logic
 
     private readonly Int32 LengthBits;
 
@@ -40,7 +41,7 @@ public class ThompsonAlphaCodec : ICodec
 
         // Clip MSB, it's redundant
         length--;
-        value = length == 0 ? 0 : value << (Bits.ULONG_BITS - length) >> (Bits.ULONG_BITS - length);
+        value = length == 0 ? 0 : value << (Bits.UlongBits - length) >> (Bits.UlongBits - length);
 
         // Write length
         buffer.WriteBits(length, LengthBits);
