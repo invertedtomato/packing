@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary.Integers;
 
-public class EliasOmegaCodec : ICodec
+public class EliasOmegaIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => UInt64.MinValue;
     public UInt64 MaxValue => UInt64.MaxValue - 1; // TODO: Check!

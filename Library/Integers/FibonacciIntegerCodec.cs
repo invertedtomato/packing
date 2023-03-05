@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace InvertedTomato.Binary.Integers;
 
-namespace InvertedTomato.Compression.Integers;
-
-public class FibonacciCodec : ICodec
+public class FibonacciIntegerCodec : IIntegerCodec
 {
     private const UInt64 One = 1;
     public UInt64 MinValue => UInt64.MinValue;

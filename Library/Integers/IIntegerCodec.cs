@@ -1,8 +1,6 @@
-using System;
+namespace InvertedTomato.Binary.Integers;
 
-namespace InvertedTomato.Compression.Integers;
-
-public interface ICodec
+public interface IIntegerCodec
 {
     /// <summary>
     /// Minimum value this codec can support.

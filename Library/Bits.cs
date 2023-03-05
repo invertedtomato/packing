@@ -1,7 +1,4 @@
-using System;
-using System.Runtime.CompilerServices;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public static class Bits
 {
@@ -26,8 +23,8 @@ public static class Bits
 
         return bits;
     }
-    
-    
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Byte CountUsed(Byte value)
     {

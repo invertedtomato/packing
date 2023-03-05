@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class EliasGammaTests
 {
@@ -11,7 +7,7 @@ public class EliasGammaTests
     [Fact]
     public void EncodeDecode_1000()
     {
-        var ta = new EliasGammaCodec();
+        var ta = new EliasGammaIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class VlqCodecTests
 {
@@ -10,7 +6,7 @@ public class VlqCodecTests
         
     private Byte[] Encode(UInt64 value)
     {
-        var codec = new VlqCodec();
+        var codec = new VlqIntegerCodec();
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
         {
@@ -54,7 +50,7 @@ public class VlqCodecTests
     public void Encode_2113664() => Assert.Equal(new Byte[] {0b10000000, 0b10000000, 0b10000000, 0b00000000}, Encode(2113664));
 
     [Fact]
-    public void EncodeMax() => Assert.Equal(new Byte[] {0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b00000000}, Encode(new VlqCodec().MaxValue));
+    public void EncodeMax() => Assert.Equal(new Byte[] {0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b00000000}, Encode(new VlqIntegerCodec().MaxValue));
 
     [Fact]
     public void EncodeOverflow() => Assert.Throws<OverflowException>(() => { Encode(UInt64.MaxValue); });
@@ -63,7 +59,7 @@ public class VlqCodecTests
         
     private UInt64 Decode(Byte[] encoded)
     {
-        var codec = new VlqCodec();
+        var codec = new VlqIntegerCodec();
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
 
@@ -107,12 +103,12 @@ public class VlqCodecTests
     public void Decode_2113664() => Assert.Equal((UInt64) 2113664, Decode(new Byte[] {0b10000000, 0b10000000, 0b10000000, 0b00000000}));
 
     [Fact]
-    public void DecodeMax() => Assert.Equal(new VlqCodec().MaxValue, Decode(new Byte[] {0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b00000000}));
+    public void DecodeMax() => Assert.Equal(new VlqIntegerCodec().MaxValue, Decode(new Byte[] {0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b11111110, 0b00000000}));
 
     [Fact]
     public void Decode_1_1_1()
     {
-        var codec = new VlqCodec();
+        var codec = new VlqIntegerCodec();
         using var stream = new MemoryStream(new Byte[] {0b00000001, 0b00000001, 0b00000001});
         using var reader = new StreamBitReader(stream);
 
@@ -135,7 +131,7 @@ public class VlqCodecTests
     [Fact]
     public void EncodeDecode_100000()
     {
-        var ta = new VlqCodec();
+        var ta = new VlqIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

@@ -42,7 +42,6 @@
 // InvertedTomato.Compression.Integers.Gen2.FibonacciCodec                               2,924ms           1,484ms           38.00MB
 // InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,396ms           7,443ms           38.00MB
 
-
 using System.Diagnostics;
 
 var min = 100000;
@@ -55,12 +54,12 @@ for (var v = min; v < min + count; v++)
     input.Add((UInt64)v);
 }
 
-void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
+void Gen3Test(InvertedTomato.Binary.Integers.IIntegerCodec codec)
 {
     // Compress
     using var stream = new MemoryStream(count * 5);
     var compressStopwatch = Stopwatch.StartNew();
-    using (var writer = new InvertedTomato.Compression.Integers.StreamBitWriter(stream))
+    using (var writer = new InvertedTomato.Binary.StreamBitWriter(stream))
     {
         input.ForEach(a => codec.EncodeUInt64(a, writer));
     }
@@ -70,7 +69,7 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
     // Decompress
     stream.Position = 0;
     var decompressStopwatch = Stopwatch.StartNew();
-    using (var reader = new InvertedTomato.Compression.Integers.StreamBitReader(stream))
+    using (var reader = new InvertedTomato.Binary.StreamBitReader(stream))
     {
         input.ForEach(a =>
         {
@@ -87,15 +86,15 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
 
 Console.WriteLine("CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE");
 Console.WriteLine("ThompsonAlpha");
-Gen3Test(new InvertedTomato.Compression.Integers.ThompsonAlphaCodec());
+Gen3Test(new InvertedTomato.Binary.Integers.ThompsonAlphaIntegerCodec());
 
 Console.WriteLine("Fibonacci");
-Gen3Test(new InvertedTomato.Compression.Integers.FibonacciCodec());
+Gen3Test(new InvertedTomato.Binary.Integers.FibonacciIntegerCodec());
 
 Console.WriteLine("VLQ");
-Gen3Test(new InvertedTomato.Compression.Integers.VlqCodec());
+Gen3Test(new InvertedTomato.Binary.Integers.VlqIntegerCodec());
 
 Console.WriteLine("Raw");
-Gen3Test(new InvertedTomato.Compression.Integers.RawCodec());
+Gen3Test(new InvertedTomato.Binary.Integers.RawIntegerCodec());
 
 Console.WriteLine("\nDone.");

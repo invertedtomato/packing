@@ -1,8 +1,6 @@
-using System;
+namespace InvertedTomato.Binary.Integers;
 
-namespace InvertedTomato.Compression.Integers;
-
-public class VlqCodec : ICodec
+public class VlqIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => 0;
     public UInt64 MaxValue => UInt64.MaxValue - 1;
@@ -17,7 +15,7 @@ public class VlqCodec : ICodec
 #if DEBUG
         if (value > MaxValue)
         {
-            throw new OverflowException($"Symbol is larger than maximum supported value. See {nameof(VlqCodec)}.{nameof(MaxValue)}");
+            throw new OverflowException($"Symbol is larger than maximum supported value. See {nameof(VlqIntegerCodec)}.{nameof(MaxValue)}");
         }
 #endif
 
@@ -56,7 +54,7 @@ public class VlqCodec : ICodec
             // Check for overflow
             if (symbol < pre)
             {
-                throw new OverflowException($"Symbol is larger than maximum supported value or is corrupt. See {nameof(VlqCodec)}.{nameof(MaxValue)}.");
+                throw new OverflowException($"Symbol is larger than maximum supported value or is corrupt. See {nameof(VlqIntegerCodec)}.{nameof(MaxValue)}.");
             }
 #endif
 

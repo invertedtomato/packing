@@ -1,6 +1,4 @@
-using System;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public interface IBitWriter
 {

@@ -1,7 +1,4 @@
-using System;
-using System.Runtime.CompilerServices;
-
-namespace InvertedTomato.Compression.Integers.Extensions;
+namespace InvertedTomato.Binary.Extensions;
 
 public static class ArrayExtensions
 {

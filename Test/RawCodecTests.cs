@@ -1,15 +1,10 @@
-﻿using System;
-using System.IO;
-using InvertedTomato.Compression.Integers.Extensions;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+﻿namespace InvertedTomato.Binary;
 
 public class RawCodecTests
 {
     private Byte[] Encode(UInt64 value)
     {
-        var codec = new RawCodec();
+        var codec = new RawIntegerCodec();
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
         {
@@ -21,7 +16,7 @@ public class RawCodecTests
 
     private UInt64 Decode(Byte[] encoded)
     {
-        var codec = new RawCodec();
+        var codec = new RawIntegerCodec();
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
 
@@ -86,13 +81,13 @@ public class RawCodecTests
     [Fact]
     public void Decode_Max()
     {
-        Assert.Equal(new RawCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
+        Assert.Equal(new RawIntegerCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
     }
 
     [Fact]
     public void EncodeDecode_1000()
     {
-        var ta = new RawCodec();
+        var ta = new RawIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using InvertedTomato.Compression.Integers.Extensions;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+﻿namespace InvertedTomato.Binary;
 
 public class FibonacciCodecTests
     {
@@ -11,7 +6,7 @@ public class FibonacciCodecTests
 
         private Byte[] Encode(UInt64 value)
         {
-            var codec = new FibonacciCodec();
+            var codec = new FibonacciIntegerCodec();
             using var stream = new MemoryStream();
             using (var writer = new StreamBitWriter(stream)) {
                 codec.EncodeUInt64(value, writer);
@@ -96,7 +91,7 @@ public class FibonacciCodecTests
         public void Encode_Max()
         {
             var expected = new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011000}.ToBinaryString();
-            var actual = Encode(new FibonacciCodec().MaxValue).ToBinaryString();
+            var actual = Encode(new FibonacciIntegerCodec().MaxValue).ToBinaryString();
             Assert.Equal(expected, actual); // Not completely sure about this value
             // Actual:   10100010 01000100 10000000 01001000 10001010 00001010 00101000 00100010 10001000 10100000 10001010 01011000
             // Expected: 01010000 01010001 01000001 00010101 00010010 00100100 00000010 01000100 10001000 10100000 10001010 01011000
@@ -106,7 +101,7 @@ public class FibonacciCodecTests
 
         private UInt64 Decode(Byte[] encoded)
         {
-            var codec = new FibonacciCodec();
+            var codec = new FibonacciIntegerCodec();
             using var stream = new MemoryStream(encoded);
             using var reader = new StreamBitReader(stream);
 
@@ -168,7 +163,7 @@ public class FibonacciCodecTests
         public void Decode_2583() => Assert.Equal((UInt64) 2583, Decode(new Byte[] {0b00000000, 0b00000000, 0b11_000000})); // Final and termination bits on next byte
 
         [Fact]
-        public void Decode_Max() => Assert.Equal(new FibonacciCodec().MaxValue, Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}));
+        public void Decode_Max() => Assert.Equal(new FibonacciIntegerCodec().MaxValue, Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10001010, 0b01011_000}));
 
         [Fact]
         public void Decode_Overflow1() => Assert.Throws<OverflowException>(() => { Decode(new Byte[] {0b01010000, 0b01010001, 0b01000001, 0b00010101, 0b00010010, 0b00100100, 0b00000010, 0b01000100, 0b10001000, 0b10100000, 0b10101010, 0b01011_000}); }); // Symbol too large
@@ -180,7 +175,7 @@ public class FibonacciCodecTests
         [Fact]
         public void EncodeDecode_1000()
         {
-            var ta = new FibonacciCodec();
+            var ta = new FibonacciIntegerCodec();
             using var stream = new MemoryStream();
 
             // Encode

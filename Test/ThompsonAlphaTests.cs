@@ -1,15 +1,11 @@
-using System;
-using System.IO;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class ThompsonAlphaTests
 {
     // Encode
     private Byte[] Encode(UInt64 value)
     {
-        var codec = new ThompsonAlphaCodec();
+        var codec = new ThompsonAlphaIntegerCodec();
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
         {
@@ -44,7 +40,7 @@ public class ThompsonAlphaTests
 
     private UInt64 Decode(Byte[] encoded)
     {
-        var codec = new ThompsonAlphaCodec();
+        var codec = new ThompsonAlphaIntegerCodec();
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
 
@@ -75,7 +71,7 @@ public class ThompsonAlphaTests
     [Fact]
     public void EncodeDecode_100000()
     {
-        var ta = new ThompsonAlphaCodec();
+        var ta = new ThompsonAlphaIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

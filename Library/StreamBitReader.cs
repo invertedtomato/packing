@@ -1,11 +1,9 @@
-using System;
 using System.IO;
 using System.Linq;
-using InvertedTomato.Compression.Integers.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class StreamBitReader : IBitReader, IDisposable
 {
@@ -32,7 +30,7 @@ public class StreamBitReader : IBitReader, IDisposable
 
         // If nothing to do, do nothing - we don't want UnderlyingRead trying to read bits when we don't need any
         if (count == 0) return 0;
-        
+
         UInt64 value = 0;
         do
         {
@@ -50,7 +48,7 @@ public class StreamBitReader : IBitReader, IDisposable
             var chunk = (Byte)(Buffer[a] << b) >> Bits.ByteBits - load; // This is a little complex, as it must mask out any previous bits in this byte at the same time
 
             // Load the bits
-            value |= (UInt64) chunk << count - load;
+            value |= (UInt64)chunk << count - load;
             Offset += load;
             Count -= load;
 
@@ -77,7 +75,7 @@ public class StreamBitReader : IBitReader, IDisposable
         var b = Offset % Bits.ByteBits;
 
         // Get bit at that address
-        var bit = Buffer[a] & (Byte) (1 << Bits.ByteBits - b - 1);
+        var bit = Buffer[a] & (Byte)(1 << Bits.ByteBits - b - 1);
 
         // Test if non-zero
         return bit > 0;

@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace InvertedTomato.Compression.Integers;
+﻿namespace InvertedTomato.Binary.Integers;
 
 /// <summary>
 /// VLQ similar to https://en.wikipedia.org/wiki/Variable-length_quantity with "Removing Redundancy", but the
 /// continuation bit flag is reversed. This might be more performant for datasets with consistently large values.
 /// </summary>
-public class InvertedVlqCodec : ICodec
+public class InvertedVlqIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => UInt64.MinValue;
     public UInt64 MaxValue => UInt64.MaxValue - 1;

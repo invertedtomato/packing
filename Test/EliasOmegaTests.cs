@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class EliasOmegaTests
 {
@@ -11,7 +7,7 @@ public class EliasOmegaTests
     [Fact]
     public void EncodeDecode_1000()
     {
-        var ta = new EliasOmegaCodec();
+        var ta = new EliasOmegaIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

@@ -1,8 +1,7 @@
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace InvertedTomato.Compression.Integers.Extensions;
+namespace InvertedTomato.Binary.Extensions;
 
 public static class NumericStringExtensions
 {

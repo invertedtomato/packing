@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class EliasDeltaTests
 {
@@ -11,7 +7,7 @@ public class EliasDeltaTests
     [Fact]
     public void EncodeDecode_1000()
     {
-        var ta = new EliasDeltaCodec();
+        var ta = new EliasDeltaIntegerCodec();
         using var stream = new MemoryStream();
 
         // Encode

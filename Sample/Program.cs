@@ -1,9 +1,10 @@
-﻿using InvertedTomato.Compression.Integers;
+﻿using InvertedTomato.Binary;
+using InvertedTomato.Binary.Integers;
 
 // Instantiate the codecs we want
-var vlq = new VlqCodec();
-var fib = new FibonacciCodec();
-var td = new ThompsonAlphaCodec();
+var vlq = new VlqIntegerCodec();
+var fib = new FibonacciIntegerCodec();
+var td = new ThompsonAlphaIntegerCodec();
 
 // Encode some values...
 using var stream = new MemoryStream();

@@ -1,8 +1,6 @@
-using System;
+namespace InvertedTomato.Binary.Integers;
 
-namespace InvertedTomato.Compression.Integers;
-
-public class EliasDeltaCodec : ICodec
+public class EliasDeltaIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => UInt64.MinValue;
     public UInt64 MaxValue => UInt64.MaxValue - 1; // TODO: Check!

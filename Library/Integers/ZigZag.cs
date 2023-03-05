@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-namespace InvertedTomato.Compression.Integers;
+﻿namespace InvertedTomato.Binary.Integers;
 
 /// <summary>
 /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm.

@@ -1,11 +1,9 @@
-using System;
 using System.IO;
 using System.Linq;
-using InvertedTomato.Compression.Integers.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class StreamBitWriter : IBitWriter, IDisposable
 {
@@ -48,10 +46,10 @@ public class StreamBitWriter : IBitWriter, IDisposable
             var load = Math.Min(Bits.ByteBits - b, count);
 
             // Extract bits
-            var chunk = (Byte) (bits >> (count - load));
+            var chunk = (Byte)(bits >> (count - load));
 
             // Load the bits
-            Buffer[a] |= (Byte) (chunk << (Bits.ByteBits - load - b));
+            Buffer[a] |= (Byte)(chunk << (Bits.ByteBits - load - b));
             Count += load;
 
             // Decrement input

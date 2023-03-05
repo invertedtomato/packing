@@ -1,15 +1,13 @@
-using System;
+namespace InvertedTomato.Binary.Integers;
 
-namespace InvertedTomato.Compression.Integers;
-
-public class ThompsonAlphaCodec : ICodec
+public class ThompsonAlphaIntegerCodec : IIntegerCodec
 {
     public UInt64 MinValue => UInt64.MinValue;
     public UInt64 MaxValue => UInt64.MaxValue >> Bits.UlongBits - LengthBits + 6 - 1; // TODO: Check logic
 
     private readonly Int32 LengthBits;
 
-    public ThompsonAlphaCodec() : this(6)
+    public ThompsonAlphaIntegerCodec() : this(6)
     {
     }
 
@@ -17,7 +15,7 @@ public class ThompsonAlphaCodec : ICodec
     /// Instantiate with options
     /// </summary>
     /// <param name="lengthBits">Number of prefix bits used to store length.</param>
-    public ThompsonAlphaCodec(Int32 lengthBits)
+    public ThompsonAlphaIntegerCodec(Int32 lengthBits)
     {
         if (lengthBits is < 1 or > 6)
         {

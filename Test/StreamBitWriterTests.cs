@@ -1,9 +1,4 @@
-using System;
-using System.IO;
-using InvertedTomato.Compression.Integers.Extensions;
-using Xunit;
-
-namespace InvertedTomato.Compression.Integers;
+namespace InvertedTomato.Binary;
 
 public class StreamBitWriterTests
 {

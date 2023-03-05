@@ -5,9 +5,9 @@
 
         <IsPackable>false</IsPackable>
 
-        <AssemblyName>InvertedTomato.IntegerCompressionTests</AssemblyName>
+        <AssemblyName>InvertedTomato.Binary.Tests</AssemblyName>
 
-        <RootNamespace>InvertedTomato.Compression.Integers</RootNamespace>
+        <RootNamespace>InvertedTomato.Binary</RootNamespace>
 
         <LangVersion>11</LangVersion>
     </PropertyGroup>
