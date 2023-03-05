@@ -8,8 +8,6 @@ public static class Bits
     /// <summary>
     /// Count the number of bits used to express number
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Byte CountUsed(UInt64 value)
     {
@@ -24,7 +22,9 @@ public static class Bits
         return bits;
     }
 
-
+    /// <summary>
+    /// Count the number of bits used to express number
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Byte CountUsed(Byte value)
     {
