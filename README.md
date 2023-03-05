@@ -1,12 +1,13 @@
-# Integer Compression
+# Binary
+`InvertedTomato.Binary` is all about storing data in the smallest possible way quickly. This is super useful for both storage and transmission of data when size and speed are both important. Data isn't compressed, at least not in the traditional sense, rather stored in encoded in efficently manners. 
 
 ## TLDR
-Here's how to compress 24 bytes of data down to 2 using Fibonacci coding:
+Here's how to squash 24 bytes of data down to 2 using Fibonacci coding:
 ```C#
 // Instantiate the codec ready to compress
-var fib = new FibonacciCodec(); // Using "InvertedTomato.Compression.Integers"
+var fib = new FibonacciIntegerCodec(); // Using "InvertedTomato.Binary.Integers"
 
-// Compress data - 3x8 bytes = 24bytes uncompressed
+// Shrink data - 3x8 bytes = 24bytes unencoded
 using var stream = new MemoryStream();
 using (var writer = new StreamBitWriter(stream))
 {
@@ -14,9 +15,9 @@ using (var writer = new StreamBitWriter(stream))
     fib.EncodeUInt64(2, writer);
     fib.EncodeUInt64(3, writer);
 }
-Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Compressed data is 2 bytes
+Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Now data is 2 bytes
 
-// Decompress data
+// Expand data
 stream.Position = 0;
 using (var reader = new StreamBitReader(stream))
 {
@@ -128,14 +129,14 @@ algorithms to see which one is best.
 
 ## Signed and unsigned
 If your numbers are unsigned (eg, no negatives), be sure to use **unsigned** calls to the Codec. That 
-way you'll get the best compression. Obviously fall back to **signed** if you must. Hand-waving, it'll cost you an extra bit or so for each value if you used signed.
+way you'll get the best size reduction. Obviously fall back to **signed** if you must. Hand-waving, it'll cost you an extra bit or so for each value if you used signed.
 
-## Even better compression
-There are a few techniques you can use to further increase the compression of your integers.
+## Even better reduction
+There are a few techniques you can use to further increase the reduction of your integers.
 Following is a summary of each
 
 ### Use deltas
-Even with compression, smaller numbers use less space. So take a moment to consider what
+Smaller numbers use less space. So take a moment to consider what
 you can do to keep your numbers small. One common technique is to store the difference
 between numbers instead of the numbers themselves. Consider if you wanted to store the
 following sequence:
@@ -159,7 +160,7 @@ loose state (eg. UDP transport) you'll have to include a recovery mechanism (eg 
 otherwise those deltas become meaningless.
 
 ### Make lossy
-Sometimes it's okay to loose data in compression. Let's say that you're compressing a
+Sometimes it's okay to loose data when encoding. Let's say that you're compressing a
 list of distances in meters, however you only really care about the distance rounded
 to the nearest 100 meters. You can save a heap of data by dividing your value by
 100 before compressing it, and multiplying it by 100 after.
@@ -168,7 +169,7 @@ to the nearest 100 meters. You can save a heap of data by dividing your value by
 Sometimes all of your values are always going to be above zero. Let's say that you're 
 storing the number of cars going over a busy bridge each hour. If it's safe to assume
 there will never be 0 cars you could save some data by subtracting one from your
-value before compression and adding one after decompression.
+value before encoding and adding one after decoding.
 
 This may seem like a trivial optimization, however with most algorithms it will save
 you one or two bits per number. If you have several million numbers that really 
