@@ -20,7 +20,7 @@ namespace InvertedTomato.Compression.Integers.Gen2.Wrappers {
 		public Byte ReadByte() {
 			// Extract value
 			Debug.Assert(Underlying.Array != null, "Underlying.Array != null");
-			var value = Underlying.Array[Underlying.Offset];
+			var value = Underlying.Array![Underlying.Offset];
 
 			// Advance pointer
 			Underlying = new (Underlying.Array, Underlying.Offset + 1, Underlying.Count - 1);
