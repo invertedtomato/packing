@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvertedTomato.Compression.Integers.Gen3;
+namespace InvertedTomato.Compression.Integers;
 
 public class RawCodec : ICodec
 {

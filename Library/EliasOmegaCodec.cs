@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using InvertedTomato.Compression.Integers.Gen3;
 
 namespace InvertedTomato.Compression.Integers;
 

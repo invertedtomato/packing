@@ -1,5 +1,4 @@
-﻿
-// #5
+﻿// #5
 // FIBONACCI (Gen2)
 // Compress: 5986ms 12.75MB / s Total 38MB
 // Decompress: 3455ms 22.08MB / s
@@ -53,7 +52,7 @@ var count = 10000000;
 var input = new List<UInt64>(count);
 for (var v = min; v < min + count; v++)
 {
-    input.Add((UInt64) v);
+    input.Add((UInt64)v);
 }
 
 void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
@@ -63,10 +62,11 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
     var compressStopwatch = Stopwatch.StartNew();
     using (var writer = new InvertedTomato.Compression.Integers.StreamBitWriter(stream))
     {
-        input.ForEach(a=>codec.EncodeUInt64(a,writer));
+        input.ForEach(a => codec.EncodeUInt64(a, writer));
     }
+
     compressStopwatch.Stop();
-    
+
     // Decompress
     stream.Position = 0;
     var decompressStopwatch = Stopwatch.StartNew();
@@ -77,9 +77,11 @@ void Gen3Test(InvertedTomato.Compression.Integers.ICodec codec)
             if (a != codec.DecodeUInt64(reader)) throw new("Incorrect result.");
         });
     }
+
     decompressStopwatch.Stop();
-    
-    Console.WriteLine("{0,-75} {1,15:N0}ms {2,15:N0}ms {3,15:N}MB",codec.GetType().FullName, compressStopwatch.ElapsedMilliseconds, decompressStopwatch.ElapsedMilliseconds, stream.Length/1024/1024);
+
+    Console.WriteLine("{0,-75} {1,15:N0}ms {2,15:N0}ms {3,15:N}MB", codec.GetType().FullName, compressStopwatch.ElapsedMilliseconds, decompressStopwatch.ElapsedMilliseconds,
+        stream.Length / 1024 / 1024);
 }
 
 
@@ -94,6 +96,6 @@ Console.WriteLine("VLQ");
 Gen3Test(new InvertedTomato.Compression.Integers.VlqCodec());
 
 Console.WriteLine("Raw");
-Gen3Test(new InvertedTomato.Compression.Integers.Gen3.RawCodec());
+Gen3Test(new InvertedTomato.Compression.Integers.RawCodec());
 
 Console.WriteLine("\nDone.");

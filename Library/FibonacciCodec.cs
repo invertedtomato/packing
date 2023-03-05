@@ -1,5 +1,4 @@
 ﻿using System;
-using InvertedTomato.Compression.Integers.Gen3;
 
 namespace InvertedTomato.Compression.Integers;
 
@@ -41,8 +40,8 @@ public class FibonacciCodec : ICodec
         // #3 Repeat the previous steps, substituting the remainder for N, until a remainder of 0 is reached.
         UInt64[]? buffers = null;
         Int32[]? counts = null;
-        //var count = 0;
         Int32 a;
+        // ReSharper disable once TooWideLocalVariableScope
         Int32 b;
         for (var i = FibonacciTable.Length - 1; i >= 0; i--)
         {

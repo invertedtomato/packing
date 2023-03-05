@@ -6,7 +6,7 @@ namespace InvertedTomato.Compression.Integers;
 
 public class EliasDeltaTests
 {
-    // TODO: A full set of tests are required! I haven't bothered yet as I haven't found any use for this codec beyond acaedemic interest
+    // TODO: A full set of tests are required! I haven't bothered yet as I haven't found any use for this codec beyond academic interest
 
     [Fact]
     public void EncodeDecode_1000()

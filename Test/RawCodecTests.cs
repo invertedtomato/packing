@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using InvertedTomato.Compression.Integers.Extensions;
-using InvertedTomato.Compression.Integers.Gen3;
 using Xunit;
 
 namespace InvertedTomato.Compression.Integers;

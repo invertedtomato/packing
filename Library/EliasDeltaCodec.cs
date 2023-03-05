@@ -1,5 +1,4 @@
 using System;
-using InvertedTomato.Compression.Integers.Gen3;
 
 namespace InvertedTomato.Compression.Integers;
 
@@ -44,8 +43,6 @@ public class EliasDeltaCodec : ICodec
             // Remove 0 from input
             buffer.ReadBit();
         }
-
-        ;
 
         // #2 Considering the one that was reached to be the first digit of an integer, with a value of 2L, read the remaining L digits of the integer. Call this integer N+1, and subtract one to get N.
         var n = (Int32)buffer.ReadBits(l) - 1;
