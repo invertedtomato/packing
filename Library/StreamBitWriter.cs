@@ -92,11 +92,7 @@ public class StreamBitWriter : IBitWriter, IDisposable
         if (_ownUnderlying) _underlying.Dispose();
     }
 
-    public override string ToString()
-    {
-        var a = String.Join("", _buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
-        return a.Substring(0, _count);
-    }
+    public override String ToString() => _buffer.ToBinaryString(0, _count);
 
     private Boolean HasPartialByte() => _count % Bits.ByteBits > 0;
 }

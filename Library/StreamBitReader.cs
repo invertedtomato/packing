@@ -104,9 +104,5 @@ public class StreamBitReader : IBitReader, IDisposable
         if (_ownUnderlying) _underlying.Dispose();
     }
 
-    public override string ToString()
-    {
-        var a = String.Join("", _buffer.Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
-        return a.Substring(_offset, _count);
-    }
+    public override String ToString() => _buffer.ToBinaryString(_offset, _count);
 }
