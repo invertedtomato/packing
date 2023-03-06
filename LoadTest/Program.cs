@@ -43,6 +43,7 @@
 // InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,396ms           7,443ms           38.00MB
 
 using System.Diagnostics;
+using InvertedTomato.Binary.Codecs.Integers;
 
 var min = 100000;
 var count = 10000000;
@@ -54,7 +55,7 @@ for (var v = min; v < min + count; v++)
     input.Add((UInt64)v);
 }
 
-void Gen3Test(InvertedTomato.Binary.Integers.IIntegerCodec codec)
+void Gen3Test(InvertedTomato.Binary.Codecs.Integers.IntegerCodec codec)
 {
     // Compress
     using var stream = new MemoryStream(count * 5);
@@ -86,15 +87,15 @@ void Gen3Test(InvertedTomato.Binary.Integers.IIntegerCodec codec)
 
 Console.WriteLine("CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE");
 Console.WriteLine("ThompsonAlpha");
-Gen3Test(new InvertedTomato.Binary.Integers.ThompsonAlphaIntegerCodec());
+Gen3Test(new ThompsonAlphaIntegerCodec());
 
 Console.WriteLine("Fibonacci");
-Gen3Test(new InvertedTomato.Binary.Integers.FibonacciIntegerCodec());
+Gen3Test(new FibonacciIntegerCodec());
 
 Console.WriteLine("VLQ");
-Gen3Test(new InvertedTomato.Binary.Integers.VlqIntegerCodec());
+Gen3Test(new VlqIntegerCodec());
 
 Console.WriteLine("Raw");
-Gen3Test(new InvertedTomato.Binary.Integers.RawIntegerCodec());
+Gen3Test(new RawIntegerCodec());
 
 Console.WriteLine("\nDone.");

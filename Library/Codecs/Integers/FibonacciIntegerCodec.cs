@@ -1,10 +1,10 @@
-﻿namespace InvertedTomato.Binary.Integers;
+﻿namespace InvertedTomato.Binary.Codecs.Integers;
 
-public class FibonacciIntegerCodec : IIntegerCodec
+public class FibonacciIntegerCodec : IntegerCodec
 {
     private const UInt64 One = 1;
-    public UInt64 MinValue => UInt64.MinValue;
-    public UInt64 MaxValue => UInt64.MaxValue - 1;
+    public override UInt64 MinValue => UInt64.MinValue;
+    public override UInt64 MaxValue => UInt64.MaxValue - 1;
 
     /// <summary>
     /// Lookup table of Fibonacci numbers that can fit in a UInt64
@@ -24,7 +24,7 @@ public class FibonacciIntegerCodec : IIntegerCodec
         2880067194370816120, 4660046610375530309, 7540113804746346429, 12200160415121876738,
     };
 
-    private void Encode(UInt64 value, IBitWriter writer)
+    protected override void Encode(UInt64 value, IBitWriter writer)
     {
 #if DEBUG
         // Check for overflow
@@ -53,25 +53,25 @@ public class FibonacciIntegerCodec : IIntegerCodec
                 var totalCount = i + 2; // The current index, add one to make it a count, and add another one for the termination bit
 
                 // Allocate buffers
-                buffers = new UInt64[totalCount / Bits.UlongBits + 1];
-                counts = new Int32[totalCount / Bits.UlongBits + 1];
+                buffers = new UInt64[totalCount / Bits.LongBits + 1];
+                counts = new Int32[totalCount / Bits.LongBits + 1];
 
                 // Calculate the count of bits for each buffer
                 for (var j = 0; j < counts.Length; j++)
                 {
-                    counts[j] = Math.Min(totalCount, Bits.UlongBits);
+                    counts[j] = Math.Min(totalCount, Bits.LongBits);
                     totalCount -= counts[j];
                 }
 
                 // Calculate address for termination bit
-                a = (i + 1) / Bits.UlongBits;
+                a = (i + 1) / Bits.LongBits;
 
                 // Set termination bit
                 buffers[a] |= One;
             }
 
             // Calculate address
-            a = i / Bits.UlongBits;
+            a = i / Bits.LongBits;
             b = counts![a] - i - 1;
 
             // Write to buffer
@@ -85,7 +85,7 @@ public class FibonacciIntegerCodec : IIntegerCodec
         for (a = 0; a < buffers!.Length; a++) writer.WriteBits(buffers[a], counts![a]);
     }
 
-    private UInt64 Decode(IBitReader buffer)
+    protected override UInt64 Decode(IBitReader reader)
     {
         // Current symbol being decoded
         UInt64 symbol = 0;
@@ -97,7 +97,7 @@ public class FibonacciIntegerCodec : IIntegerCodec
         foreach (var fib in FibonacciTable)
         {
             // Read bit of input
-            var bit = buffer.ReadBit();
+            var bit = reader.ReadBit();
             if (bit)
             {
                 // If double 1 bits - all done! Return symbol less zero offset
@@ -120,13 +120,13 @@ public class FibonacciIntegerCodec : IIntegerCodec
         }
 
         // If double 1 bits - all done! Return symbol less zero offset (this occurs only when decoding MaxValue)
-        if (lastBit && buffer.ReadBit()) return symbol - 1;
+        if (lastBit && reader.ReadBit()) return symbol - 1;
 
         // Input longer than supported
         throw new OverflowException($"Termination not found within supported {FibonacciTable.Length} bit range. Data is probably corrupt.");
     }
 
-    public Int32? CalculateEncodedBits(UInt64 value)
+    public override Int32? CalculateEncodedBits(UInt64 value)
     {
         // Check for overflow
         if (value > MaxValue)
@@ -147,24 +147,4 @@ public class FibonacciIntegerCodec : IIntegerCodec
 
         return 0;
     }
-
-    public void EncodeBit(bool value, IBitWriter buffer) => Encode(value ? 1UL : 0UL, buffer);
-    public void EncodeUInt8(byte value, IBitWriter buffer) => Encode(value, buffer);
-    public void EncodeUInt16(ushort value, IBitWriter buffer) => Encode(value, buffer);
-    public void EncodeUInt32(uint value, IBitWriter buffer) => Encode(value, buffer);
-    public void EncodeUInt64(ulong value, IBitWriter buffer) => Encode(value, buffer);
-    public void EncodeInt8(sbyte value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt16(short value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt32(int value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
-    public void EncodeInt64(long value, IBitWriter buffer) => Encode(ZigZag.Encode(value), buffer);
-
-    public Boolean DecodeBit(IBitReader buffer) => Decode(buffer) > 0;
-    public Byte DecodeUInt8(IBitReader buffer) => (Byte)Decode(buffer);
-    public UInt16 DecodeUInt16(IBitReader buffer) => (UInt16)Decode(buffer);
-    public UInt32 DecodeUInt32(IBitReader buffer) => (UInt32)Decode(buffer);
-    public UInt64 DecodeUInt64(IBitReader buffer) => Decode(buffer);
-    public SByte DecodeInt8(IBitReader buffer) => (SByte)ZigZag.Decode(Decode(buffer));
-    public Int16 DecodeInt16(IBitReader buffer) => (Int16)ZigZag.Decode(Decode(buffer));
-    public Int32 DecodeInt32(IBitReader buffer) => (Int32)ZigZag.Decode(Decode(buffer));
-    public Int64 DecodeInt64(IBitReader buffer) => ZigZag.Decode(Decode(buffer));
 }

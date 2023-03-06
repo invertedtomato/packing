@@ -1,6 +1,6 @@
 using System.IO;
-using System.Linq;
 
+// ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace InvertedTomato.Binary;
@@ -25,7 +25,7 @@ public class StreamBitReader : IBitReader, IDisposable
     public UInt64 ReadBits(int count)
     {
 #if DEBUG
-        if (count is < 0 or > Bits.UlongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.UlongBits}");
+        if (count is < 0 or > Bits.LongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.LongBits}");
 #endif
 
         // If nothing to do, do nothing - we don't want UnderlyingRead trying to read bits when we don't need any

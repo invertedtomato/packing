@@ -20,4 +20,9 @@
         <ImplicitUsings>disable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Codecs\ByteArrays" />
+      <Folder Include="Codecs\Strings" />
+    </ItemGroup>
+
 </Project>

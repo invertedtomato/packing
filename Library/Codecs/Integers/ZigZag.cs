@@ -1,10 +1,10 @@
-﻿namespace InvertedTomato.Binary.Integers;
+﻿namespace InvertedTomato.Binary.Codecs.Integers;
 
 /// <summary>
 /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm.
 /// https://developers.google.com/protocol-buffers/docs/encoding
 /// </summary>
-public static class ZigZag
+public static class ZigZagUtility
 {
     /// <summary>
     /// Encode a signed long into an ZigZag unsigned long

@@ -1,6 +1,6 @@
 using System.IO;
-using System.Linq;
 
+// ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace InvertedTomato.Binary;
@@ -27,10 +27,10 @@ public class StreamBitWriter : IBitWriter, IDisposable
     {
 #if DEBUG
         // Count the count is sane
-        if (count is < 0 or > Bits.UlongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.UlongBits} but was {count}");
+        if (count is < 0 or > Bits.LongBits) throw new ArgumentOutOfRangeException(nameof(count), $"Must be between 0 and {Bits.LongBits} but was {count}");
 
         // Check that only bits within the count range are used (yep, we could clean this automatically, but that adds operations and slows things down, so we only check when debugging)
-        if ((bits << Bits.UlongBits - count >> Bits.UlongBits - count != bits)
+        if ((bits << Bits.LongBits - count >> Bits.LongBits - count != bits)
             || (count == 0 && bits > 0) // Once again, why does UInt64 >> 64 not equal 0?? Catching and handling this additional case here
            ) throw new ArgumentException("Bits must only have '1' bits within the 'count' range. Ie, if count=1, only the right-most bit can be used", nameof(bits));
 #endif

@@ -2,8 +2,8 @@ namespace InvertedTomato.Binary;
 
 public static class Bits
 {
-    public const Int32 ByteBits = 8;
-    public const Int32 UlongBits = 64;
+    public const Int32 ByteBits = 1 * 8;
+    public const Int32 LongBits = 8 * 8;
 
     /// <summary>
     /// Count the number of bits used to express number
