@@ -1,6 +1,4 @@
-using System.IO;
-
-namespace InvertedTomato.Binary.Extensions;
+namespace InvertedTomato.Packing.Extensions;
 
 public static class StreamExtensions
 {

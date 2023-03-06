@@ -1,7 +1,7 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
 
-namespace InvertedTomato.Binary.Codecs.Integers;
+namespace InvertedTomato.Packing.Codecs.Integers;
 
 public abstract class IntegerCodec
 {

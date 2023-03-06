@@ -1,4 +1,6 @@
-namespace InvertedTomato.Binary.Codecs.Integers;
+// ReSharper disable UnusedType.Global
+
+namespace InvertedTomato.Packing.Codecs.Integers;
 
 public class VlqIntegerCodec : IntegerCodec
 {

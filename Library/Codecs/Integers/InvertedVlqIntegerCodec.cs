@@ -1,4 +1,6 @@
-﻿namespace InvertedTomato.Binary.Codecs.Integers;
+﻿// ReSharper disable UnusedType.Global
+
+namespace InvertedTomato.Packing.Codecs.Integers;
 
 /// <summary>
 /// VLQ similar to https://en.wikipedia.org/wiki/Variable-length_quantity with "Removing Redundancy", but the
@@ -60,7 +62,7 @@ public class InvertedVlqIntegerCodec : IntegerCodec
 
 #if DEBUG
             // Check for overflow
-            if (symbol < pre)throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
+            if (symbol < pre) throw new OverflowException("Input symbol larger than the supported limit of 64 bits. Probable corrupt input.");
 #endif
 
             // Increment bit offset
@@ -73,7 +75,7 @@ public class InvertedVlqIntegerCodec : IntegerCodec
         // Add to output
         return symbol;
     }
-    
+
     public override Int32? CalculateEncodedBits(UInt64 value)
     {
         var packets = (Int32)Math.Ceiling(Bits.CountUsed(value) / (Single)PacketSize);

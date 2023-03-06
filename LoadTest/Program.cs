@@ -43,7 +43,9 @@
 // InvertedTomato.Compression.Integers.Gen3.FibonacciCodec                               3,396ms           7,443ms           38.00MB
 
 using System.Diagnostics;
-using InvertedTomato.Binary.Codecs.Integers;
+using InvertedTomato.Packing;
+using InvertedTomato.Packing.Codecs.Integers;
+// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 
 var min = 100000;
 var count = 10000000;
@@ -55,14 +57,17 @@ for (var v = min; v < min + count; v++)
     input.Add((UInt64)v);
 }
 
-void Gen3Test(InvertedTomato.Binary.Codecs.Integers.IntegerCodec codec)
+void Gen3Test(IntegerCodec codec)
 {
     // Compress
     using var stream = new MemoryStream(count * 5);
     var compressStopwatch = Stopwatch.StartNew();
-    using (var writer = new InvertedTomato.Binary.StreamBitWriter(stream))
+    using (var writer = new StreamBitWriter(stream))
     {
-        input.ForEach(a => codec.EncodeUInt64(a, writer));
+        foreach (var item in input)
+        {
+             codec.EncodeUInt64(item, writer);
+        }
     }
 
     compressStopwatch.Stop();
@@ -70,12 +75,12 @@ void Gen3Test(InvertedTomato.Binary.Codecs.Integers.IntegerCodec codec)
     // Decompress
     stream.Position = 0;
     var decompressStopwatch = Stopwatch.StartNew();
-    using (var reader = new InvertedTomato.Binary.StreamBitReader(stream))
+    using (var reader = new StreamBitReader(stream))
     {
-        input.ForEach(a =>
+        foreach (var item in input)
         {
-            if (a != codec.DecodeUInt64(reader)) throw new("Incorrect result.");
-        });
+            if (item != codec.DecodeUInt64(reader)) throw new("Incorrect result.");
+        }
     }
 
     decompressStopwatch.Stop();

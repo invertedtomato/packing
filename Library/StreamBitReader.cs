@@ -1,9 +1,7 @@
-using System.IO;
-
 // ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Binary;
+namespace InvertedTomato.Packing;
 
 public class StreamBitReader : IBitReader, IDisposable
 {

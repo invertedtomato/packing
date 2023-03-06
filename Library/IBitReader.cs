@@ -1,4 +1,4 @@
-namespace InvertedTomato.Binary;
+namespace InvertedTomato.Packing;
 
 public interface IBitReader
 {

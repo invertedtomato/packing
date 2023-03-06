@@ -1,9 +1,8 @@
-using System.Linq;
 using System.Text.RegularExpressions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace InvertedTomato.Binary.Extensions;
+namespace InvertedTomato.Packing.Extensions;
 
 public static class NumericStringExtensions
 {

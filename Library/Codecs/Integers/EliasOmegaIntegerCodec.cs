@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 
-namespace InvertedTomato.Binary.Codecs.Integers;
+// ReSharper disable UnusedType.Global
+
+namespace InvertedTomato.Packing.Codecs.Integers;
 
 public class EliasOmegaIntegerCodec : IntegerCodec
 {
@@ -16,7 +18,7 @@ public class EliasOmegaIntegerCodec : IntegerCodec
         var groups = new Stack<KeyValuePair<UInt64, Int32>>();
 
         // #1 Place a "0" at the end of the code.
-        groups.Push(new (0, 1));
+        groups.Push(new(0, 1));
 
         // #2 If N=1, stop; encoding is complete.
         while (value > 1)
@@ -25,7 +27,7 @@ public class EliasOmegaIntegerCodec : IntegerCodec
             var length = Bits.CountUsed(value);
 
             // #3 Prepend the binary representation of N to the beginning of the code (this will be at least two bits, the first bit of which is a 1)
-            groups.Push(new (value, length));
+            groups.Push(new(value, length));
 
             // #4 Let N equal the number of bits just prepended, minus one.
             value = (UInt64)length - 1;

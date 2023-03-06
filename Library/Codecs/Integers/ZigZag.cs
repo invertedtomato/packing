@@ -1,4 +1,4 @@
-﻿namespace InvertedTomato.Binary.Codecs.Integers;
+﻿namespace InvertedTomato.Packing.Codecs.Integers;
 
 /// <summary>
 /// Encode signed values as unsigned using ProtoBuffer ZigZag bijection encoding algorithm.

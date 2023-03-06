@@ -1,4 +1,4 @@
-﻿namespace InvertedTomato.Binary.Codecs.Integers;
+﻿namespace InvertedTomato.Packing.Codecs.Integers;
 
 public class RawIntegerCodec : IntegerCodec
 {

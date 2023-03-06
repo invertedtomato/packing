@@ -1,6 +1,6 @@
-// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedType.Global
 
-namespace InvertedTomato.Binary.Codecs.Integers;
+namespace InvertedTomato.Packing.Codecs.Integers;
 
 public class ThompsonAlphaIntegerCodec : IntegerCodec
 {
@@ -26,15 +26,13 @@ public class ThompsonAlphaIntegerCodec : IntegerCodec
 
     protected override void Encode(UInt64 value, IBitWriter writer)
     {
+        if (value > MaxValue) throw new ArgumentOutOfRangeException($"Value is greater than maximum of {MaxValue}. Consider increasing length bits to support larger numbers.");
+
         // Offset value to allow zeros
         value++;
 
         // Count length
         var length = Bits.CountUsed(value);
-
-        // Check not too large
-        if (length > (_lengthBits + 2) * 8)
-            throw new ArgumentOutOfRangeException($"Value is greater than maximum of {UInt64.MaxValue >> (64 - _lengthBits - 1)}. Increase length bits to support larger numbers.");
 
         // Clip MSB, it's redundant
         length--;
