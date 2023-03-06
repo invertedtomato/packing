@@ -45,6 +45,7 @@
 using System.Diagnostics;
 using InvertedTomato.Packing;
 using InvertedTomato.Packing.Codecs.Integers;
+
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 
 var min = 100000;
@@ -57,16 +58,17 @@ for (var v = min; v < min + count; v++)
     input.Add((UInt64)v);
 }
 
-void Gen3Test(IntegerCodec codec)
+void Gen3Test(string name, Func<StreamBitWriter, IntegerEncoderBase> encoderFactory, Func<StreamBitReader, IntegerDecoderBase> decoderFactory)
 {
     // Compress
     using var stream = new MemoryStream(count * 5);
     var compressStopwatch = Stopwatch.StartNew();
     using (var writer = new StreamBitWriter(stream))
     {
+        var encoder = encoderFactory(writer);
         foreach (var item in input)
         {
-             codec.EncodeUInt64(item, writer);
+            encoder.EncodeUInt64(item);
         }
     }
 
@@ -77,30 +79,46 @@ void Gen3Test(IntegerCodec codec)
     var decompressStopwatch = Stopwatch.StartNew();
     using (var reader = new StreamBitReader(stream))
     {
+        var decoder = decoderFactory(reader);
         foreach (var item in input)
         {
-            if (item != codec.DecodeUInt64(reader)) throw new("Incorrect result.");
+            if (item != decoder.DecodeUInt64()) throw new("Incorrect result.");
         }
     }
 
     decompressStopwatch.Stop();
 
-    Console.WriteLine("{0,-75} {1,15:N0}ms {2,15:N0}ms {3,15:N}MB", codec.GetType().FullName, compressStopwatch.ElapsedMilliseconds, decompressStopwatch.ElapsedMilliseconds,
+    Console.WriteLine("{0,-75} {1,15:N0}ms {2,15:N0}ms {3,15:N}MB", name, compressStopwatch.ElapsedMilliseconds, decompressStopwatch.ElapsedMilliseconds,
         stream.Length / 1024 / 1024);
 }
 
 
 Console.WriteLine("CODEC                      ENCODE TIME         DECODE TIME        RESULT SIZE");
 Console.WriteLine("ThompsonAlpha");
-Gen3Test(new ThompsonAlphaIntegerCodec());
+Gen3Test(
+    "ThompsonAlpha(6)",
+    writer => new ThompsonAlphaIntegerEncoder(writer, 6),
+    reader => new ThompsonAlphaIntegerDecoder(reader, 6)
+);
 
 Console.WriteLine("Fibonacci");
-Gen3Test(new FibonacciIntegerCodec());
+Gen3Test(
+    "Fibbonacci",
+    writer => new FibonacciIntegerEncoder(writer),
+    reader => new FibonacciIntegerDecoder(reader)
+);
 
 Console.WriteLine("VLQ");
-Gen3Test(new VlqIntegerCodec());
+Gen3Test(
+    "VLQ",
+    writer => new VlqIntegerEncoder(writer),
+    reader => new VlqIntegerDecoder(reader)
+);
 
 Console.WriteLine("Raw");
-Gen3Test(new RawIntegerCodec());
+Gen3Test("Raw",
+    writer => new RawIntegerEncoder(writer),
+    reader => new RawIntegerDecoder(reader)
+);
 
 Console.WriteLine("\nDone.");

@@ -4,12 +4,16 @@ using System.Collections.Generic;
 
 namespace InvertedTomato.Packing.Codecs.Integers;
 
-public class EliasOmegaIntegerCodec : IntegerCodec
+public class EliasOmegaIntegerEncoder : IntegerEncoderBase
 {
-    public override UInt64 MinValue => UInt64.MinValue;
-    public override UInt64 MaxValue => UInt64.MaxValue - 1;
+    private readonly IBitWriter _writer;
 
-    protected override void Encode(UInt64 value, IBitWriter writer)
+    public EliasOmegaIntegerEncoder(IBitWriter writer)
+    {
+        _writer = writer;
+    }
+    
+    protected override void Encode(UInt64 value)
     {
         // Offset min value
         value++;
@@ -39,30 +43,11 @@ public class EliasOmegaIntegerCodec : IntegerCodec
             var bits = item.Value;
             var group = item.Key;
 
-            writer.WriteBits(group, bits);
+            _writer.WriteBits(group, bits);
         }
     }
 
-    protected override UInt64 Decode(IBitReader buffer)
-    {
-        // #1 Start with a variable N, set to a value of 1.
-        UInt64 value = 1;
-
-        // #2 If the next bit is a "0", stop. The decoded number is N.
-        while (buffer.PeakBit())
-        {
-            // #3 If the next bit is a "1", then read it plus N more bits, and use that binary number as the new value of N.
-            value = buffer.ReadBits((Int32)value + 1);
-        }
-
-        // Burn last bit from input
-        buffer.ReadBit();
-
-        // Offset for min value
-        return value - 1;
-    }
-
-    public override Int32? CalculateEncodedBits(UInt64 value)
+    public override Int32? PredictEncodedBits(UInt64 value)
     {
         var result = 1; // Termination bit
 

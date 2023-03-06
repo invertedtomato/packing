@@ -4,11 +4,11 @@ public class RawCodecTests
 {
     private Byte[] Encode(UInt64 value)
     {
-        var codec = new RawIntegerCodec();
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
         {
-            codec.EncodeUInt64(value, writer);
+            var encoder = new RawIntegerEncoder(writer);
+            encoder.EncodeUInt64(value);
         }
 
         return stream.ToArray();
@@ -16,11 +16,10 @@ public class RawCodecTests
 
     private UInt64 Decode(Byte[] encoded)
     {
-        var codec = new RawIntegerCodec();
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
-
-        return codec.DecodeUInt64(reader);
+        var decoder = new RawIntegerDecoder(reader);
+        return decoder.DecodeUInt64();
     }
 
     [Fact]
@@ -81,32 +80,28 @@ public class RawCodecTests
     [Fact]
     public void Decode_Max()
     {
-        Assert.Equal(new RawIntegerCodec().MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
+        Assert.Equal( RawInteger.MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
     }
 
     [Fact]
-    public void EncodeDecode_1000()
+    public void CanEncodeDecodeFirst1000()
     {
-        var ta = new RawIntegerCodec();
         using var stream = new MemoryStream();
 
-        // Encode
         using (var writer = new StreamBitWriter(stream))
         {
-            for (UInt64 symbol = 0; symbol < 1000; symbol++)
-            {
-                ta.EncodeUInt64(symbol, writer);
-            }
+            var encoder = new RawIntegerEncoder(writer);
+            for (UInt64 symbol = 0; symbol < 1000; symbol++) encoder.EncodeUInt64(symbol);
         }
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        // Decode
         using (var reader = new StreamBitReader(stream))
         {
+            var decoder = new RawIntegerDecoder(reader);
             for (UInt64 symbol = 0; symbol < 1000; symbol++)
             {
-                Assert.Equal(symbol, ta.DecodeUInt64(reader));
+                Assert.Equal(symbol, decoder.DecodeUInt64());
             }
         }
     }

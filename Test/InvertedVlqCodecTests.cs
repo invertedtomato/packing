@@ -4,11 +4,11 @@ public class InvertedVlqCodecTests
 {
     private Byte[] Encode(UInt64 value, Int32 expectedCount)
     {
-        var codec = new InvertedVlqIntegerCodec();
         using var stream = new MemoryStream(expectedCount);
         using (var writer = new StreamBitWriter(stream))
         {
-            codec.EncodeUInt64(value, writer);
+            var encoder = new InvertedVlqIntegerEncoder(writer);
+            encoder.EncodeUInt64(value);
         }
 
         return stream.ToArray();
@@ -16,11 +16,11 @@ public class InvertedVlqCodecTests
 
     private UInt64 Decode(Byte[] encoded, Int32 expectedUsed)
     {
-        var codec = new InvertedVlqIntegerCodec();
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
+        var decoder = new InvertedVlqIntegerDecoder(reader);
 
-        return codec.DecodeUInt64(reader);
+        return decoder.DecodeUInt64();
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class InvertedVlqCodecTests
     public void Encode_Max()
     {
         Assert.Equal(new Byte[] { 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b10000000 },
-            Encode(new InvertedVlqIntegerCodec().MaxValue, 10));
+            Encode(InvertedVlqInteger.MaxValue, 10));
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class InvertedVlqCodecTests
     [Fact]
     public void Decode_Max()
     {
-        Assert.Equal(new InvertedVlqIntegerCodec().MaxValue,
+        Assert.Equal(InvertedVlqInteger.MaxValue,
             Decode(new Byte[] { 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b10000000 }, 10));
     }
 
@@ -189,31 +189,26 @@ public class InvertedVlqCodecTests
             Decode(new Byte[] { 0b01111111, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b10000000 }, 11);
         });
     }
-
-
+    
     [Fact]
-    public void EncodeDecode_1000()
+    public void CanEncodeDecodeFirst1000()
     {
-        var ta = new InvertedVlqIntegerCodec();
         using var stream = new MemoryStream();
 
-        // Encode
         using (var writer = new StreamBitWriter(stream))
         {
-            for (UInt64 symbol = 0; symbol < 1000; symbol++)
-            {
-                ta.EncodeUInt64(symbol, writer);
-            }
+            var encoder = new InvertedVlqIntegerEncoder(writer);
+            for (UInt64 symbol = 0; symbol < 1000; symbol++) encoder.EncodeUInt64(symbol);
         }
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        // Decode
         using (var reader = new StreamBitReader(stream))
         {
+            var decoder = new InvertedVlqIntegerDecoder(reader);
             for (UInt64 symbol = 0; symbol < 1000; symbol++)
             {
-                Assert.Equal(symbol, ta.DecodeUInt64(reader));
+                Assert.Equal(symbol, decoder.DecodeUInt64());
             }
         }
     }
