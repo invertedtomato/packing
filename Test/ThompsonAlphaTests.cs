@@ -1,7 +1,31 @@
+using FluentAssertions;
+
 namespace InvertedTomato.Packing;
 
 public class ThompsonAlphaTests
 {
+    // Max | Bin | Value
+    //  1 | _1 | 2
+    //  2 | _11 | 6
+    //  3 | _111 | 14
+    //  4 | _1111 | 30
+    //  5 | _11111
+    
+    // 2^(bits + 1)
+    
+    [Fact]
+    public void CanCalculateMaxValue1() => new ThompsonAlphaIntegerEncoder(null!, 1).MaxValue.Should().Be(15);
+    [Fact]
+    public void CanCalculateMaxValue2() => new ThompsonAlphaIntegerEncoder(null!, 2).MaxValue.Should().Be(255);
+    [Fact]
+    public void CanCalculateMaxValue3() => new ThompsonAlphaIntegerEncoder(null!, 3).MaxValue.Should().Be(65535);
+    [Fact]
+    public void CanCalculateMaxValue4() => new ThompsonAlphaIntegerEncoder(null!, 4).MaxValue.Should().Be(4294967295);
+    [Fact]
+    public void CanCalculateMaxValue5() => new ThompsonAlphaIntegerEncoder(null!, 5).MaxValue.Should().Be(18446744073709551615);
+    [Fact]
+    public void CanCalculateMaxValue6() => new ThompsonAlphaIntegerEncoder(null!, 6).MaxValue.Should().Be(18446744073709551615);
+    
     private static Byte[] Encode(UInt64 value)
     {
         using var stream = new MemoryStream();

@@ -8,8 +8,7 @@ public class ThompsonAlphaIntegerEncoder : IntegerEncoderBase
 {
     public UInt64 MinValue => UInt64.MinValue;
 
-    public UInt64 MaxValue => UInt64.MaxValue >> (Bits.LongBits - _lengthBits - 1);
-                             //UInt64.MaxValue >> Bits.LongBits - _lengthBits + 6 - 1; // TODO: Check logic
+    public UInt64 MaxValue => IntegerUtil.Pow(2, IntegerUtil.Pow(2, (UInt64)_lengthBits + 1))  - 1; // (2^(2^(bits+1)))-1
 
     private readonly IBitWriter _writer;
     private readonly Int32 _lengthBits;
