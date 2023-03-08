@@ -3,7 +3,7 @@ namespace InvertedTomato.Packing;
 public class StreamBitReaderTests
 {
     [Fact]
-    public void ReadBit_1()
+    public void CanReadBit1()
     {
         using var stream = new MemoryStream(new byte[] { 0b_10000000 });
         using var reader = new StreamBitReader(stream);
@@ -12,7 +12,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBit_0()
+    public void CanReadBit0()
     {
         using var stream = new MemoryStream(new byte[] { 0b_00000000 });
         using var reader = new StreamBitReader(stream);
@@ -21,7 +21,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBit_0_1()
+    public void CanReadBit0_1()
     {
         using var stream = new MemoryStream(new byte[] { 0b_01000000 });
         using var reader = new StreamBitReader(stream);
@@ -31,7 +31,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_Peak_8()
+    public void CanPeak_ReadBit8()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -41,7 +41,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_Peak_8_Peak_8_0()
+    public void CanPeak_ReadBit8_Peak_ReadBit8_ReadBit0()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b00000000 });
         using var reader = new StreamBitReader(stream);
@@ -55,7 +55,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBit_1_1_1_1_1_1_1_1_0_0_0_0_0_0_0_0()
+    public void CanReadBit1_1_1_1_1_1_1_1_0_0_0_0_0_0_0_0()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b00000000 });
         using var reader = new StreamBitReader(stream);
@@ -80,7 +80,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_4_Peak_8_Peak_4()
+    public void CanReadBits4_Peak_8_Peak_4()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b00000000 });
         using var reader = new StreamBitReader(stream);
@@ -95,7 +95,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_4_Peak_Align_Peak_4()
+    public void CanReadBits4_Peak_Align_Peak_4()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b00000000 });
         using var reader = new StreamBitReader(stream);
@@ -110,7 +110,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_32()
+    public void CanReadBits32()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -119,7 +119,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_63()
+    public void CanReadBits63()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111110 });
         using var reader = new StreamBitReader(stream);
@@ -128,7 +128,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_64()
+    public void CanReadBits64()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -137,7 +137,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_1_32()
+    public void CanReadBits1_32()
     {
         using var stream = new MemoryStream(new byte[] { 0b_01111111, 0b_11111111, 0b_11111111, 0b_11111111, 0b10000000, });
         using var reader = new StreamBitReader(stream);
@@ -148,7 +148,7 @@ public class StreamBitReaderTests
 
 
     [Fact]
-    public void ReadBit_x1()
+    public void CanReadBitX_1()
     {
         using var stream = new MemoryStream(new byte[] { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001, });
         using var reader = new StreamBitReader(stream);
@@ -157,7 +157,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void DisposeNotOwned()
+    public void CanDisposeNotOwned()
     {
         using var stream = new MemoryStream(new byte[] { 0b00000000 });
         using var reader = new StreamBitReader(stream);
@@ -169,7 +169,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void DisposeOwned()
+    public void CanDisposeOwned()
     {
         using var stream = new MemoryStream(new byte[] { 0b00000000 });
         using var reader = new StreamBitReader(stream, true);
@@ -182,7 +182,7 @@ public class StreamBitReaderTests
 
 
     [Fact]
-    public void Blank()
+    public void CanReadBlank()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -191,7 +191,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void EndOfStream_Read()
+    public void ReadEndOfStreamThrows()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -201,7 +201,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void EndOfStream_Peak()
+    public void PeakEndOfStreamThrows()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111 });
         using var reader = new StreamBitReader(stream);
@@ -211,7 +211,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_B8_8()
+    public void CanReadBitsB8_8()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111 });
         using var reader = new StreamBitReader(stream, false, 1);
@@ -220,7 +220,7 @@ public class StreamBitReaderTests
     }
 
     [Fact]
-    public void ReadBits_B8_9()
+    public void CanReadBitsB8_9()
     {
         using var stream = new MemoryStream(new byte[] { 0b_11111111, 0b10000000, });
         using var reader = new StreamBitReader(stream, false, 1);

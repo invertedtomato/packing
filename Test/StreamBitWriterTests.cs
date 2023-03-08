@@ -3,7 +3,7 @@ namespace InvertedTomato.Packing;
 public class StreamBitWriterTests
 {
     [Fact]
-    public void WriteBit_0()
+    public void CanWriteBit_0()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -15,7 +15,7 @@ public class StreamBitWriterTests
     }
     
     [Fact]
-    public void WriteBit_1()
+    public void CanWriteBit_1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -27,7 +27,7 @@ public class StreamBitWriterTests
     }
     
     [Fact]
-    public void WriteBit_0_1()
+    public void CanWriteBit_0_1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -40,7 +40,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBit_1_1_1_1_1_1_1_1()
+    public void CanWriteBit_1_1_1_1_1_1_1_1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -59,7 +59,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBit_1_1_1_1_1_1_1_1_1()
+    public void CanWriteBit_1_1_1_1_1_1_1_1_1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -79,7 +79,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_10_1()
+    public void CanWriteBits_10_1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -92,7 +92,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_1_0_1_0_1_0()
+    public void CanWriteBits_1_0_1_0_1_0()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -112,7 +112,7 @@ public class StreamBitWriterTests
 
 
     [Fact]
-    public void WriteBits_10_10_10_101()
+    public void CanWriteBits_10_10_10_101()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -127,7 +127,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_10_Align_10()
+    public void CanWriteBits_10_Align_10()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -141,7 +141,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_Align()
+    public void CanWriteBits_Align()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -153,7 +153,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_8_Align()
+    public void CanWriteBits_8_Align()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -166,7 +166,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_8_Align_8()
+    public void CanWriteBits_8_Align_8()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -180,7 +180,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_32()
+    public void CanWriteBits_32()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -192,7 +192,7 @@ public class StreamBitWriterTests
     }
     
     [Fact]
-    public void WriteBits_63()
+    public void CanWriteBits_63()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -204,7 +204,7 @@ public class StreamBitWriterTests
     }
     
     [Fact]
-    public void WriteBits_64()
+    public void CanWriteBits_64()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -216,7 +216,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void WriteBits_1_32()
+    public void CanWriteBits_1_32()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -230,7 +230,7 @@ public class StreamBitWriterTests
     
     
     [Fact]
-    public void WriteBit_x1()
+    public void CanWriteBit_x1()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -242,7 +242,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void DisposeNotOwned()
+    public void CanDisposeNotOwned()
     {
         using var stream = new MemoryStream();
         using var writer = new StreamBitWriter(stream);
@@ -254,7 +254,7 @@ public class StreamBitWriterTests
     }
 
     [Fact]
-    public void DisposeOwned()
+    public void CanDisposeOwned()
     {
         using var stream = new MemoryStream();
         using var writer = new StreamBitWriter(stream, true);
@@ -267,7 +267,7 @@ public class StreamBitWriterTests
     
     
     [Fact]
-    public void WriteBit_B1_8()
+    public void CanWriteBit_B1_8()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream,false,1))
@@ -279,7 +279,7 @@ public class StreamBitWriterTests
     }
     
     [Fact]
-    public void WriteBit_B1_9()
+    public void CanWriteBit_B1_9()
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream,false,1))
