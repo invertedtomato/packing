@@ -1,24 +1,28 @@
-﻿using InvertedTomato.Binary;
-using InvertedTomato.Binary.Integers;
+﻿using InvertedTomato.Packing;
+using InvertedTomato.Packing.Codecs.Integers;
 
-// Instantiate the codecs we want
-var vlq = new VlqIntegerCodec();
-var fib = new FibonacciIntegerCodec();
-var td = new ThompsonAlphaIntegerCodec();
+// InvertedTomato.Packing
 
 // Encode some values...
 using var stream = new MemoryStream();
 using (var writer = new StreamBitWriter(stream))
 {
+    var fibbonacci = new FibonacciIntegerEncoder(writer);
+    var vlq = new VlqIntegerEncoder(writer);
+    var thompsonAlpha = new ThompsonAlphaIntegerEncoder(writer, 6);
+    //var utf8 = new Utf8StringEncoder(writer);
+    
     // Encode some values using the Fibonacci codec
-    fib.EncodeInt32(0, writer);
-    fib.EncodeInt32(1, writer);
+    fibbonacci.EncodeInt32(0);
+    fibbonacci.EncodeInt32(1);
     
     // Encode a value using the VLQ codec
-    vlq.EncodeInt32(2, writer);
+    vlq.EncodeInt32(0);
     
     // Encode a value using the ThompsonAlpha codec
-    td.EncodeInt32(3, writer);
+    thompsonAlpha.EncodeInt32(0);
+
+    //utf8.EncodeString("test");
 }
 
 // Convert it to binary so we can see what it's done
@@ -29,15 +33,19 @@ Console.WriteLine($"Compressed data is {stream.Length} bytes ({binary})");
 stream.Seek(0, SeekOrigin.Begin);
 using (var reader = new StreamBitReader(stream))
 {
+    var vlq = new VlqIntegerDecoder(reader);
+    var fib = new FibonacciIntegerDecoder(reader);
+    var td = new ThompsonAlphaIntegerDecoder(reader, 6);
+    
     // Decode the the Fibonacci values
-    Console.WriteLine(fib.DecodeInt32(reader));
-    Console.WriteLine(fib.DecodeInt32(reader));
+    Console.WriteLine(fib.DecodeInt32());
+    Console.WriteLine(fib.DecodeInt32());
     
     // Decode the VLQ value
-    Console.WriteLine(vlq.DecodeInt32(reader));
+    Console.WriteLine(vlq.DecodeInt32());
     
     // Decode the ThompsonAlpha value
-    Console.WriteLine(td.DecodeInt32(reader));
+    Console.WriteLine(td.DecodeInt32());
 }
 
 Console.WriteLine("Done.");
