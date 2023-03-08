@@ -2,7 +2,7 @@
 
 public class RawCodecTests
 {
-    private Byte[] Encode(UInt64 value)
+    private static Byte[] Encode(UInt64 value)
     {
         using var stream = new MemoryStream();
         using (var writer = new StreamBitWriter(stream))
@@ -14,7 +14,7 @@ public class RawCodecTests
         return stream.ToArray();
     }
 
-    private UInt64 Decode(Byte[] encoded)
+    private static UInt64 Decode(Byte[] encoded)
     {
         using var stream = new MemoryStream(encoded);
         using var reader = new StreamBitReader(stream);
@@ -23,62 +23,62 @@ public class RawCodecTests
     }
 
     [Fact]
-    public void Encode_0()
+    public void CanEncode0()
     {
         Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}.ToHexString(), Encode(0).ToHexString());
     }
 
     [Fact]
-    public void Encode_1()
+    public void CanEncode1()
     {
         Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001}.ToHexString(), Encode(1).ToHexString());
     }
 
     [Fact]
-    public void Encode_2()
+    public void CanEncode2()
     {
         Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000010}.ToHexString(), Encode(2).ToHexString());
     }
 
     [Fact]
-    public void Encode_3()
+    public void CanEncode3()
     {
         Assert.Equal(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000011}.ToHexString(), Encode(3).ToHexString());
     }
 
     [Fact]
-    public void Encode_Max()
+    public void CanEncodeMax()
     {
         Assert.Equal(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}.ToHexString(), Encode(UInt64.MaxValue).ToHexString());
     }
 
 
     [Fact]
-    public void Decode_0()
+    public void CanDecode0()
     {
         Assert.Equal((UInt64) 0, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000}));
     }
 
     [Fact]
-    public void Decode_1()
+    public void CanDecode1()
     {
         Assert.Equal((UInt64) 1, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000001}));
     }
 
     [Fact]
-    public void Decode_2()
+    public void CanDecode2()
     {
         Assert.Equal((UInt64) 2, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000010}));
     }
 
     [Fact]
-    public void Decode_3()
+    public void CanDecode3()
     {
         Assert.Equal((UInt64) 3, Decode(new Byte[] {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000011}));
     }
 
     [Fact]
-    public void Decode_Max()
+    public void CanDecodeMax()
     {
         Assert.Equal( RawInteger.MaxValue, Decode(new Byte[] {0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111}));
     }

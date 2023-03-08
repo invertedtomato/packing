@@ -6,43 +6,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="df3aaf58-ee47-43be-8c6e-f2815188f561" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.binary/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasDeltaInteger.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasDeltaIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasGammaInteger.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasGammaIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasOmegaIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasOmegaIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/FibonacciIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/FibonacciIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/IntegerEncoderBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/InvertedVlqIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/InvertedVlqIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/RawIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/RawIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/ThompsonAlphaIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/ThompsonAlphaIntegerEncoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/VlqIntegerDecoder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Library/Codecs/Integers/VlqIntegerEncoder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/EliasDeltaIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasDeltaIntegerDecoder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/EliasGammaIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasGammaIntegerDecoder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/EliasOmegaIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/EliasOmegaInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/FibonacciIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/FibonacciInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/IntegerCodecBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/IntegerDecoderBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/InvertedVlqIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/InvertedVlqInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/RawIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/RawInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/ThompsonAlphaIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/ThompsonAlphaInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/VlqIntegerCodec.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/VlqInteger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LoadTest/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LoadTest/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.binary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.binary/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/Codecs/Integers/IntegerEncoderBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Library/Codecs/Integers/IntegerEncoderBase.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sample/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Sample/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/EliasDeltaTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/EliasDeltaTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/EliasGammaTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/EliasGammaTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/EliasOmegaTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/EliasOmegaTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/FibonaciCodecTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/FibonaciCodecTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/InvertedVlqCodecTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/InvertedVlqCodecTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/RawCodecTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/RawCodecTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/ThompsonAlphaTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/ThompsonAlphaTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/VlqCodecTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Test/VlqCodecTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +90,7 @@
       <option name="presentableId" value="Default" />
       <updated>1678013536669</updated>
       <workItem from="1678013537952" duration="423000" />
-      <workItem from="1678013972959" duration="10308000" />
+      <workItem from="1678013972959" duration="11505000" />
     </task>
     <servers />
   </component>

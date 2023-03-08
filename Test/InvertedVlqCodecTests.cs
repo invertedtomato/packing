@@ -24,165 +24,165 @@ public class InvertedVlqCodecTests
     }
 
     [Fact]
-    public void Encode_0()
+    public void CanEncode0()
     {
         Assert.Equal(new Byte[] { 0b10000000 }, Encode(0, 1));
     }
 
     [Fact]
-    public void Encode_1()
+    public void CanEncode1()
     {
         Assert.Equal(new Byte[] { 0b10000001 }, Encode(1, 1));
     }
 
     [Fact]
-    public void Encode_2()
+    public void CanEncode2()
     {
         Assert.Equal(new Byte[] { 0b10000010 }, Encode(2, 1));
     }
 
     [Fact]
-    public void Encode_3()
+    public void CanEncode3()
     {
         Assert.Equal(new Byte[] { 0b10000011 }, Encode(3, 1));
     }
 
     [Fact]
-    public void Encode_127()
+    public void CanEncode127()
     {
         Assert.Equal(new Byte[] { 0b11111111 }, Encode(127, 1));
     }
 
     [Fact]
-    public void Encode_128()
+    public void CanEncode128()
     {
         Assert.Equal(new Byte[] { 0b00000000, 0b10000000 }, Encode(128, 2));
     }
 
     [Fact]
-    public void Encode_129()
+    public void CanEncode129()
     {
         Assert.Equal(new Byte[] { 0b00000001, 0b10000000 }, Encode(129, 2));
     }
 
     [Fact]
-    public void Encode_16511()
+    public void CanEncode16511()
     {
         Assert.Equal(new Byte[] { 0b01111111, 0b11111111 }, Encode(16511, 2));
     }
 
     [Fact]
-    public void Encode_16512()
+    public void CanEncode16512()
     {
         Assert.Equal(new Byte[] { 0b00000000, 0b00000000, 0b10000000 }, Encode(16512, 3));
     }
 
     [Fact]
-    public void Encode_2113663()
+    public void CanEncode2113663()
     {
         Assert.Equal(new Byte[] { 0b01111111, 0b01111111, 0b11111111 }, Encode(2113663, 3));
     }
 
     [Fact]
-    public void Encode_2113664()
+    public void CanEncode2113664()
     {
         Assert.Equal(new Byte[] { 0b00000000, 0b00000000, 0b00000000, 0b10000000 }, Encode(2113664, 4));
     }
 
     [Fact]
-    public void Encode_Max()
+    public void CanEncodeMax()
     {
         Assert.Equal(new Byte[] { 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b10000000 },
             Encode(InvertedVlqInteger.MaxValue, 10));
     }
 
     [Fact]
-    public void Encode_Overflow()
+    public void CanEncodeOverflow()
     {
         Assert.Throws<OverflowException>(() => { Encode(UInt64.MaxValue, 32); });
     }
 
     [Fact]
-    public void Decode_0()
+    public void CanDecode0()
     {
         Assert.Equal((UInt64)0, Decode(new Byte[] { 0b10000000 }, 1));
     }
 
     [Fact]
-    public void Decode_1()
+    public void CanDecode1()
     {
         Assert.Equal((UInt64)1, Decode(new Byte[] { 0b10000001 }, 1));
     }
 
     [Fact]
-    public void Decode_2()
+    public void CanDecode2()
     {
         Assert.Equal((UInt64)2, Decode(new Byte[] { 0b10000010 }, 1));
     }
 
     [Fact]
-    public void Decode_3()
+    public void CanDecode3()
     {
         Assert.Equal((UInt64)3, Decode(new Byte[] { 0b10000011 }, 1));
     }
 
     [Fact]
-    public void Decode_127()
+    public void CanDecode127()
     {
         Assert.Equal((UInt64)127, Decode(new Byte[] { 0b11111111 }, 1));
     }
 
     [Fact]
-    public void Decode_128()
+    public void CanDecode128()
     {
         Assert.Equal((UInt64)128, Decode(new Byte[] { 0b00000000, 0b10000000 }, 2));
     }
 
     [Fact]
-    public void Decode_129()
+    public void CanDecode129()
     {
         Assert.Equal((UInt64)129, Decode(new Byte[] { 0b00000001, 0b10000000 }, 2));
     }
 
     [Fact]
-    public void Decode_16511()
+    public void CanDecode16511()
     {
         Assert.Equal((UInt64)16511, Decode(new Byte[] { 0b01111111, 0b11111111 }, 2));
     }
 
     [Fact]
-    public void Decode_16512()
+    public void CanDecode16512()
     {
         Assert.Equal((UInt64)16512, Decode(new Byte[] { 0b00000000, 0b00000000, 0b10000000 }, 3));
     }
 
     [Fact]
-    public void Decode_16513()
+    public void CanDecode16513()
     {
         Assert.Equal((UInt64)16513, Decode(new Byte[] { 0b00000001, 0b00000000, 0b10000000 }, 3));
     }
 
     [Fact]
-    public void Decode_2113663()
+    public void CanDecode2113663()
     {
         Assert.Equal((UInt64)2113663, Decode(new Byte[] { 0b01111111, 0b01111111, 0b11111111 }, 3));
     }
 
     [Fact]
-    public void Decode_2113664()
+    public void CanDecode2113664()
     {
         Assert.Equal((UInt64)2113664, Decode(new Byte[] { 0b00000000, 0b00000000, 0b00000000, 0b10000000 }, 4));
     }
 
     [Fact]
-    public void Decode_Max()
+    public void CanDecodeMax()
     {
         Assert.Equal(InvertedVlqInteger.MaxValue,
             Decode(new Byte[] { 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b01111110, 0b10000000 }, 10));
     }
 
     [Fact]
-    public void Decode_Overflow()
+    public void CanDecodeOverflow()
     {
         Assert.Throws<OverflowException>(() =>
         {
