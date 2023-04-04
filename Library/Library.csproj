@@ -13,7 +13,7 @@
         <Description>Library for expressing data in the least possible space without using compression. Handy storage and transmission of data when both speed and size are critical. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
         <Copyright>Inverted Tomato</Copyright>
         <PackageProjectUrl>https://github.com/invertedtomato/packing</PackageProjectUrl>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/binary/master/LICENSE</PackageLicenseUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/invertedtomato/packing/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/invertedtomato/packing</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Compression VLQ Elias Omega Gamma Delta Fibonacci Integer Numbers</PackageTags>
