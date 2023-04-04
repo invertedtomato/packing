@@ -1,29 +1,37 @@
-# Binary
-`InvertedTomato.Binary` is all about storing data in the smallest possible way quickly. This is super useful for both storage and transmission of data when size and speed are both important. Data isn't compressed, at least not in the traditional sense, rather stored in encoded in efficently manners. 
+# Packing
+`InvertedTomato.Packing` is all about encoding data in the smallest possible way quickly. This is super useful for both storage and transmission of data when size and speed are both important. Data isn't compressed, at least not in the traditional sense, rather stored in encoded in efficently manners. 
 
 ## TLDR
 Here's how to squash 24 bytes of data down to 2 using Fibonacci coding:
 ```C#
-// Instantiate the codec ready to compress
-var fib = new FibonacciIntegerCodec(); // Using "InvertedTomato.Binary.Integers"
+using InvertedTomato.Packing;
+using InvertedTomato.Packing.Codecs.Integers;
 
-// Shrink data - 3x8 bytes = 24bytes unencoded
-using var stream = new MemoryStream();
+// Encode some values...
+using var stream = new MemoryStream(); // Could be a FileStream or a NetworkStream
 using (var writer = new StreamBitWriter(stream))
 {
-    fib.EncodeUInt64(1, writer);
-    fib.EncodeUInt64(2, writer);
-    fib.EncodeUInt64(3, writer);
+    // Pick a codec - you can use one or many - so long as you decode in the same order you encoded
+    var fib = new FibonacciIntegerEncoder(writer);
+
+    // Encode some values using the Fibonacci codec
+    fib.EncodeUInt64(1);
+    fib.EncodeUInt64(2);
+    fib.EncodeUInt64(3);
 }
+
 Console.WriteLine("Compressed data is " + stream.Length + " bytes"); // Output: Now data is 2 bytes
 
-// Expand data
+// Decode the values...
 stream.Position = 0;
 using (var reader = new StreamBitReader(stream))
 {
-    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 1
-    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 2
-    Console.WriteLine(fib.DecodeUInt64(reader)); // Output: 3
+    var fib = new FibonacciIntegerDecoder(reader);
+
+    // Decode the Fibonacci values
+    Console.WriteLine(fib.DecodeUInt64()); // Output: 1
+    Console.WriteLine(fib.DecodeUInt64()); // Output: 2
+    Console.WriteLine(fib.DecodeUInt64()); // Output: 3
 }
 ```
 
@@ -176,55 +184,9 @@ you one or two bits per number. If you have several million numbers that really
 adds up.
 
 ### Intermix codecs
-So Fibonacci is best for small numbers, and ThompsonAlpha is better for large values - so why not use both? You can do something like this:
-```C#
-// Instantiate the codecs I want
-var fib = new FibonacciCodec();
-var vlq = new VlqCodec();
-var td = new ThompsonAlphaCodec();
-
-// Encode some values...
-using var stream = new MemoryStream();
-using (var writer = new StreamBitWriter(stream))
-{
-    // Encode some values using the Fibonacci codec
-    fib.EncodeInt32(0, writer);
-    fib.EncodeInt32(1, writer);
-    
-    // Encode a value using the VLQ codec
-    vlq.EncodeInt32(2, writer);
-    
-    // Encode a value using the ThompsonAlpha codec
-    td.EncodeInt32(10000, writer);
-}
-
-// Convert it to binary so we can see what it's done
-var binary = String.Join(" ", stream.ToArray().Select(a => Convert.ToString(a, 2).PadLeft(8, '0')));
-Console.WriteLine($"Compressed data is {stream.Length} bytes ({binary})");
-
-// Decode the values...
-stream.Seek(0, SeekOrigin.Begin);
-using (var reader = new StreamBitReader(stream))
-{
-    // Decode the the Fibonacci values
-    Console.WriteLine(fib.DecodeInt32(reader)); // Output: 0
-    Console.WriteLine(fib.DecodeInt32(reader)); // Output: 1
-    
-    // Decode the VLQ value
-    Console.WriteLine(vlq.DecodeInt32(reader)); // Output: 2
-    
-    // Decode the ThompsonAlpha value
-    Console.WriteLine(td.DecodeInt32(reader)); // Output: 10000
-}
-```
-See how I intermixed the codecs? That works fine, so long as I read it in the same order I wrote it. If you use this cleverly you can get some real size wins.
+So Fibonacci is best for small numbers, and ThompsonAlpha is better for large values - 
+so why not use both? So long as I read it in the same order I wrote it. If you use this 
+cleverly you can get some real size wins.
 
 ### Compress it
 You thought we were compressing integers already? We'll it depends how you define your terms, but I'd say I was just encoding them more cleverly. But you can compress it as well. Check out [BrotliStream](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.brotlistream). If you wrap your stream in this you can further compress your dataset. While the above encoding stores your data in the most efficent manner, Brotli will then look for patterns in your data to exploit to make it smaller again.
-
-## Gen3
-This is the third generation of this library. The latest rewrite adds the following:
- * Ability to intermix codecs. You can now encode a Fibonacci value adjacent to a ThompsonAlpha value. This is excellent for handling datasets with mixed values
- * Full support for .NET Core/.NET 6 (along with .NET Standard)
- * Huge simplification! Splitting the codec logic from reader/writer logic has increased clarity dramatically and reduce LOC
- 

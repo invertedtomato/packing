@@ -1,0 +1,2 @@
+Separate interface
+String encoding
