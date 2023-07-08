@@ -7,7 +7,7 @@
         <RootNamespace>InvertedTomato.Packing</RootNamespace>
         <TargetFrameworks>net7.0;netstandard1.0;netstandard2.0</TargetFrameworks>
         <LangVersion>11</LangVersion>
-        <Version>5.0.1</Version>
+        <Version>5.0.2</Version>
         <Title>InvertedTomato.Packing</Title>
         <Authors>Inverted Tomato</Authors>
         <Description>Library for expressing data in the least possible space without using compression. Handy storage and transmission of data when both speed and size are critical. Includes VLQ, Elias Omega, Elias Gamma, Elias Delta, Fibonacci and others.</Description>
@@ -21,8 +21,8 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>InvertedTomato.Packing</PackageId>
         <Product>InvertedTomato.Packing</Product>
-        <AssemblyVersion>5.0.1</AssemblyVersion>
-        <FileVersion>5.0.1</FileVersion>
+        <AssemblyVersion>5.0.2</AssemblyVersion>
+        <FileVersion>5.0.2</FileVersion>
         <PackageReleaseNotes>Updated readme</PackageReleaseNotes>
     </PropertyGroup>
 
@@ -33,6 +33,14 @@
 
     <PropertyGroup>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>InvertedTomato.Packing.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>InvertedTomato.Packing.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
